@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@color/white"
+    android:orientation="vertical">
+
+
+    <include layout="@layout/toolbar_layout" />
+
+    <ProgressBar
+        android:id="@+id/progress_bar"
+        android:layout_width="match_parent"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:indeterminate="true"
+        android:visibility="gone"
+        android:layout_height="wrap_content" />
+    <TextView
+        android:layout_width="match_parent"
+        android:id="@+id/text_progress_bar"
+        android:textColor="@color/dark_grey"
+        android:visibility="gone"
+        android:layout_height="wrap_content" />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <com.nestletime.customview.FlingRecyclerView
+            android:id="@+id/recycler_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <android.support.design.widget.FloatingActionButton
+            android:layout_width="wrap_content"
+            app:fabSize="normal"
+            android:layout_alignParentBottom="true"
+            android:id="@+id/fab_add_button"
+            android:src="@drawable/ic_add_white_24dp"
+            android:layout_margin="@dimen/margin_xlarge"
+            android:layout_alignParentRight="true"
+            android:layout_height="wrap_content" />
+        <!--<ImageView-->
+            <!--android:id="@+id/image_add"-->
+            <!--android:layout_width="50dp"-->
+            <!--android:layout_height="50dp"-->
+            <!--android:layout_alignParentBottom="true"-->
+            <!--android:layout_alignParentRight="true"-->
+            <!--android:layout_margin="50dp"-->
+            <!--android:src="@color/colorPrimary" />-->
+    </RelativeLayout>
+</LinearLayout>
