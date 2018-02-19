@@ -13,7 +13,9 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.cloudinary.Transformation;
-import com.cloudinary.android.MediaManager;
+import com.cloudinary.android.UploadRequest;
+import com.cloudinary.android.callback.ErrorInfo;
+import com.cloudinary.android.callback.UploadCallback;
 import com.nestletime.R;
 import com.nestletime.mediagallery.model.MEDIA_CELL_TYPE;
 import com.nestletime.mediagallery.model.MEDIA_SOURCE_TYPE;
@@ -27,6 +29,7 @@ import com.nestletime.utils.MyFileSystem;
 import com.nestletime.utils.StringUtils;
 
 import java.util.ArrayList;
+import java.util.Map;
 
 /**
  * Created by Deepak Saini on 12-02-2018.
@@ -69,9 +72,57 @@ public class UserStoryMediaListActivity extends BaseActivity implements View.OnC
     private TextView textProgressBar;
     private MenuItem menuItem;
     private ProgressDialog dialog;
+    private UploadCallback callBack = new UploadCallback() {
+        @Override
+        public void onStart(String requestId) {
+
+        }
+
+        @Override
+        public void onProgress(String requestId, long bytes, long totalBytes) {
+            MediaModel mediaModel = getMediaModelByRequestId(requestId);
+            if (mediaModel != null) {
+                mediaModel.setProgress((int) (bytes * 100 / totalBytes));
+                publishProgress(mediaModel);
+            }
+        }
+
+        @Override
+        public void onSuccess(String requestId, Map resultData) {
+            MediaModel mediaModel = getMediaModelByRequestId(requestId);
+            if (mediaModel != null) {
+                mediaModel.setUrl(resultData.get("url").toString());
+                mediaModel.setIsUploaded(true);
+            }
+            checkForFinish();
+        }
+
+        @Override
+        public void onError(String requestId, ErrorInfo error) {
+
+        }
+
+        @Override
+        public void onReschedule(String requestId, ErrorInfo error) {
+
+        }
+    };
+
+    private void publishProgress(MediaModel mediaModel) {
+
+    }
+
+    private MediaModel getMediaModelByRequestId(String requestId) {
+        for (MediaModel model : mediaModels) {
+            if (model.getRequestId().equalsIgnoreCase(requestId))
+                return model;
+        }
+        return null;
+    }
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_story_media_list);
         initComponent();
         setupToolBar();
@@ -114,27 +165,38 @@ public class UserStoryMediaListActivity extends BaseActivity implements View.OnC
         @Override
         protected Void doInBackground(Void... voids) {
             for (MediaModel mediaModel : mediaModels) {
-                String fileToUpload;
-                if(mediaModel.isDeleted) {
+                String fileToUpload = null;
+                if (mediaModel.isDeleted) {
                     //TODO:need to delete Media File
                     break;
                 }
 
-                if(mediaModel.isEdited) {
-                    if(mediaModel.sourceType==MEDIA_SOURCE_TYPE.TYPE_CLOUD) {
+                if (mediaModel.isEdited) {
+                    if (mediaModel.sourceType == MEDIA_SOURCE_TYPE.TYPE_CLOUD) {
                         //TODO:need to delete Media File
                     }
                 }
-                if(!StringUtils.isNullOrEmpty(mediaModel.getCompressPath())) {
+                if (!StringUtils.isNullOrEmpty(mediaModel.getCompressPath())) {
                     fileToUpload = mediaModel.getCompressPath();
-                } else {
+                } else if (!StringUtils.isNullOrEmpty(mediaModel.getPathFile())) {
                     fileToUpload = mediaModel.getPathFile();
+                } else if (!StringUtils.isNullOrEmpty(mediaModel.getUrl())) {
+                    fileToUpload = mediaModel.getUrl();
                 }
                 Transformation tr = new Transformation();
                 tr.crop("fit").width(100);
-                String url = MediaManager.get().url().transformation(tr).generate(fileToUpload);
-                String requestId = CloudinaryManager.uploadFile(fileToUpload);
-                mediaModel.setRequestId(url);
+                mediaModel.setIsUploaded(true);
+                if (!StringUtils.isNullOrEmpty(fileToUpload)) {
+                    if (mediaModel.mediaCellType == MEDIA_CELL_TYPE.TYPE_IMAGE) {
+                        mediaModel.setIsUploaded(false);
+                        String requestId = CloudinaryManager.uploadImageFile(fileToUpload, callBack);
+                        mediaModel.setRequestId(requestId);
+                    } else if (mediaModel.mediaCellType == MEDIA_CELL_TYPE.TYPE_VIDEO) {
+                        mediaModel.setIsUploaded(false);
+                        String requestId = CloudinaryManager.uploadVideoFile(fileToUpload, callBack);
+                        mediaModel.setRequestId(requestId);
+                    }
+                }
             }
             return null;
         }
@@ -143,8 +205,20 @@ public class UserStoryMediaListActivity extends BaseActivity implements View.OnC
         protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
             hideProgressBar();
-            finishWithResult(mediaModels);
+            checkForFinish();
         }
+    }
+
+    void checkForFinish() {
+        boolean canFinish = true;
+        for (MediaModel mediaModel : mediaModels) {
+            if(!mediaModel.isUploaded()) {
+                canFinish = false;
+                break;
+            }
+        }
+        if(canFinish)
+            finishWithResult(mediaModels);
     }
 
     class AsyncFileCompression extends AsyncTask<Void, String, Void> {

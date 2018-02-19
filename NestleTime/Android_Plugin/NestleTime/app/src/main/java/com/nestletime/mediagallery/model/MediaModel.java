@@ -29,6 +29,8 @@ public class MediaModel implements Parcelable {
     public boolean isDeleted;
     private String compressPath;
     private String requestId;
+    private boolean isUploaded;
+    private long progress;
 
 
     public MediaModel() {
@@ -202,5 +204,32 @@ public class MediaModel implements Parcelable {
 
     public String getRequestId() {
         return requestId;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+    public void setUrl(String url) {
+        this.url = url;
+    }
+
+    public void setIsUploaded(boolean isUploaded) {
+        this.isUploaded = isUploaded;
+    }
+
+    public boolean isUploaded() {
+        return isUploaded;
+    }
+
+    public void setUploaded(boolean isUploaded) {
+        this.isUploaded = isUploaded;
+    }
+
+    public void setProgress(long progress) {
+        this.progress = progress;
+    }
+
+    public long getProgress() {
+        return progress;
     }
 }

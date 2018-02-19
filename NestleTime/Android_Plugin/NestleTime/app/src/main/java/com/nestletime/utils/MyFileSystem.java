@@ -20,6 +20,7 @@ public class MyFileSystem {
             + "NestledTime" + File.separator
             + "CompressFiles" + File.separator;
     public static final int IMAGE_MAX_WIDTH_HEIGHT = 720;
+    private static final int MAX_VIDEO_SIZE = 15 * 1024 * 1024;
 
 
     public static boolean removeFile(String pathFile) {
@@ -52,7 +53,7 @@ public class MyFileSystem {
             }
 
             ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 90, bytes);
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
             File tempFile = getTempImageFile();
             FileOutputStream fileOutputStream = new FileOutputStream(tempFile);
             fileOutputStream.write(bytes.toByteArray());
@@ -92,8 +93,12 @@ public class MyFileSystem {
     }
 
     public static String compressVideo(String pathFile) {
-        File file = getTempVideoFile();
-        MediaController.getInstance().convertVideo(pathFile, file.getAbsolutePath());
-        return file.getAbsolutePath();
+        if(pathFile.length()>MAX_VIDEO_SIZE) {
+            File file = getTempVideoFile();
+            MediaController.getInstance().convertVideo(pathFile, file.getAbsolutePath());
+            return file.getAbsolutePath();
+        } else {
+            return pathFile;
+        }
     }
 }

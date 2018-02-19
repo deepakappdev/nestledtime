@@ -4,6 +4,10 @@ import android.content.Context;
 
 import com.cloudinary.Configuration;
 import com.cloudinary.android.MediaManager;
+import com.cloudinary.android.UploadRequest;
+import com.cloudinary.android.callback.UploadCallback;
+import com.cloudinary.android.policy.GlobalUploadPolicy;
+import com.cloudinary.android.policy.UploadPolicy;
 
 /**
  * Created by Deepak Saini on 15-02-2018.
@@ -19,15 +23,32 @@ public class CloudinaryManager {
         config.apiSecret = "bQjZWZavtRdSxhIHGsDjrId5SeE";
         config.uploadPrefix = "https://api.cloudinary.com";
         MediaManager.init(context, config);
+
+        MediaManager.get().setGlobalUploadPolicy(
+                new GlobalUploadPolicy.Builder()
+                        .maxConcurrentRequests(5)
+                        .networkPolicy(UploadPolicy.NetworkType.UNMETERED)
+                        .build());
     }
 
     public void uploadMedia() {
 
     }
 
-    public static String uploadFile(String fileToUpload) {
-        return MediaManager.get().upload(fileToUpload)
-                .unsigned("z4vocg0c")
+    public static String uploadImageFile(String fileToUpload, UploadCallback callBack) {
+        MediaManager mediaManager = MediaManager.get();
+        UploadRequest request = mediaManager.upload(fileToUpload);
+        request.option("resource_type", "image");
+        String requestId = request.callback(callBack).unsigned("z4vocg0c")
                 .dispatch();
+        return requestId;
+    }
+    public static String uploadVideoFile(String fileToUpload, UploadCallback callBack) {
+        MediaManager mediaManager = MediaManager.get();
+        UploadRequest request = mediaManager.upload(fileToUpload);
+        request.option("resource_type", "video");
+        String requestId = request.callback(callBack).unsigned("z4vocg0c")
+                .dispatch();
+        return requestId;
     }
 }
