@@ -4,6 +4,8 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/NestleTime.iml" filepath="$PROJECT_DIR$/NestleTime.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/imageedittor/imageedittor.iml" filepath="$PROJECT_DIR$/imageedittor/imageedittor.iml" />
+      <module fileurl="file://$PROJECT_DIR$/userstory/userstory.iml" filepath="$PROJECT_DIR$/userstory/userstory.iml" />
       <module fileurl="file://$PROJECT_DIR$/videocompress/videocompress.iml" filepath="$PROJECT_DIR$/videocompress/videocompress.iml" />
     </modules>
   </component>

@@ -9,14 +9,6 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
 
-        <EditText
-            android:id="@+id/edit_title"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Title"
-            android:textColor="@color/dark_grey"
-            android:textColorHint="@color/light_grey" />
-
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content">

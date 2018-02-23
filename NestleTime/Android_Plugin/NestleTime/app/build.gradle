@@ -5,7 +5,7 @@ android {
     buildToolsVersion rootProject.buildToolsVersion
 
     defaultConfig {
-        applicationId "com.nestletime"
+        applicationId "com.bravvura.nestledtime"
         vectorDrawables.useSupportLibrary = true
         minSdkVersion rootProject.minSdkVersion
         targetSdkVersion rootProject.targetSdkVersion
@@ -31,4 +31,5 @@ dependencies {
     compile 'com.google.code.gson:gson:2.8.0'
     compile 'com.github.bumptech.glide:glide:3.8.0'
     compile project(':videocompress')
+    compile project(path: ':imageedittor')
 }
