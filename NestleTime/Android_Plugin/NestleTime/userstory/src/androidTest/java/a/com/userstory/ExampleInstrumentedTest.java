@@ -21,6 +21,6 @@ public class ExampleInstrumentedTest {
         // Context of the app under test.
         Context appContext = InstrumentationRegistry.getTargetContext();
 
-        assertEquals("a.com.userstory.test", appContext.getPackageName());
+        assertEquals("a.com.com.bravvura.nestledtime.userstory.test", appContext.getPackageName());
     }
 }
