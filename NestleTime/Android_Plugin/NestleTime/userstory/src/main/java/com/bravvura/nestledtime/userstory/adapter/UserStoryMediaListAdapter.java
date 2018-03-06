@@ -20,6 +20,7 @@ import com.bravvura.nestledtime.mediagallery.model.MEDIA_SOURCE_TYPE;
 import com.bravvura.nestledtime.mediagallery.model.MediaModel;
 import com.bravvura.nestledtime.utils.MyFileSystem;
 import com.bravvura.nestledtime.utils.MyLogs;
+import com.bravvura.nestledtime.utils.StringUtils;
 import com.bumptech.glide.Glide;
 
 import java.io.File;
@@ -159,7 +160,11 @@ public class UserStoryMediaListAdapter extends RecyclerView.Adapter<RecyclerView
             editDescription.setText(mediaModel.description);
             editDescription.clearFocus();
             itemView.clearFocus();
-            Glide.with(itemView.getContext()).load(new File(mediaModel.getPathFile())).into(imageView);
+            if (mediaModel.isEdited || mediaModel.sourceType != MEDIA_SOURCE_TYPE.TYPE_CLOUD) {
+                Glide.with(itemView.getContext()).load(new File(mediaModel.getPathFile())).into(imageView);
+            } else {
+                Glide.with(itemView.getContext()).load(mediaModel.getUrl()).into(imageView);
+            }
         }
     }
 

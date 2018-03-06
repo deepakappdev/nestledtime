@@ -31,6 +31,7 @@ public class MediaModel implements Parcelable {
     private String requestId;
     private boolean isUploaded;
     private long progress;
+    private String publicId;
 
 
     public MediaModel() {
@@ -53,8 +54,11 @@ public class MediaModel implements Parcelable {
         sourceType = MEDIA_SOURCE_TYPE.valueOf(in.readString());
         isEdited = in.readInt()==1;
         isDeleted = in.readInt()==1;
+        isUploaded = in.readInt()==1;
+
         compressPath = in.readString();
         requestId = in.readString();
+        publicId = in.readString();
     }
 
     public static final Creator<MediaModel> CREATOR = new Creator<MediaModel>() {
@@ -186,8 +190,12 @@ public class MediaModel implements Parcelable {
         dest.writeString(sourceType.name());
         dest.writeInt(isEdited ?1:0);
         dest.writeInt(isDeleted?1:0);
+        dest.writeInt(isUploaded?1:0);
+
         dest.writeString(compressPath);
         dest.writeString(requestId);
+        dest.writeString(publicId);
+
     }
 
     public void setCompressPath(String compressPath) {
@@ -231,5 +239,33 @@ public class MediaModel implements Parcelable {
 
     public long getProgress() {
         return progress;
+    }
+
+    public void removeTempFile() {
+        id = 0;
+        title = null;
+        pathFile = null;
+        thumbnailFile = null;
+        pathFolder = null;
+        lastModified = 0;
+        date = null;
+        isSelected = false;
+        thumbnail = null;
+        mediaCount = 0;
+        sourceType = MEDIA_SOURCE_TYPE.TYPE_CLOUD;
+        isEdited = false;
+        isDeleted = false;
+        compressPath = null;
+        requestId = null;
+        isUploaded = true;
+        progress = 0;
+    }
+
+    public void setPublicId(String publicId) {
+        this.publicId = publicId;
+    }
+
+    public String getPublicId() {
+        return publicId;
     }
 }

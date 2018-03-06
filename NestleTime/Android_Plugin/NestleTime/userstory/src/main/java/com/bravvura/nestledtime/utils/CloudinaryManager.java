@@ -9,6 +9,7 @@ import com.cloudinary.android.callback.UploadCallback;
 import com.cloudinary.android.policy.GlobalUploadPolicy;
 
 import java.util.ArrayList;
+import java.util.Map;
 
 /**
  * Created by Deepak Saini on 15-02-2018.
@@ -53,5 +54,14 @@ public class CloudinaryManager {
                 /*.unsigned(UPLOAD_PRESET)*/
                 .callback(callBack).dispatch();
         return requestId;
+    }
+
+    public static Map deleteFile(String publicId) {
+        try {
+            return MediaManager.get().getCloudinary().uploader().destroy(publicId, null);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }

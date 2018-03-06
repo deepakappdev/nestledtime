@@ -65,6 +65,7 @@
         android:layout_height="wrap_content"
 
         android:layout_marginLeft="@dimen/margin_large"
+
         android:gravity="center_vertical">
 
         <TextView
@@ -76,36 +77,35 @@
 
         <android.support.design.widget.FloatingActionButton
             android:id="@+id/fab_message"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_margin="@dimen/margin_small"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:layout_margin="@dimen/margin_medium"
             android:src="@drawable/ic_message_white"
             app:fabSize="mini" />
 
         <android.support.design.widget.FloatingActionButton
             android:id="@+id/fab_media"
-            android:layout_width="wrap_content"
-            android:layout_margin="@dimen/margin_small"
-            android:layout_height="wrap_content"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:layout_margin="@dimen/margin_medium"
             android:src="@drawable/ic_photo_gallery_white"
             app:fabSize="mini" />
 
         <android.support.design.widget.FloatingActionButton
             android:id="@+id/fab_audio"
-            android:layout_width="wrap_content"
-            android:layout_margin="@dimen/margin_small"
-            android:layout_height="wrap_content"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:layout_margin="@dimen/margin_medium"
             android:src="@drawable/ic_audio_white"
             app:fabSize="mini" />
 
         <android.support.design.widget.FloatingActionButton
             android:id="@+id/fab_location"
-            android:layout_width="wrap_content"
-            android:layout_margin="@dimen/margin_small"
-            android:layout_height="wrap_content"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:layout_margin="@dimen/margin_medium"
             android:src="@drawable/ic_location_white"
             app:fabSize="mini" />
-
 
 
     </LinearLayout>

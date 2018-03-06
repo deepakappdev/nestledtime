@@ -53,7 +53,7 @@ public class BaseFragment extends Fragment {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == R.id.editor_menu_done) {
+        if (item.getItemId() == R.id.menu_done) {
             if (!isLoading()) {
                 saveImage();
             }

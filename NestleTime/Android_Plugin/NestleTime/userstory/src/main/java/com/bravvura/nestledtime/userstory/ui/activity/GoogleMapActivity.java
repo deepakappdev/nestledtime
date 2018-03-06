@@ -43,7 +43,7 @@ public class GoogleMapActivity extends BaseActivity implements OnMapReadyCallbac
     private GoogleMap googleMap;
     private TextView text_address_search;
     private GoogleApiClient mGoogleApiClient;
-    private UserStoryAddressModel selectedAddress = new UserStoryAddressModel();
+    private UserStoryAddressModel selectedAddress;
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -63,10 +63,23 @@ public class GoogleMapActivity extends BaseActivity implements OnMapReadyCallbac
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.menu_done) {
-            Intent intent = new Intent();
-            intent.putExtra(Constants.BUNDLE_KEY.SELECTED_LOCATION, selectedAddress);
-            setResult(RESULT_OK, intent);
-            finish();
+            if (selectedAddress == null) {
+                refershAddress(googleMap.getCameraPosition().target);
+            }
+
+            if (selectedAddress == null) {
+                selectedAddress = new UserStoryAddressModel();
+                selectedAddress.placeAddress = "";
+                selectedAddress.placeName = "";
+                selectedAddress.latLng = googleMap.getCameraPosition().target;
+            }
+
+            if (selectedAddress != null) {
+                Intent intent = new Intent();
+                intent.putExtra(Constants.BUNDLE_KEY.SELECTED_LOCATION, selectedAddress);
+                setResult(RESULT_OK, intent);
+                finish();
+            }
         }
         return super.onOptionsItemSelected(item);
     }
@@ -90,6 +103,9 @@ public class GoogleMapActivity extends BaseActivity implements OnMapReadyCallbac
                     Constants.REQUEST_CODE.PERMISSION_LOCATION);
         } else {
             googleMap.setMyLocationEnabled(true);
+            googleMap.getUiSettings().setZoomControlsEnabled(false);
+            googleMap.getUiSettings().setCompassEnabled(true);
+            googleMap.getUiSettings().setMyLocationButtonEnabled(true);
         }
     }
 
@@ -160,6 +176,9 @@ public class GoogleMapActivity extends BaseActivity implements OnMapReadyCallbac
             case Constants.REQUEST_CODE.PERMISSION_LOCATION:
                 if (PermissionUtils.checkLocationPermission(getApplicationContext())) {
                     googleMap.setMyLocationEnabled(true);
+                    googleMap.getUiSettings().setZoomControlsEnabled(false);
+                    googleMap.getUiSettings().setCompassEnabled(true);
+                    googleMap.getUiSettings().setMyLocationButtonEnabled(true);
                 }
                 break;
         }

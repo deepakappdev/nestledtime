@@ -37,7 +37,7 @@ public class EditPhotoActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         if(item.getItemId()==android.R.id.home) {
             onBackPressed();
-        } else if(item.getItemId()==R.id.editor_menu_done) {
+        } else if(item.getItemId()==R.id.menu_done) {
 
         }
         return super.onOptionsItemSelected(item);

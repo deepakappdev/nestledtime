@@ -8,6 +8,8 @@ import android.util.Log;
 import com.bravvura.nestledtime.MyApplication;
 import com.bravvura.nestledtime.R;
 import com.bravvura.nestledtime.userstory.model.UserStoryElement;
+import com.bumptech.glide.GenericRequestBuilder;
+import com.google.android.gms.maps.model.LatLng;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -44,6 +46,7 @@ public class Utils {
         }
         return null;
     }
+
     public static String getPlaceAutoCompleteUrl(String input) {
         StringBuilder urlBuilder = new StringBuilder();
         urlBuilder.append("https://maps.googleapis.com/maps/api/geocode/json?");
@@ -52,7 +55,7 @@ public class Utils {
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
-        urlBuilder.append("&key="+ MyApplication.context.getString(R.string.google_maps_key));
+        urlBuilder.append("&key=" + MyApplication.context.getString(R.string.google_maps_key));
 //        urlString.append("&location=");
 //        urlString.append(latitude + "," + longitude); // append lat long of current location to show nearby results.
         Log.d("FINAL URL:::   ", urlBuilder.toString());
@@ -60,8 +63,15 @@ public class Utils {
     }
 
     public static boolean isEmpty(ArrayList list) {
-        if(list ==null || list.size()==0)
+        if (list == null || list.size() == 0)
             return true;
         else return false;
+    }
+
+    public static String getStaticMapUrl(LatLng markerLocation) {
+        return "https://maps.googleapis.com/maps/api/staticmap?" +
+                "center=" + markerLocation.latitude + "," + markerLocation.longitude +
+                "&size=720x400&maptype=roadmap&zoom=16&scale=2" +
+                "&markers=" + markerLocation.latitude + "," + markerLocation.longitude;
     }
 }

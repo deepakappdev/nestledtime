@@ -21,6 +21,10 @@ public class UserStoryElement {
         this.message = message;
         elementType = UserStoryElementType.ELEMENT_TYPE_TEXT;
     }
+    public UserStoryElement() {
+        this.message = "";
+        elementType = UserStoryElementType.ELEMENT_TYPE_TITLE;
+    }
 
     public UserStoryElement(ArrayList<MediaModel> mediaModels) {
         this.mediaModels = mediaModels;

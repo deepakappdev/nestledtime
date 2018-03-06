@@ -9,13 +9,18 @@
     <TextView
         android:id="@+id/text_address_search"
         android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/margin_normal"
+        android:singleLine="true"
         android:background="@color/white"
-        android:drawableLeft="@drawable/ic_search_grey"
+        android:drawableLeft="@drawable/ic_search_black"
         android:gravity="center_vertical"
-        android:text="Search"
-        android:paddingLeft="@dimen/margin_large"
-        android:textColor="@color/grey" />
+        android:textSize="@dimen/textSizeMedium"
+        android:hint="Enter Location..."
+        android:drawablePadding="@dimen/margin_normal"
+        android:textColor="@color/grey"
+        android:textColorHint="@color/grey"
+        />
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -35,11 +40,12 @@
             android:layout_height="0dp"/>
 
         <ImageView
-            android:layout_width="20dp"
+            android:layout_width="wrap_content"
+            android:scaleType="centerInside"
             android:layout_centerHorizontal="true"
             android:layout_above="@id/view_center"
-            android:src="@color/grey"
-            android:layout_height="20dp" />
+            android:src="@drawable/ic_location"
+            android:layout_height="wrap_content" />
 
     </RelativeLayout>
 </LinearLayout>

@@ -94,6 +94,7 @@ public class UserStoryMediaListActivity extends BaseActivity implements View.OnC
             MediaModel mediaModel = getMediaModelByRequestId(requestId);
             if (mediaModel != null) {
                 String serverUrl = "";
+                String publilcId = "";
                 if (resultData.containsKey("eager")) {
                     ArrayList eagerData = (ArrayList) resultData.get("eager");
                     if (eagerData.size() > 0) {
@@ -105,12 +106,15 @@ public class UserStoryMediaListActivity extends BaseActivity implements View.OnC
                     if (resultData.containsKey("url"))
                         serverUrl = resultData.get("url").toString();
                 }
+                publilcId = resultData.get("public_id").toString();
                 if (!StringUtils.isNullOrEmpty(serverUrl)) {
                     mediaModel.setUrl(serverUrl);
+                    if (!StringUtils.isNullOrEmpty(publilcId))
+                        mediaModel.setPublicId(publilcId);
                     mediaModel.setIsUploaded(true);
                     updateProgress();
                     if (!startUploadingFiles()) {
-                        checkForFinish();
+                        startDeletingFiles();
                     }
                 }
             }
@@ -162,6 +166,7 @@ public class UserStoryMediaListActivity extends BaseActivity implements View.OnC
         progressBar.setProgress(progress / (totalImage));
     }
 
+
     private MediaModel getMediaModelByRequestId(String requestId) {
         for (MediaModel model : mediaModels) {
             if (model.getRequestId() != null && model.getRequestId().equalsIgnoreCase(requestId))
@@ -178,11 +183,15 @@ public class UserStoryMediaListActivity extends BaseActivity implements View.OnC
         setupToolBar();
         setTitle("Edit Story");
         Bundle bundle = getIntent().getExtras();
-        if (bundle != null && bundle.containsKey(Constants.BUNDLE_KEY.ADD_PICTURE)) {
-            if (bundle.getBoolean(Constants.BUNDLE_KEY.ADD_PICTURE)) {
+        if (bundle != null) {
+            if (bundle.containsKey(Constants.BUNDLE_KEY.ADD_PICTURE) && bundle.getBoolean(Constants.BUNDLE_KEY.ADD_PICTURE)) {
                 findViewById(R.id.fab_add_button).performClick();
             }
+            if (bundle.containsKey(Constants.BUNDLE_KEY.SELECTED_MEDIA)) {
+                mediaModels = bundle.getParcelableArrayList(Constants.BUNDLE_KEY.SELECTED_MEDIA);
+            }
         }
+        initAdapter();
     }
 
     @Override
@@ -233,11 +242,11 @@ public class UserStoryMediaListActivity extends BaseActivity implements View.OnC
         return null;
     }
 
+
     MediaModel getMediaToUpload() {
         for (MediaModel mediaModel : mediaModels) {
             if (StringUtils.isNullOrEmpty(mediaModel.getRequestId()) && !mediaModel.isDeleted) {
-                if (mediaModel.sourceType == MEDIA_SOURCE_TYPE.TYPE_CLOUD && mediaModel.isEdited
-                        || mediaModel.sourceType != MEDIA_SOURCE_TYPE.TYPE_CLOUD) {
+                if (mediaModel.sourceType != MEDIA_SOURCE_TYPE.TYPE_CLOUD || mediaModel.isEdited) {
                     return mediaModel;
                 }
             }
@@ -249,30 +258,66 @@ public class UserStoryMediaListActivity extends BaseActivity implements View.OnC
     private boolean startUploadingFiles() {
         MediaModel mediaModel = getMediaToUpload();
         if (mediaModel != null) {
-            String fileToUpload = null;
-            if (!StringUtils.isNullOrEmpty(mediaModel.getCompressPath())) {
-                fileToUpload = mediaModel.getCompressPath();
-            } else if (!StringUtils.isNullOrEmpty(mediaModel.getPathFile())) {
-                fileToUpload = mediaModel.getPathFile();
-            } else if (!StringUtils.isNullOrEmpty(mediaModel.getUrl())) {
-                fileToUpload = mediaModel.getUrl();
-            }
-            Transformation tr = new Transformation();
-            tr.crop("fit").width(100);
-            if (!StringUtils.isNullOrEmpty(fileToUpload)) {
-                if (mediaModel.mediaCellType == MEDIA_CELL_TYPE.TYPE_IMAGE) {
-                    mediaModel.setIsUploaded(false);
-                    String requestId = CloudinaryManager.uploadImageFile(fileToUpload, callBack);
-                    mediaModel.setRequestId(requestId);
-                } else if (mediaModel.mediaCellType == MEDIA_CELL_TYPE.TYPE_VIDEO) {
-                    mediaModel.setIsUploaded(false);
-                    String requestId = CloudinaryManager.uploadVideoFile(fileToUpload, callBack);
-                    mediaModel.setRequestId(requestId);
-                }
-            }
+            doUpload(mediaModel);
             return true;
         }
         return false;
+    }
+
+    private void startDeletingFiles() {
+        new AsyncTask<Void, Map, Void>() {
+            @Override
+            protected Void doInBackground(Void... voids) {
+
+                while (true) {
+                    MediaModel mediaModel = getMediaToDelete();
+                    if (mediaModel != null) {
+                        Map map = CloudinaryManager.deleteFile(mediaModel.getPublicId());
+                        mediaModels.remove(mediaModel);
+                        this.publishProgress(map);
+                    } else {
+                        break;
+                    }
+                }
+                return null;
+            }
+
+            @Override
+            protected void onProgressUpdate(Map... values) {
+
+            }
+
+            @Override
+            protected void onPostExecute(Void aVoid) {
+                super.onPostExecute(aVoid);
+                checkForFinish();
+            }
+        }.execute((Void) null);
+    }
+
+
+    private void doUpload(MediaModel mediaModel) {
+        String fileToUpload = null;
+        if (!StringUtils.isNullOrEmpty(mediaModel.getCompressPath())) {
+            fileToUpload = mediaModel.getCompressPath();
+        } else if (!StringUtils.isNullOrEmpty(mediaModel.getPathFile())) {
+            fileToUpload = mediaModel.getPathFile();
+        } else if (!StringUtils.isNullOrEmpty(mediaModel.getUrl())) {
+            fileToUpload = mediaModel.getUrl();
+        }
+        Transformation tr = new Transformation();
+        tr.crop("fit").width(100);
+        if (!StringUtils.isNullOrEmpty(fileToUpload)) {
+            if (mediaModel.mediaCellType == MEDIA_CELL_TYPE.TYPE_IMAGE) {
+                mediaModel.setIsUploaded(false);
+                String requestId = CloudinaryManager.uploadImageFile(fileToUpload, callBack);
+                mediaModel.setRequestId(requestId);
+            } else if (mediaModel.mediaCellType == MEDIA_CELL_TYPE.TYPE_VIDEO) {
+                mediaModel.setIsUploaded(false);
+                String requestId = CloudinaryManager.uploadVideoFile(fileToUpload, callBack);
+                mediaModel.setRequestId(requestId);
+            }
+        }
     }
 
     void checkForFinish() {
@@ -317,8 +362,10 @@ public class UserStoryMediaListActivity extends BaseActivity implements View.OnC
         @Override
         protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
-            startUploadingFiles();
             hideProgressBar();
+            if (!startUploadingFiles()) {
+                startDeletingFiles();
+            }
         }
     }
 
@@ -342,6 +389,9 @@ public class UserStoryMediaListActivity extends BaseActivity implements View.OnC
         recyclerView = findViewById(R.id.recycler_view);
         findViewById(R.id.fab_add_button).setOnClickListener(this);
         recyclerView.setLayoutManager(layoutManager = new LinearLayoutManager(getApplicationContext()));
+    }
+
+    private void initAdapter() {
         adapter = new UserStoryMediaListAdapter(this, onEditClick);
         adapter.setResults(mediaModels);
         recyclerView.setAdapter(adapter);
