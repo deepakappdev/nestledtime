@@ -18,6 +18,8 @@ import com.bravvura.nestledtime.mediagallery.listener.MediaElementClick;
 import com.bravvura.nestledtime.mediagallery.model.MEDIA_CELL_TYPE;
 import com.bravvura.nestledtime.mediagallery.model.MEDIA_SOURCE_TYPE;
 import com.bravvura.nestledtime.mediagallery.model.MediaModel;
+import com.bravvura.nestledtime.userstory.model.UserStoryElementType;
+import com.bravvura.nestledtime.userstory.model.UserStoryMediaModel;
 import com.bravvura.nestledtime.utils.MyFileSystem;
 import com.bravvura.nestledtime.utils.MyLogs;
 import com.bravvura.nestledtime.utils.StringUtils;
@@ -32,12 +34,13 @@ import java.util.ArrayList;
  */
 
 public class UserStoryMediaListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
-    private static final int VIEW_VIDEO = 1;
-    private static final int VIEW_IMAGE = 2;
-    private static final int VIEW_NONE = 3;
+    private static final int VIEW_TITLE = 1;
+    private static final int VIEW_VIDEO = 2;
+    private static final int VIEW_IMAGE = 3;
+    private static final int VIEW_NONE = 4;
     private final MediaElementClick onEditClick;
 
-    private ArrayList<MediaModel> mediaModels;
+    private UserStoryMediaModel userStoryMediaModel;
     private MyMediaPlayer mediaPlayer;
 
     public UserStoryMediaListAdapter(Context context, MediaElementClick onEditClick) {
@@ -45,15 +48,17 @@ public class UserStoryMediaListAdapter extends RecyclerView.Adapter<RecyclerView
         this.onEditClick = onEditClick;
     }
 
-    public void setResults(ArrayList<MediaModel> mediaModels) {
-        this.mediaModels = mediaModels;
+    public void setResults(UserStoryMediaModel userStoryMediaModel) {
+        this.userStoryMediaModel = userStoryMediaModel;
     }
 
     @Override
     public int getItemViewType(int position) {
-        if (mediaModels.get(position).isDeleted)
+        if (position == 0) return VIEW_TITLE;
+        MediaModel model = userStoryMediaModel.mediaModels.get(position - 1);
+        if (model.isDeleted)
             return VIEW_NONE;
-        else if (mediaModels.get(position).mediaCellType == MEDIA_CELL_TYPE.TYPE_VIDEO)
+        else if (model.mediaCellType == MEDIA_CELL_TYPE.TYPE_VIDEO)
             return VIEW_VIDEO;
         else
             return VIEW_IMAGE;
@@ -63,6 +68,8 @@ public class UserStoryMediaListAdapter extends RecyclerView.Adapter<RecyclerView
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         if (viewType == VIEW_NONE)
             return new BlankViewHolder(new View(parent.getContext()));
+        else if (viewType == VIEW_TITLE)
+            return new TextViewHolder(View.inflate(parent.getContext(), R.layout.cell_user_story_text, null));
         else if (viewType == VIEW_IMAGE)
             return new ImageViewHolder(View.inflate(parent.getContext(), R.layout.cell_story_media_list_image, null));
         else {
@@ -72,7 +79,11 @@ public class UserStoryMediaListAdapter extends RecyclerView.Adapter<RecyclerView
 
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
-        MediaModel mediaModel = mediaModels.get(position);
+        if (holder instanceof TextViewHolder) {
+            ((TextViewHolder) holder).edit_text.setText(userStoryMediaModel.title);
+            return;
+        }
+        MediaModel mediaModel = userStoryMediaModel.mediaModels.get(position - 1);
         if (holder instanceof VideoViewHolder) {
             ((VideoViewHolder) holder).populateMediaItem(mediaModel);
             ((VideoViewHolder) holder).releaseMediaPlayer();
@@ -83,17 +94,12 @@ public class UserStoryMediaListAdapter extends RecyclerView.Adapter<RecyclerView
 
     @Override
     public int getItemCount() {
-        return mediaModels.size();
+        return userStoryMediaModel.mediaModels.size() + 1;
     }
 
     public MediaModel getItem(int index) {
-        return mediaModels.get(index);
+        return userStoryMediaModel.mediaModels.get(index);
     }
-
-//    public void stopMediaPlayBack(int middlePosition) {
-//        mediaPlayer.removeFromParent();
-//        mediaPlayer.stopPlayer();
-//    }
 
     class BlankViewHolder extends RecyclerView.ViewHolder {
 
@@ -116,7 +122,7 @@ public class UserStoryMediaListAdapter extends RecyclerView.Adapter<RecyclerView
                 itemView.findViewById(R.id.text_edit).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        onEditClick.onClick(getAdapterPosition(), mediaModel);
+                        onEditClick.onClick(getAdapterPosition()-1, mediaModel);
                     }
                 });
             imageClose = itemView.findViewById(R.id.image_remove);
@@ -129,7 +135,7 @@ public class UserStoryMediaListAdapter extends RecyclerView.Adapter<RecyclerView
                         if (mediaModel.isEdited) {
                             MyFileSystem.removeFile(mediaModel.getPathFile());
                         }
-                        mediaModels.remove(mediaModel);
+                        userStoryMediaModel.mediaModels.remove(mediaModel);
                         notifyItemRemoved(getAdapterPosition());
                     } else {
                         mediaModel.isDeleted = true;
@@ -150,14 +156,14 @@ public class UserStoryMediaListAdapter extends RecyclerView.Adapter<RecyclerView
 
                 @Override
                 public void afterTextChanged(Editable s) {
-                    mediaModel.description = s.toString();
+                    mediaModel.setTitle(s.toString());
                 }
             });
         }
 
         void populateMediaItem(MediaModel mediaModel) {
             this.mediaModel = mediaModel;
-            editDescription.setText(mediaModel.description);
+            editDescription.setText(mediaModel.getTitle());
             editDescription.clearFocus();
             itemView.clearFocus();
             if (mediaModel.isEdited || mediaModel.sourceType != MEDIA_SOURCE_TYPE.TYPE_CLOUD) {
@@ -228,5 +234,38 @@ public class UserStoryMediaListAdapter extends RecyclerView.Adapter<RecyclerView
 //            }
         }
 
+    }
+
+    class TextViewHolder extends RecyclerView.ViewHolder {
+
+        public final EditText edit_text;
+
+        public TextViewHolder(View itemView) {
+            super(itemView);
+            edit_text = itemView.findViewById(R.id.edit_text);
+            edit_text.addTextChangedListener(new TextWatcher() {
+                @Override
+                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+                }
+
+                @Override
+                public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+                }
+
+                @Override
+                public void afterTextChanged(Editable s) {
+                    userStoryMediaModel.title = s.toString();
+                }
+            });
+            itemView.findViewById(R.id.ic_close).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    edit_text.setText("");
+                }
+            });
+
+        }
     }
 }

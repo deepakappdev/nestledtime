@@ -103,7 +103,7 @@ public class AlbumPhotoFragment extends Fragment {
                             boolean isVideo = !isImage ? FileUtils.isVideoFile(fileTmp) : false;
                             boolean check = isImage || isVideo;
                             if (!fileTmp.isDirectory() && check) {
-                                MediaModel mediaModel = new MediaModel(fileTmp.getName(), fileTmp.getAbsolutePath(), fileTmp.getAbsolutePath(), fileTmp.lastModified());
+                                MediaModel mediaModel = new MediaModel("", fileTmp.getAbsolutePath(), fileTmp.getAbsolutePath(), fileTmp.lastModified());
                                 if (mediaModels.isEmpty() || !mediaModels.get(mediaModels.size() - 1).getDate().equalsIgnoreCase(mediaModel.getDate())) {
                                     mediaModels.add(getDateHeader(mediaModel.getLastModified()));
                                 }

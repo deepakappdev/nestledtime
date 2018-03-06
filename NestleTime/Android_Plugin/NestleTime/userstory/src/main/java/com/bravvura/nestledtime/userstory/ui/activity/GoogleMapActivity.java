@@ -49,6 +49,12 @@ public class GoogleMapActivity extends BaseActivity implements OnMapReadyCallbac
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_google_map);
         setupToolBar();
+        Bundle bundle = getIntent().getExtras();
+        if (bundle != null) {
+            if (bundle.containsKey(Constants.BUNDLE_KEY.SELECTED_LOCATION)) {
+                selectedAddress = bundle.getParcelable(Constants.BUNDLE_KEY.SELECTED_LOCATION);
+            }
+        }
         initializeGoogleServices();
         setTitle("Location");
         initComponent();
@@ -87,7 +93,6 @@ public class GoogleMapActivity extends BaseActivity implements OnMapReadyCallbac
     private void initComponent() {
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map_fragment);
-        mapFragment.onResume();
         mapFragment.getMapAsync(this);
         text_address_search = findViewById(R.id.text_address_search);
         text_address_search.setOnClickListener(this);
@@ -102,10 +107,21 @@ public class GoogleMapActivity extends BaseActivity implements OnMapReadyCallbac
                     new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
                     Constants.REQUEST_CODE.PERMISSION_LOCATION);
         } else {
+            setUpGoogleMap();
+
+        }
+    }
+
+    private void setUpGoogleMap() {
+        if (PermissionUtils.checkLocationPermission(getApplicationContext())) {
             googleMap.setMyLocationEnabled(true);
-            googleMap.getUiSettings().setZoomControlsEnabled(false);
-            googleMap.getUiSettings().setCompassEnabled(true);
-            googleMap.getUiSettings().setMyLocationButtonEnabled(true);
+        }
+        googleMap.getUiSettings().setZoomControlsEnabled(false);
+        googleMap.getUiSettings().setCompassEnabled(true);
+        googleMap.getUiSettings().setMyLocationButtonEnabled(true);
+        if(selectedAddress!=null) {
+            animateCamera(selectedAddress.latLng);
+            text_address_search.setText(selectedAddress.placeName);
         }
     }
 
@@ -174,12 +190,7 @@ public class GoogleMapActivity extends BaseActivity implements OnMapReadyCallbac
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         switch (requestCode) {
             case Constants.REQUEST_CODE.PERMISSION_LOCATION:
-                if (PermissionUtils.checkLocationPermission(getApplicationContext())) {
-                    googleMap.setMyLocationEnabled(true);
-                    googleMap.getUiSettings().setZoomControlsEnabled(false);
-                    googleMap.getUiSettings().setCompassEnabled(true);
-                    googleMap.getUiSettings().setMyLocationButtonEnabled(true);
-                }
+                setUpGoogleMap();
                 break;
         }
     }

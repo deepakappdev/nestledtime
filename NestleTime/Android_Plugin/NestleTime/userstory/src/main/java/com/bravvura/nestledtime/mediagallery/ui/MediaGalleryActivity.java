@@ -128,7 +128,7 @@ public class MediaGalleryActivity extends BaseActivity {
                 int id = cursor.getInt(column_index_id);
                 int mediaType = cursor.getInt(column_index_type);
                 File file = new File(pathFile);
-                MediaModel mediaModel = new MediaModel(file.getName(), pathFile, file.getParent(), file.lastModified());
+                MediaModel mediaModel = new MediaModel("", pathFile, file.getParent(), file.lastModified());
                 if (file.exists()) {
                     if (/*file.getParentFile() != null && */!albumFolderExists(file)) {
                         MediaModel albumModel = new MediaModel(file.getParentFile().getName(), pathFile, file.getParent(), file.lastModified());

@@ -11,30 +11,22 @@ import java.util.ArrayList;
 
 public class UserStoryElement {
     public UserStoryElementType elementType;
-    public ArrayList<MediaModel> mediaModels;
-    public String message;
     public UserStoryAddressModel addressModel;
-    public MediaModel audioFile;
+    public UserStoryMediaModel mediaModel;
+    public UserStoryTextModel textModel;
+    public UserStoryDateModel dateModel;
     public boolean isdeleted;
 
-    public UserStoryElement(String message) {
-        this.message = message;
-        elementType = UserStoryElementType.ELEMENT_TYPE_TEXT;
-    }
-    public UserStoryElement() {
-        this.message = "";
-        elementType = UserStoryElementType.ELEMENT_TYPE_TITLE;
+    public UserStoryElement(String message, UserStoryElementType elementType) {
+        textModel = new UserStoryTextModel();
+        textModel.data = message;
+        this.elementType = elementType;
     }
 
-    public UserStoryElement(ArrayList<MediaModel> mediaModels) {
-        this.mediaModels = mediaModels;
-        elementType = UserStoryElementType.ELEMENT_TYPE_MEDIA;
-    }
-
-    public UserStoryElement(MediaModel audioFile) {
-        this.audioFile = audioFile;
-        elementType = UserStoryElementType.ELEMENT_TYPE_AUDIO;
-    }
+//    public UserStoryElement(MediaModel audioFile) {
+//        this.audioFile = audioFile;
+//        elementType = UserStoryElementType.ELEMENT_TYPE_AUDIO;
+//    }
 
     public UserStoryElement(UserStoryAddressModel addressModel) {
         this.addressModel = addressModel;
@@ -42,4 +34,8 @@ public class UserStoryElement {
     }
 
 
+    public UserStoryElement(UserStoryMediaModel mediaModel) {
+        this.mediaModel = mediaModel;
+        elementType = UserStoryElementType.ELEMENT_TYPE_MEDIA;
+    }
 }

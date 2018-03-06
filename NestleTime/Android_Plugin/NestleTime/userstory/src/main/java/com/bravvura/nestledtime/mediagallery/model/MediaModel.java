@@ -23,7 +23,6 @@ public class MediaModel implements Parcelable {
     public String thumbnail;
     public int duration;
     public int mediaCount;
-    public String description;
     public MEDIA_SOURCE_TYPE sourceType = MEDIA_SOURCE_TYPE.TYPE_LOCAL;
     public boolean isEdited;
     public boolean isDeleted;
@@ -50,7 +49,6 @@ public class MediaModel implements Parcelable {
         isSelected = in.readByte() != 0;
         mediaCellType = MEDIA_CELL_TYPE.valueOf(in.readString());
         thumbnail = in.readString();
-        description = in.readString();
         sourceType = MEDIA_SOURCE_TYPE.valueOf(in.readString());
         isEdited = in.readInt()==1;
         isDeleted = in.readInt()==1;
@@ -186,7 +184,6 @@ public class MediaModel implements Parcelable {
         dest.writeByte((byte) (isSelected ? 1 : 0));
         dest.writeString(mediaCellType.name());
         dest.writeString(thumbnail);
-        dest.writeString(description);
         dest.writeString(sourceType.name());
         dest.writeInt(isEdited ?1:0);
         dest.writeInt(isDeleted?1:0);
@@ -243,7 +240,6 @@ public class MediaModel implements Parcelable {
 
     public void removeTempFile() {
         id = 0;
-        title = null;
         pathFile = null;
         thumbnailFile = null;
         pathFolder = null;

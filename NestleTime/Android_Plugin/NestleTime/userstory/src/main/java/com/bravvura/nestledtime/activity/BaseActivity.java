@@ -19,6 +19,7 @@ import com.bravvura.nestledtime.mediagallery.fragment.AlbumPhotoFragment;
 import com.bravvura.nestledtime.mediagallery.fragment.AllAlbumFragment;
 import com.bravvura.nestledtime.mediagallery.fragment.AllPhotoFragment;
 import com.bravvura.nestledtime.mediagallery.model.MediaModel;
+import com.bravvura.nestledtime.userstory.model.UserStoryMediaModel;
 import com.bravvura.nestledtime.utils.Constants;
 import com.bravvura.nestledtime.utils.FRAGMENTS;
 
@@ -74,7 +75,7 @@ public class BaseActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch(item.getItemId()) {
+        switch (item.getItemId()) {
             case android.R.id.home:
                 finish();
                 break;
@@ -106,6 +107,17 @@ public class BaseActivity extends AppCompatActivity {
         toolbarTitle = findViewById(R.id.toolbar_title);
     }
 
+    public void finishWithResult(UserStoryMediaModel selectedMediaModel) {
+        removeCacheFromLocal(selectedMediaModel.mediaModels);
+        Bundle bundle = new Bundle();
+//        JSONArray selectedMedias = getSelectedMediaPath(selectedMediaModel.mediaModels);
+//        bundle.putString(Constants.BUNDLE_KEY.SELECTED_MEDIA_PATH, selectedMedias.toString());
+        bundle.putParcelable(Constants.BUNDLE_KEY.SELECTED_MEDIA, selectedMediaModel);
+        Intent intent = new Intent();
+        intent.putExtras(bundle);
+        setResult(Activity.RESULT_OK, intent);
+        finish();
+    }
     public void finishWithResult(ArrayList<MediaModel> selectedMediaModels) {
         Bundle bundle = new Bundle();
         JSONArray selectedMedias = getSelectedMediaPath(selectedMediaModels);
@@ -115,6 +127,11 @@ public class BaseActivity extends AppCompatActivity {
         intent.putExtras(bundle);
         setResult(Activity.RESULT_OK, intent);
         finish();
+    }
+    private void removeCacheFromLocal(ArrayList<MediaModel> mediaModels) {
+        for (MediaModel mediaModel : mediaModels) {
+            mediaModel.removeTempFile();
+        }
     }
 
     private JSONArray getSelectedMediaPath(ArrayList<MediaModel> mediaModels) {

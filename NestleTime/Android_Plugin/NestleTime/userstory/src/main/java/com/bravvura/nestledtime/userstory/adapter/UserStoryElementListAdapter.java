@@ -1,6 +1,8 @@
 package com.bravvura.nestledtime.userstory.adapter;
 
 import android.support.v7.widget.RecyclerView;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
@@ -85,8 +87,10 @@ public class UserStoryElementListAdapter extends RecyclerView.Adapter<RecyclerVi
             return new DateViewHolder(View.inflate(parent.getContext(), R.layout.cell_user_story_location, null));
         } else if (viewType == VIEW_LOCATION) {
             return new LocationViewHolder(View.inflate(parent.getContext(), R.layout.cell_user_story_location, null));
-        } else if (viewType == VIEW_TEXT || viewType == VIEW_TITLE) {
+        } else if (viewType == VIEW_TEXT) {
             return new TextViewHolder(View.inflate(parent.getContext(), R.layout.cell_user_story_text, null));
+        } else if (viewType == VIEW_TITLE) {
+            return new TextViewHolder(View.inflate(parent.getContext(), R.layout.cell_user_story_title, null));
         } else {
             return new BlankViewHolder(new View(parent.getContext()));
         }
@@ -95,7 +99,7 @@ public class UserStoryElementListAdapter extends RecyclerView.Adapter<RecyclerVi
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         if (holder instanceof MediaViewHolder) {
-            ((MediaViewHolder) holder).populateMedia(userStoryElements.get(position).mediaModels);
+            ((MediaViewHolder) holder).populateMedia(userStoryElements.get(position).mediaModel.mediaModels);
         } else if (holder instanceof LocationViewHolder) {
             Glide.with(holder.itemView.getContext())
                     .load(Utils.getStaticMapUrl(userStoryElements.get(position).addressModel.latLng))
@@ -106,7 +110,7 @@ public class UserStoryElementListAdapter extends RecyclerView.Adapter<RecyclerVi
             } else if (userStoryElements.get(position).elementType == UserStoryElementType.ELEMENT_TYPE_TEXT) {
                 ((TextViewHolder) holder).edit_text.setHint("Text");
             }
-            ((TextViewHolder) holder).edit_text.setText(userStoryElements.get(position).message);
+            ((TextViewHolder) holder).edit_text.setText(userStoryElements.get(position).textModel.data);
         }
     }
 
@@ -120,62 +124,90 @@ public class UserStoryElementListAdapter extends RecyclerView.Adapter<RecyclerVi
     }
 
 
-    class DateViewHolder extends RecyclerView.ViewHolder {
+    class BaseViewHolder extends RecyclerView.ViewHolder {
+
+        public BaseViewHolder(View itemView) {
+            super(itemView);
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (mediaClickListener != null)
+                        mediaClickListener.onClick(userStoryElements.get(getAdapterPosition()), getAdapterPosition());
+                }
+            });
+            if (itemView.findViewById(R.id.ic_close) != null)
+                itemView.findViewById(R.id.ic_close).setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        onRemoveClick();
+                    }
+                });
+        }
+
+        protected void onRemoveClick() {
+            if (mediaClickListener != null)
+                mediaClickListener.onRemoveClick(userStoryElements.get(getAdapterPosition()), getAdapterPosition());
+        }
+    }
+
+    class DateViewHolder extends BaseViewHolder {
 
         public DateViewHolder(View itemView) {
             super(itemView);
         }
     }
 
-    class BlankViewHolder extends RecyclerView.ViewHolder {
+    class BlankViewHolder extends BaseViewHolder {
 
         public BlankViewHolder(View itemView) {
             super(itemView);
         }
     }
 
-    class TextViewHolder extends RecyclerView.ViewHolder {
+    class TextViewHolder extends BaseViewHolder {
 
-        public final View ic_close;
         public final EditText edit_text;
 
         public TextViewHolder(View itemView) {
             super(itemView);
             edit_text = itemView.findViewById(R.id.edit_text);
-            ic_close = itemView.findViewById(R.id.ic_close);
-            ic_close.setOnClickListener(new View.OnClickListener() {
+            edit_text.addTextChangedListener(new TextWatcher() {
                 @Override
-                public void onClick(View v) {
-                    if (userStoryElements.get(getAdapterPosition()).elementType == UserStoryElementType.ELEMENT_TYPE_TEXT) {
-                        if(mediaClickListener!=null)
-                            mediaClickListener.onRemoveClick(userStoryElements.get(getAdapterPosition()), getAdapterPosition());
-                    } else if (userStoryElements.get(getAdapterPosition()).elementType == UserStoryElementType.ELEMENT_TYPE_TITLE) {
-                        edit_text.setText("");
-                    }
+                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+                }
+
+                @Override
+                public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+                }
+
+                @Override
+                public void afterTextChanged(Editable s) {
+                    userStoryElements.get(getAdapterPosition()).textModel.data = s.toString();
                 }
             });
+
         }
 
+        @Override
+        protected void onRemoveClick() {
+            if (userStoryElements.get(getAdapterPosition()).elementType == UserStoryElementType.ELEMENT_TYPE_TEXT) {
+                super.onRemoveClick();
+            } else if (userStoryElements.get(getAdapterPosition()).elementType == UserStoryElementType.ELEMENT_TYPE_TITLE) {
+                edit_text.setText("");
+            }
+        }
     }
 
-    class LocationViewHolder extends RecyclerView.ViewHolder {
+    class LocationViewHolder extends BaseViewHolder {
 
-        public final View icClose;
         private final ImageView imageView;
 
         public LocationViewHolder(View itemView) {
             super(itemView);
-            icClose = itemView.findViewById(R.id.ic_close);
             imageView = itemView.findViewById(R.id.image_view);
-            icClose.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (mediaClickListener != null)
-                        mediaClickListener.onRemoveClick(userStoryElements.get(getAdapterPosition()), getAdapterPosition());
-                }
-            });
         }
-
     }
 
     private void showImage(ImageView imageView, String url) {
@@ -194,16 +226,6 @@ public class UserStoryElementListAdapter extends RecyclerView.Adapter<RecyclerVi
 
         public MediaViewHolder(View itemView) {
             super(itemView);
-            itemView.findViewById(R.id.ic_close).setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if(mediaClickListener!=null)
-                        mediaClickListener.onRemoveClick(userStoryElements.get(getAdapterPosition()), getAdapterPosition());
-//                    userStoryElements.remove(getAdapterPosition());
-//                    notifyItemRemoved(getAdapterPosition());
-                }
-            });
-
             imageView1 = itemView.findViewById(R.id.image_view_1);
             layoutMorePic = itemView.findViewById(R.id.layout_more_pic);
             imageView2 = itemView.findViewById(R.id.image_view_2);

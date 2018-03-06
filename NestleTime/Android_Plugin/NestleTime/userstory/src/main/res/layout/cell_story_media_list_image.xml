@@ -55,7 +55,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/card_view"
-        android:hint="Enter Description"
+        android:background="@null"
+        android:layout_margin="@dimen/margin_normal"
+        android:hint="Description"
         android:textColor="@color/dark_grey"
         android:textColorHint="@color/light_grey" />
 </RelativeLayout>

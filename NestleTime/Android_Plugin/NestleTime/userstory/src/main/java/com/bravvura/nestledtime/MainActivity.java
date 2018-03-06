@@ -16,6 +16,8 @@ import com.bravvura.nestledtime.userstory.adapter.UserStoryElementListAdapter;
 import com.bravvura.nestledtime.userstory.listener.OnMediaClickListener;
 import com.bravvura.nestledtime.userstory.model.UserStoryAddressModel;
 import com.bravvura.nestledtime.userstory.model.UserStoryElement;
+import com.bravvura.nestledtime.userstory.model.UserStoryElementType;
+import com.bravvura.nestledtime.userstory.model.UserStoryMediaModel;
 import com.bravvura.nestledtime.userstory.ui.activity.GoogleMapActivity;
 import com.bravvura.nestledtime.userstory.ui.activity.UserStoryMediaListActivity;
 import com.bravvura.nestledtime.utils.Constants;
@@ -26,21 +28,38 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
     private RecyclerView recyclerView;
     private UserStoryElementListAdapter adapter;
     private LinearLayoutManager layoutManager;
-    private int editMediaIndex;
+    private int editMediaIndex, editLocationIndex;
     private OnMediaClickListener mediaClickListener = new OnMediaClickListener() {
         @Override
         public void onClick(UserStoryElement userStoryElement, int index) {
+            switch (userStoryElement.elementType) {
+                case ELEMENT_TYPE_MEDIA:
 
+                    break;
+                case ELEMENT_TYPE_LOCATION:
+                    editLocationIndex = index;
+                    Intent intent = new Intent(getApplicationContext(), GoogleMapActivity.class);
+                    Bundle bundle = new Bundle();
+                    bundle.putParcelable(Constants.BUNDLE_KEY.SELECTED_LOCATION, userStoryElement.addressModel);
+                    intent.putExtras(bundle);
+                    startActivityForResult(intent, Constants.REQUEST_CODE.REQUEST_EDIT_LOCATION);
+                    break;
+            }
         }
 
         @Override
         public void onEditClick(UserStoryElement userStoryElement, int index) {
-            editMediaIndex = index;
-            Intent intent = new Intent(getApplicationContext(), UserStoryMediaListActivity.class);
-            Bundle bundle = new Bundle();
-            bundle.putParcelableArrayList(Constants.BUNDLE_KEY.SELECTED_MEDIA, userStoryElement.mediaModels);
-            intent.putExtras(bundle);
-            startActivityForResult(intent, Constants.REQUEST_CODE.REQUEST_EDIT_GALLERY_MEDIA);
+            switch (userStoryElement.elementType) {
+                case ELEMENT_TYPE_MEDIA:
+                    editMediaIndex = index;
+                    Intent intent = new Intent(getApplicationContext(), UserStoryMediaListActivity.class);
+                    Bundle bundle = new Bundle();
+                    bundle.putParcelable(Constants.BUNDLE_KEY.SELECTED_MEDIA, userStoryElement.mediaModel);
+                    intent.putExtras(bundle);
+                    startActivityForResult(intent, Constants.REQUEST_CODE.REQUEST_EDIT_GALLERY_MEDIA);
+                    break;
+            }
+
         }
 
         @Override
@@ -82,7 +101,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
         itemDecorator.setDrawable(ContextCompat.getDrawable(this, R.drawable.transparent_divider));
 //        recyclerView.addItemDecoration(itemDecorator);
         adapter = new UserStoryElementListAdapter(mediaClickListener);
-        UserStoryElement textElement = new UserStoryElement();
+        UserStoryElement textElement = new UserStoryElement("", UserStoryElementType.ELEMENT_TYPE_TITLE);
         adapter.addResult(textElement);
         recyclerView.setAdapter(adapter);
         findViewById(R.id.fab_message).setOnClickListener(this);
@@ -101,11 +120,9 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
                 break;
             case Constants.REQUEST_CODE.REQUEST_GALLERY_MEDIA:
                 if (resultCode == RESULT_OK) {
-                    ArrayList<MediaModel> mediaModels = data.getExtras().getParcelableArrayList(Constants.BUNDLE_KEY.SELECTED_MEDIA);
-                    removeCacheFromLocal(mediaModels);
-                    UserStoryElement userStoryElement = new UserStoryElement(mediaModels);
-                    adapter.addResult(userStoryElement);
-                    adapter.notifyItemInserted(adapter.getItemCount()-1);
+                    UserStoryMediaModel mediaModel = data.getParcelableExtra(Constants.BUNDLE_KEY.SELECTED_MEDIA);
+                    adapter.addResult(new UserStoryElement(mediaModel));
+                    adapter.notifyItemInserted(adapter.getItemCount() - 1);
                     scrollToBottom();
                 }
                 break;
@@ -118,20 +135,20 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
                     scrollToBottom();
                 }
                 break;
+            case Constants.REQUEST_CODE.REQUEST_EDIT_LOCATION:
+                if (resultCode == RESULT_OK) {
+                    adapter.getAllItems().get(editLocationIndex).addressModel = data.getParcelableExtra(Constants.BUNDLE_KEY.SELECTED_LOCATION);
+                    adapter.notifyItemChanged(editLocationIndex);
+                }
+                break;
+
             case Constants.REQUEST_CODE.REQUEST_EDIT_GALLERY_MEDIA:
                 if (resultCode == RESULT_OK) {
-                    ArrayList<MediaModel> mediaModels = data.getExtras().getParcelableArrayList(Constants.BUNDLE_KEY.SELECTED_MEDIA);
-                    removeCacheFromLocal(mediaModels);
-                    adapter.getAllItems().get(editMediaIndex).mediaModels = mediaModels;
+                    UserStoryMediaModel mediaModel = data.getParcelableExtra(Constants.BUNDLE_KEY.SELECTED_MEDIA);
+                    adapter.getAllItems().get(editMediaIndex).mediaModel = mediaModel;
                     adapter.notifyItemChanged(editMediaIndex);
                 }
                 break;
-        }
-    }
-
-    private void removeCacheFromLocal(ArrayList<MediaModel> mediaModels) {
-        for (MediaModel mediaModel : mediaModels) {
-            mediaModel.removeTempFile();
         }
     }
 
@@ -153,7 +170,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
         } else if (v.getId() == R.id.fab_audio) {
 
         } else if (v.getId() == R.id.fab_message) {
-            UserStoryElement textElement = new UserStoryElement("");
+            UserStoryElement textElement = new UserStoryElement("", UserStoryElementType.ELEMENT_TYPE_TEXT);
             adapter.addResult(textElement);
             adapter.notifyItemInserted(adapter.getItemCount() - 1);
             scrollToBottom();

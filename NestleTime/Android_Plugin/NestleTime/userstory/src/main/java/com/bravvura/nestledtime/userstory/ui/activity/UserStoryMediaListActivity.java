@@ -21,6 +21,7 @@ import com.bravvura.nestledtime.mediagallery.model.MEDIA_SOURCE_TYPE;
 import com.bravvura.nestledtime.mediagallery.model.MediaModel;
 import com.bravvura.nestledtime.mediagallery.ui.MediaGalleryActivity;
 import com.bravvura.nestledtime.userstory.adapter.UserStoryMediaListAdapter;
+import com.bravvura.nestledtime.userstory.model.UserStoryMediaModel;
 import com.bravvura.nestledtime.utils.CloudinaryManager;
 import com.bravvura.nestledtime.utils.Constants;
 import com.bravvura.nestledtime.utils.MyFileSystem;
@@ -41,34 +42,8 @@ public class UserStoryMediaListActivity extends BaseActivity implements View.OnC
 
 
     private RecyclerView recyclerView;
-    ArrayList<MediaModel> mediaModels = new ArrayList<>();
+    UserStoryMediaModel userStoryMediaModel = new UserStoryMediaModel();
     private UserStoryMediaListAdapter adapter;
-    //    private RecyclerView.OnScrollListener scrollListener = new RecyclerView.OnScrollListener() {
-//        public int highlightPosition;
-//        public int lastPos;
-//        public int firstPos;
-//
-//        @Override
-//        public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-//            super.onScrolled(recyclerView, dx, dy);
-//            int firstPos = layoutManager.findFirstCompletelyVisibleItemPosition();
-//            int lastPos = layoutManager.findLastCompletelyVisibleItemPosition();
-//            int newPos = -1;
-//            if (this.firstPos != firstPos) {
-//                newPos = firstPos;
-//                this.firstPos = firstPos;
-//            } else if (this.lastPos != lastPos) {
-//                newPos = lastPos;
-//                this.lastPos = lastPos;
-//            }
-//            if (newPos == 0) newPos = 1;
-//
-//            if (highlightPosition != newPos && newPos != -1) {
-//                highlightPosition = newPos;
-//                adapter.stopMediaPlayBack(highlightPosition);
-//            }
-//        }
-//    };
     private LinearLayoutManager layoutManager;
     private ProgressBar progressBar;
     private TextView textProgressBar;
@@ -149,9 +124,9 @@ public class UserStoryMediaListActivity extends BaseActivity implements View.OnC
     }
 
     private void publishProgress(MediaModel mediaModel) {
-        int totalImage = mediaModels.size();
+        int totalImage = userStoryMediaModel.mediaModels.size();
         int progress = 0;
-        for (MediaModel model : mediaModels) {
+        for (MediaModel model : userStoryMediaModel.mediaModels) {
             progress = (int) (progress + model.getProgress());
         }
 //        Toast.makeText(this, "Total Progress : " + progress + " / " + (totalImage * 100), Toast.LENGTH_SHORT).show();
@@ -168,7 +143,7 @@ public class UserStoryMediaListActivity extends BaseActivity implements View.OnC
 
 
     private MediaModel getMediaModelByRequestId(String requestId) {
-        for (MediaModel model : mediaModels) {
+        for (MediaModel model : userStoryMediaModel.mediaModels) {
             if (model.getRequestId() != null && model.getRequestId().equalsIgnoreCase(requestId))
                 return model;
         }
@@ -188,7 +163,7 @@ public class UserStoryMediaListActivity extends BaseActivity implements View.OnC
                 findViewById(R.id.fab_add_button).performClick();
             }
             if (bundle.containsKey(Constants.BUNDLE_KEY.SELECTED_MEDIA)) {
-                mediaModels = bundle.getParcelableArrayList(Constants.BUNDLE_KEY.SELECTED_MEDIA);
+                userStoryMediaModel = bundle.getParcelable(Constants.BUNDLE_KEY.SELECTED_MEDIA);
             }
         }
         initAdapter();
@@ -218,23 +193,8 @@ public class UserStoryMediaListActivity extends BaseActivity implements View.OnC
         compressingFileAsync.execute((Void) null);
     }
 
-//    class AsyncFileCloudinary extends AsyncTask<Void, String, Void> {
-//        @Override
-//        protected Void doInBackground(Void... voids) {
-//            startUploadingFiles();
-//            return null;
-//        }
-//
-//        @Override
-//        protected void onPostExecute(Void aVoid) {
-//            super.onPostExecute(aVoid);
-//            hideProgressBar();
-//            checkForFinish();
-//        }
-//    }
-
     MediaModel getMediaToDelete() {
-        for (MediaModel mediaModel : mediaModels) {
+        for (MediaModel mediaModel : userStoryMediaModel.mediaModels) {
             if (mediaModel.isDeleted || (mediaModel.isEdited && mediaModel.sourceType == MEDIA_SOURCE_TYPE.TYPE_CLOUD)) {
                 return mediaModel;
             }
@@ -244,7 +204,7 @@ public class UserStoryMediaListActivity extends BaseActivity implements View.OnC
 
 
     MediaModel getMediaToUpload() {
-        for (MediaModel mediaModel : mediaModels) {
+        for (MediaModel mediaModel : userStoryMediaModel.mediaModels) {
             if (StringUtils.isNullOrEmpty(mediaModel.getRequestId()) && !mediaModel.isDeleted) {
                 if (mediaModel.sourceType != MEDIA_SOURCE_TYPE.TYPE_CLOUD || mediaModel.isEdited) {
                     return mediaModel;
@@ -273,7 +233,7 @@ public class UserStoryMediaListActivity extends BaseActivity implements View.OnC
                     MediaModel mediaModel = getMediaToDelete();
                     if (mediaModel != null) {
                         Map map = CloudinaryManager.deleteFile(mediaModel.getPublicId());
-                        mediaModels.remove(mediaModel);
+                        userStoryMediaModel.mediaModels.remove(mediaModel);
                         this.publishProgress(map);
                     } else {
                         break;
@@ -322,21 +282,21 @@ public class UserStoryMediaListActivity extends BaseActivity implements View.OnC
 
     void checkForFinish() {
         boolean canFinish = true;
-        for (MediaModel mediaModel : mediaModels) {
+        for (MediaModel mediaModel : userStoryMediaModel.mediaModels) {
             if (!mediaModel.isUploaded()) {
                 canFinish = false;
                 break;
             }
         }
         if (canFinish)
-            finishWithResult(mediaModels);
+            finishWithResult(userStoryMediaModel);
     }
 
     class AsyncFileCompression extends AsyncTask<Void, String, Void> {
 
         @Override
         protected Void doInBackground(Void... voids) {
-            for (MediaModel mediaModel : mediaModels) {
+            for (MediaModel mediaModel : userStoryMediaModel.mediaModels) {
                 if ((mediaModel.sourceType == MEDIA_SOURCE_TYPE.TYPE_LOCAL || mediaModel.isEdited)
                         && !StringUtils.isNullOrEmpty(mediaModel.getPathFile()) && StringUtils.isNullOrEmpty(mediaModel.getCompressPath())) {
                     if (mediaModel.mediaCellType == MEDIA_CELL_TYPE.TYPE_IMAGE) {
@@ -393,7 +353,7 @@ public class UserStoryMediaListActivity extends BaseActivity implements View.OnC
 
     private void initAdapter() {
         adapter = new UserStoryMediaListAdapter(this, onEditClick);
-        adapter.setResults(mediaModels);
+        adapter.setResults(userStoryMediaModel);
         recyclerView.setAdapter(adapter);
     }
 
@@ -421,7 +381,7 @@ public class UserStoryMediaListActivity extends BaseActivity implements View.OnC
                 if (resultCode == RESULT_OK) {
                     ArrayList<MediaModel> selectedModels = data.getParcelableArrayListExtra(Constants.BUNDLE_KEY.SELECTED_MEDIA);
                     if (selectedModels != null) {
-                        mediaModels.addAll(selectedModels);
+                        userStoryMediaModel.mediaModels.addAll(selectedModels);
                         adapter.notifyDataSetChanged();
                     }
                 }

@@ -18,7 +18,7 @@ public class Constants {
         int PERMISSION_LOCATION = 105;
         int REQUEST_AUDIO = 106;
         int REQUEST_EDIT_GALLERY_MEDIA = 107;
-
+        int REQUEST_EDIT_LOCATION = 108;
     }
 
     public interface BUNDLE_KEY {
@@ -28,5 +28,6 @@ public class Constants {
         String SELECTED_MEDIA = "selected_medias";
         String ADD_PICTURE = "add_picture";
         String SELECTED_LOCATION = "selected_location";
+        java.lang.String TITLE = "title";
     }
 }

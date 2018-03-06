@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    app:cardBackgroundColor="@color/white"
     android:layout_height="wrap_content">
 
     <RelativeLayout
@@ -21,6 +23,7 @@
 
             <LinearLayout
                 android:id="@+id/layout_more_pic"
+                android:layout_marginTop="1dp"
                 android:layout_width="match_parent"
                 android:layout_height="150dp">
 
@@ -34,6 +37,8 @@
                 <ImageView
                     android:id="@+id/image_view_3"
                     android:layout_width="0dp"
+                    android:layout_marginLeft="1dp"
+
                     android:layout_height="match_parent"
                     android:layout_weight="1"
                     android:scaleType="centerCrop" />
@@ -41,6 +46,7 @@
                 <RelativeLayout
                     android:id="@+id/layout_image_4"
                     android:layout_width="0dp"
+                    android:layout_marginLeft="1dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1">
 

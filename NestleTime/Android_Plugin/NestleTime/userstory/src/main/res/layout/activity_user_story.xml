@@ -18,7 +18,7 @@
         <ImageView
             android:layout_width="50dp"
             android:layout_height="50dp"
-            android:background="@color/colorPrimary" />
+            android:background="@drawable/round_primary_color" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -30,6 +30,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:textSize="@dimen/textSizeLarge"
                 android:text="Deepak"
                 android:textColor="@color/black" />
 
