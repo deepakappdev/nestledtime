@@ -1,7 +1,9 @@
 package com.bravvura.nestledtime.userstory.adapter;
 
 import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
+import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -20,6 +22,8 @@ import com.bravvura.nestledtime.mediagallery.model.MEDIA_SOURCE_TYPE;
 import com.bravvura.nestledtime.mediagallery.model.MediaModel;
 import com.bravvura.nestledtime.userstory.model.UserStoryElementType;
 import com.bravvura.nestledtime.userstory.model.UserStoryMediaModel;
+import com.bravvura.nestledtime.userstory.ui.activity.UserStoryMediaPagerActivity;
+import com.bravvura.nestledtime.utils.Constants;
 import com.bravvura.nestledtime.utils.MyFileSystem;
 import com.bravvura.nestledtime.utils.MyLogs;
 import com.bravvura.nestledtime.utils.StringUtils;
@@ -114,15 +118,26 @@ public class UserStoryMediaListAdapter extends RecyclerView.Adapter<RecyclerView
         ImageView imageView;
         public MediaModel mediaModel;
 
-        ImageViewHolder(View itemView) {
+        ImageViewHolder(final View itemView) {
             super(itemView);
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent(itemView.getContext(), UserStoryMediaPagerActivity.class);
+                    Bundle bundle = new Bundle();
+                    bundle.putParcelable(Constants.BUNDLE_KEY.USER_STORY_MEDIA_MODEL, userStoryMediaModel);
+                    bundle.putInt(Constants.BUNDLE_KEY.INDEX, getAdapterPosition() - 1);
+                    intent.putExtras(bundle);
+                    itemView.getContext().startActivity(intent);
+                }
+            });
             editDescription = itemView.findViewById(R.id.edit_description);
             imageView = itemView.findViewById(R.id.image_view);
             if (itemView.findViewById(R.id.text_edit) != null)
                 itemView.findViewById(R.id.text_edit).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        onEditClick.onClick(getAdapterPosition()-1, mediaModel);
+                        onEditClick.onClick(getAdapterPosition() - 1, mediaModel);
                     }
                 });
             imageClose = itemView.findViewById(R.id.image_remove);
@@ -181,11 +196,44 @@ public class UserStoryMediaListAdapter extends RecyclerView.Adapter<RecyclerView
         VideoViewHolder(final View itemView) {
             super(itemView);
             layout_video = itemView.findViewById(R.id.layout_video);
+
             image_play = itemView.findViewById(R.id.image_play);
+            image_play.setVisibility(View.VISIBLE);
+            image_play.setImageResource(R.drawable.ic_play_black);
             image_play.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    playMediaPlayer(Uri.parse(mediaModel.getPathFile()));
+
+                    if (mediaPlayer.getMediaPlayer().isPlaying() && mediaPlayer.getCurrentIndex() == getAdapterPosition()) {
+                        mediaPlayer.getMediaPlayer().pause();
+                        image_play.setVisibility(View.VISIBLE);
+                        image_play.setImageResource(R.drawable.ic_play_black);
+                    } else {
+                        image_play.setVisibility(View.GONE);
+                        image_play.setImageResource(R.drawable.ic_pause_black);
+                        if (mediaPlayer.getCurrentIndex() == getAdapterPosition()) {
+                            mediaPlayer.getMediaPlayer().start();
+                        } else {
+                            String filePath = "";
+                            if (!StringUtils.isNullOrEmpty(mediaModel.getPathFile()))
+                                filePath = mediaModel.getPathFile();
+                            else if (!StringUtils.isNullOrEmpty(mediaModel.getUrl()))
+                                filePath = mediaModel.getUrl();
+
+                            if (!StringUtils.isNullOrEmpty(filePath))
+                                playMediaPlayer(Uri.parse(filePath));
+                        }
+                    }
+                }
+            });
+            layout_video.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (mediaPlayer.getMediaPlayer().isPlaying())
+                        image_play.setImageResource(R.drawable.ic_pause_black);
+                    else
+                        image_play.setImageResource(R.drawable.ic_play_black);
+                    image_play.setVisibility(View.VISIBLE);
                 }
             });
         }
@@ -197,11 +245,20 @@ public class UserStoryMediaListAdapter extends RecyclerView.Adapter<RecyclerView
             public void onRenderStart(int currentIndex) {
                 this.currentIndex = currentIndex;
                 imageView.setVisibility(View.INVISIBLE);
+                image_play.setImageResource(R.drawable.ic_pause_black);
+                image_play.setVisibility(View.GONE);
             }
 
             @Override
             public void onStop() {
                 imageView.setVisibility(View.VISIBLE);
+                image_play.setImageResource(R.drawable.ic_play_black);
+                image_play.setVisibility(View.VISIBLE);
+            }
+
+            @Override
+            public void onClick() {
+
             }
         };
 
@@ -243,6 +300,7 @@ public class UserStoryMediaListAdapter extends RecyclerView.Adapter<RecyclerView
         public TextViewHolder(View itemView) {
             super(itemView);
             edit_text = itemView.findViewById(R.id.edit_text);
+            edit_text.setHint("Title");
             edit_text.addTextChangedListener(new TextWatcher() {
                 @Override
                 public void beforeTextChanged(CharSequence s, int start, int count, int after) {

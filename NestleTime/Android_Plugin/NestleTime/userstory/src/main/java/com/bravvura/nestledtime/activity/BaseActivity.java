@@ -35,6 +35,7 @@ public class BaseActivity extends AppCompatActivity {
     public Handler handler = new Handler();
 
     TextView toolbarTitle;
+    public Toolbar toolbar;
 
     @Override
     public void setTitle(CharSequence title) {
@@ -99,8 +100,9 @@ public class BaseActivity extends AppCompatActivity {
 
 
     public void setupToolBar() {
-        Toolbar toolbar = findViewById(R.id.toolbar);
+        toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_arrow_back_white);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         getSupportActionBar().setTitle("");

@@ -28,6 +28,7 @@ public class Constants {
         String SELECTED_MEDIA = "selected_medias";
         String ADD_PICTURE = "add_picture";
         String SELECTED_LOCATION = "selected_location";
-        java.lang.String TITLE = "title";
+        String USER_STORY_MEDIA_MODEL = "user_story_media_model";
+        String INDEX = "index";
     }
 }

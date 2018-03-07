@@ -65,8 +65,8 @@ public class MediaGalleryActivity extends BaseActivity {
             @Override
             public void onPageSelected(int position) {
                 if (position == 1) {
-                    for (MediaModel mediaModel : mediaModels) {
-                        mediaModel.setSelected(false);
+                    for (int i = 0; i < mediaModels.size(); i++) {
+                        mediaModels.get(i).setSelected(false);
                     }
                     EventBus.getDefault().post(new MessageMediaFound());
                 }

@@ -2,59 +2,73 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:paddingBottom="@dimen/margin_small"
+    android:paddingTop="@dimen/margin_small">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical">
 
-        <RelativeLayout
+        <android.support.v7.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
             <RelativeLayout
-                android:id="@+id/layout_video"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_alignBottom="@+id/image_view"
-                android:layout_alignEnd="@+id/image_view"
-                android:layout_alignStart="@+id/image_view"
-                android:layout_alignTop="@+id/image_view" />
+                android:layout_height="wrap_content">
 
-            <ImageView
-                android:id="@+id/image_view"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:adjustViewBounds="true" />
-            <ImageView
-                android:layout_width="match_parent"
-                android:src="@drawable/gredient_black_270"
-                android:layout_height="100dp" />
+                <RelativeLayout
+                    android:id="@+id/layout_video"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_alignBottom="@+id/image_view"
+                    android:layout_alignEnd="@+id/image_view"
+                    android:layout_alignStart="@+id/image_view"
+                    android:layout_alignTop="@+id/image_view" />
+
+                <ImageView
+                    android:id="@+id/image_view"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:adjustViewBounds="true" />
+
+                <ImageView
+                    android:layout_width="match_parent"
+                    android:layout_height="100dp"
+                    android:src="@drawable/gredient_black_270" />
 
 
-            <ImageView
-                android:id="@+id/image_play"
-                android:layout_width="100dp"
-                android:layout_height="100dp"
-                android:src="@color/black"
-                android:layout_centerInParent="true" />
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:id="@+id/image_remove"
-                android:layout_margin="@dimen/margin_small"
-                android:layout_alignParentRight="true"
-                android:src="@drawable/ic_close_white" />
-        </RelativeLayout>
+                <ImageView
+                    android:id="@+id/image_play"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_alignBottom="@+id/image_view"
+                    android:layout_alignEnd="@+id/image_view"
+                    android:layout_alignStart="@+id/image_view"
+                    android:layout_alignTop="@+id/image_view"
+                    android:background="@color/semi_transparent_grey"
+                    android:layout_centerInParent="true"
+                    android:src="@drawable/ic_play_black" />
+
+                <ImageView
+                    android:id="@+id/image_remove"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_margin="@dimen/margin_small"
+                    android:src="@drawable/ic_close_white" />
+            </RelativeLayout>
+        </android.support.v7.widget.CardView>
 
         <EditText
             android:id="@+id/edit_description"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Description"
             android:layout_margin="@dimen/margin_normal"
             android:background="@null"
+            android:hint="Description"
             android:textColor="@color/dark_grey"
             android:textColorHint="@color/light_grey" />
 

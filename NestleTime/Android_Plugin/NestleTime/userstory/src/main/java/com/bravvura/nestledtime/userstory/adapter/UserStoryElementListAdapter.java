@@ -15,6 +15,7 @@ import com.bravvura.nestledtime.mediagallery.model.MediaModel;
 import com.bravvura.nestledtime.userstory.listener.OnMediaClickListener;
 import com.bravvura.nestledtime.userstory.model.UserStoryElement;
 import com.bravvura.nestledtime.userstory.model.UserStoryElementType;
+import com.bravvura.nestledtime.userstory.model.UserStoryMediaModel;
 import com.bravvura.nestledtime.utils.Utils;
 import com.bumptech.glide.Glide;
 
@@ -99,7 +100,7 @@ public class UserStoryElementListAdapter extends RecyclerView.Adapter<RecyclerVi
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         if (holder instanceof MediaViewHolder) {
-            ((MediaViewHolder) holder).populateMedia(userStoryElements.get(position).mediaModel.mediaModels);
+            ((MediaViewHolder) holder).populateMedia(userStoryElements.get(position).mediaModel);
         } else if (holder instanceof LocationViewHolder) {
             Glide.with(holder.itemView.getContext())
                     .load(Utils.getStaticMapUrl(userStoryElements.get(position).addressModel.latLng))
@@ -220,12 +221,13 @@ public class UserStoryElementListAdapter extends RecyclerView.Adapter<RecyclerVi
     class MediaViewHolder extends RecyclerView.ViewHolder {
 
         private final ImageView imageView1, imageView2, imageView3, imageView4;
-        public final TextView textPicMore;
+        public final TextView textPicMore, textTitle;
         private final LinearLayout layoutMorePic;
         public View layouotImage4;
 
         public MediaViewHolder(View itemView) {
             super(itemView);
+            textTitle = itemView.findViewById(R.id.text_title);
             imageView1 = itemView.findViewById(R.id.image_view_1);
             layoutMorePic = itemView.findViewById(R.id.layout_more_pic);
             imageView2 = itemView.findViewById(R.id.image_view_2);
@@ -242,9 +244,10 @@ public class UserStoryElementListAdapter extends RecyclerView.Adapter<RecyclerVi
             });
         }
 
-        public void populateMedia(ArrayList<MediaModel> mediaModels) {
+        public void populateMedia(UserStoryMediaModel userStoryMediaModel) {
             hideAllViews();
-
+            textTitle.setText(userStoryMediaModel.title);
+            ArrayList<MediaModel> mediaModels = userStoryMediaModel.mediaModels;
             if (mediaModels.size() == 1) {
                 showImage(imageView1, mediaModels.get(0).getUrl());
             } else {

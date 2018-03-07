@@ -2,6 +2,7 @@ package com.bravvura.nestledtime.userstory.ui.activity;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -26,13 +27,20 @@ import com.bravvura.nestledtime.utils.CloudinaryManager;
 import com.bravvura.nestledtime.utils.Constants;
 import com.bravvura.nestledtime.utils.MyFileSystem;
 import com.bravvura.nestledtime.utils.StringUtils;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.animation.GlideAnimation;
+import com.bumptech.glide.request.target.SimpleTarget;
 import com.cloudinary.Transformation;
 import com.cloudinary.android.callback.ErrorInfo;
 import com.cloudinary.android.callback.UploadCallback;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
 /**
  * Created by Deepak Saini on 12-02-2018.
@@ -88,8 +96,8 @@ public class UserStoryMediaListActivity extends BaseActivity implements View.OnC
                         mediaModel.setPublicId(publilcId);
                     mediaModel.setIsUploaded(true);
                     updateProgress();
-                    if (!startUploadingFiles()) {
-                        startDeletingFiles();
+                    if(!startUploadingFiles()) {
+                        checkForFinish();
                     }
                 }
             }
@@ -108,14 +116,52 @@ public class UserStoryMediaListActivity extends BaseActivity implements View.OnC
     private int editedIndex;
     private MediaElementClick onEditClick = new MediaElementClick() {
         @Override
-        public void onClick(int index, MediaModel mediaModel) {
-            File toFile = MyFileSystem.getTempImageFile();
-            if (MyFileSystem.copyFile(mediaModel.getPathFile(), toFile.getAbsolutePath())) {
-//                mediaModel.setPathFile(toFile.getAbsolutePath());
+        public void onClick(final int index, MediaModel mediaModel) {
+            if (mediaModel.isEdited) {
                 editedIndex = index;
-                Intent starter = new Intent(getApplicationContext(), EditPhotoActivity.class);
-                starter.putExtra(EditPhotoActivity.INPUT_URL, toFile.getAbsolutePath());
-                startActivityForResult(starter, Constants.REQUEST_CODE.REQUEST_EDIT_IMAGE);
+                Intent intent = new Intent(getApplicationContext(), EditPhotoActivity.class);
+                intent.putExtra(EditPhotoActivity.INPUT_URL, mediaModel.getPathFile());
+                startActivityForResult(intent, Constants.REQUEST_CODE.REQUEST_EDIT_IMAGE);
+            } else {
+                switch (mediaModel.sourceType) {
+                    case TYPE_CLOUD:
+                    case TYPE_FACEBOOK:
+                    case TYPE_INSTAGRAM:
+                        try {
+                            Glide.with(getApplicationContext()).load(mediaModel.getUrl()).asBitmap().into(new SimpleTarget<Bitmap>() {
+                                @Override
+                                public void onResourceReady(Bitmap resource, GlideAnimation<? super Bitmap> glideAnimation) {
+                                    File toFile = MyFileSystem.getTempImageFile();
+                                    try {
+                                        FileOutputStream outputStream = new FileOutputStream(toFile);
+                                        resource.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
+                                        outputStream.flush();
+                                        outputStream.close();
+                                        editedIndex = index;
+                                        Intent intent = new Intent(getApplicationContext(), EditPhotoActivity.class);
+                                        intent.putExtra(EditPhotoActivity.INPUT_URL, toFile.getAbsolutePath());
+                                        startActivityForResult(intent, Constants.REQUEST_CODE.REQUEST_EDIT_IMAGE);
+                                    } catch (FileNotFoundException e) {
+                                        e.printStackTrace();
+                                    } catch (IOException e) {
+                                        e.printStackTrace();
+                                    }
+
+                                }
+                            });
+                        } catch (Exception x) {
+                        }
+                        break;
+                    case TYPE_LOCAL:
+                        File toFile = MyFileSystem.getTempImageFile();
+                        if (MyFileSystem.copyFile(mediaModel.getPathFile(), toFile.getAbsolutePath())) {
+                            editedIndex = index;
+                            Intent intent = new Intent(getApplicationContext(), EditPhotoActivity.class);
+                            intent.putExtra(EditPhotoActivity.INPUT_URL, toFile.getAbsolutePath());
+                            startActivityForResult(intent, Constants.REQUEST_CODE.REQUEST_EDIT_IMAGE);
+                        }
+                        break;
+                }
             }
         }
     };
@@ -233,7 +279,12 @@ public class UserStoryMediaListActivity extends BaseActivity implements View.OnC
                     MediaModel mediaModel = getMediaToDelete();
                     if (mediaModel != null) {
                         Map map = CloudinaryManager.deleteFile(mediaModel.getPublicId());
-                        userStoryMediaModel.mediaModels.remove(mediaModel);
+                        mediaModel.setPublicId("");
+                        mediaModel.setRequestId("");
+                        mediaModel.sourceType = MEDIA_SOURCE_TYPE.TYPE_LOCAL;
+                        mediaModel.isEdited = false;
+                        if(mediaModel.isDeleted)
+                            userStoryMediaModel.mediaModels.remove(mediaModel);
                         this.publishProgress(map);
                     } else {
                         break;
@@ -250,7 +301,9 @@ public class UserStoryMediaListActivity extends BaseActivity implements View.OnC
             @Override
             protected void onPostExecute(Void aVoid) {
                 super.onPostExecute(aVoid);
-                checkForFinish();
+                if(!startUploadingFiles()) {
+                    checkForFinish();
+                }
             }
         }.execute((Void) null);
     }
@@ -323,9 +376,7 @@ public class UserStoryMediaListActivity extends BaseActivity implements View.OnC
         protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
             hideProgressBar();
-            if (!startUploadingFiles()) {
-                startDeletingFiles();
-            }
+            startDeletingFiles();
         }
     }
 
@@ -374,7 +425,8 @@ public class UserStoryMediaListActivity extends BaseActivity implements View.OnC
                     MediaModel mediaModel = adapter.getItem(editedIndex);
                     mediaModel.setPathFile(editedPath);
                     mediaModel.isEdited = true;
-                    adapter.notifyItemChanged(editedIndex);
+                    adapter.notifyDataSetChanged();
+//                    adapter.notifyItemChanged(editedIndex);
                 }
                 break;
             case Constants.REQUEST_CODE.REQUEST_GALLERY_MEDIA:

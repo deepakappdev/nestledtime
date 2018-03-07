@@ -3,6 +3,7 @@ package com.bravvura.nestledtime.customview;
 import android.content.Context;
 import android.media.MediaPlayer;
 import android.net.Uri;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.VideoView;
 
@@ -70,6 +71,13 @@ public class MyMediaPlayer {
                 return false;
             }
         });
+        videoView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mediaPlayerCallBack != null)
+                    mediaPlayerCallBack.onClick();
+            }
+        });
 
         videoView.setVideoURI(mediaPath);
 //        videoView.requestFocus();
@@ -107,5 +115,7 @@ public class MyMediaPlayer {
         void onRenderStart(int currentIndex);
 
         void onStop();
+
+        void onClick();
     }
 }

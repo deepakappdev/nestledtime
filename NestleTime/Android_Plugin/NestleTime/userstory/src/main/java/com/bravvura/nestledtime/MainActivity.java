@@ -20,6 +20,7 @@ import com.bravvura.nestledtime.userstory.model.UserStoryElementType;
 import com.bravvura.nestledtime.userstory.model.UserStoryMediaModel;
 import com.bravvura.nestledtime.userstory.ui.activity.GoogleMapActivity;
 import com.bravvura.nestledtime.userstory.ui.activity.UserStoryMediaListActivity;
+import com.bravvura.nestledtime.userstory.ui.activity.UserStoryMediaPagerActivity;
 import com.bravvura.nestledtime.utils.Constants;
 
 import java.util.ArrayList;
@@ -33,17 +34,21 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
         @Override
         public void onClick(UserStoryElement userStoryElement, int index) {
             switch (userStoryElement.elementType) {
-                case ELEMENT_TYPE_MEDIA:
-
-                    break;
-                case ELEMENT_TYPE_LOCATION:
+                case ELEMENT_TYPE_MEDIA: {
+                    Intent intent = new Intent(getApplicationContext(), UserStoryMediaPagerActivity.class);
+                    intent.putExtra(Constants.BUNDLE_KEY.USER_STORY_MEDIA_MODEL, userStoryElement.mediaModel);
+                    startActivity(intent);
+                }
+                break;
+                case ELEMENT_TYPE_LOCATION: {
                     editLocationIndex = index;
                     Intent intent = new Intent(getApplicationContext(), GoogleMapActivity.class);
                     Bundle bundle = new Bundle();
                     bundle.putParcelable(Constants.BUNDLE_KEY.SELECTED_LOCATION, userStoryElement.addressModel);
                     intent.putExtras(bundle);
                     startActivityForResult(intent, Constants.REQUEST_CODE.REQUEST_EDIT_LOCATION);
-                    break;
+                }
+                break;
             }
         }
 
