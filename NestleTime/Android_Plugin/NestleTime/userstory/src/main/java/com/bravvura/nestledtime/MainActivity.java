@@ -36,7 +36,10 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
             switch (userStoryElement.elementType) {
                 case ELEMENT_TYPE_MEDIA: {
                     Intent intent = new Intent(getApplicationContext(), UserStoryMediaPagerActivity.class);
-                    intent.putExtra(Constants.BUNDLE_KEY.USER_STORY_MEDIA_MODEL, userStoryElement.mediaModel);
+                    Bundle bundle = new Bundle();
+                    bundle.putParcelable(Constants.BUNDLE_KEY.USER_STORY_MEDIA_MODEL, userStoryElement.mediaModel);
+                    bundle.putInt(Constants.BUNDLE_KEY.INDEX, index);
+                    intent.putExtras(bundle);
                     startActivity(intent);
                 }
                 break;
@@ -105,7 +108,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
         DividerItemDecoration itemDecorator = new DividerItemDecoration(this, DividerItemDecoration.VERTICAL);
         itemDecorator.setDrawable(ContextCompat.getDrawable(this, R.drawable.transparent_divider));
 //        recyclerView.addItemDecoration(itemDecorator);
-        adapter = new UserStoryElementListAdapter(mediaClickListener);
+        adapter = new UserStoryElementListAdapter(getApplicationContext(), mediaClickListener);
         UserStoryElement textElement = new UserStoryElement("", UserStoryElementType.ELEMENT_TYPE_TITLE);
         adapter.addResult(textElement);
         recyclerView.setAdapter(adapter);
@@ -113,6 +116,56 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
         findViewById(R.id.fab_media).setOnClickListener(this);
         findViewById(R.id.fab_audio).setOnClickListener(this);
         findViewById(R.id.fab_location).setOnClickListener(this);
+        findViewById(R.id.layout_content).setOnClickListener(this);
+        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            public int lastPos, firstPos;
+            public int highlightPosition;
+            boolean isIdle = false;
+
+            @Override
+            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+
+                if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+                    isIdle = true;
+                    if (adapter.middlePosition != highlightPosition || !adapter.showMediaPlayer) {
+                        adapter.showMediaPlayer = true;
+                        adapter.checkStopForMedia();
+                        adapter.notifyItemChanged(adapter.middlePosition);
+                    }
+                } else if (newState == RecyclerView.SCROLL_STATE_DRAGGING) {
+                    isIdle = false;
+                    if (adapter.middlePosition != highlightPosition)
+                        adapter.showMediaPlayer = false;
+                }
+            }
+
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                int firstPos = layoutManager.findFirstCompletelyVisibleItemPosition();
+                int lastPos = layoutManager.findLastCompletelyVisibleItemPosition();
+                int newPos = -1;
+                if (this.firstPos != firstPos) {
+                    newPos = firstPos;
+                    this.firstPos = firstPos;
+                } else if (this.lastPos != lastPos) {
+                    newPos = lastPos;
+                    this.lastPos = lastPos;
+                }
+                if (newPos == 0) newPos = 1;
+
+                if (highlightPosition != newPos && newPos != -1) {
+                    highlightPosition = newPos;
+                    if (isIdle)
+                        adapter.showMediaPlayer = true;
+                    else
+                        adapter.showMediaPlayer = false;
+                    adapter.updateHighlightPosition(highlightPosition);
+                }
+            }
+        });
+
 
     }
 
@@ -163,6 +216,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
 
     @Override
     public void onClick(View v) {
+        hideKeyBoard();
         if (v.getId() == R.id.fab_media) {
             Intent intent = new Intent(getApplicationContext(), UserStoryMediaListActivity.class);
             Bundle bundle = new Bundle();

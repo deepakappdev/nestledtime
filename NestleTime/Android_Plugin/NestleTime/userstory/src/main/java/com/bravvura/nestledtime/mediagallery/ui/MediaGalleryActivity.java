@@ -17,7 +17,7 @@ import android.widget.TextView;
 import com.bravvura.nestledtime.R;
 import com.bravvura.nestledtime.activity.BaseActivity;
 import com.bravvura.nestledtime.eventbusmodel.MessageAlbumFound;
-import com.bravvura.nestledtime.eventbusmodel.MessageMediaFound;
+import com.bravvura.nestledtime.eventbusmodel.MessagePhotoFound;
 import com.bravvura.nestledtime.mediagallery.adapter.MediaGalleryAdapter;
 import com.bravvura.nestledtime.mediagallery.filesystem.CursorManager;
 import com.bravvura.nestledtime.mediagallery.model.MEDIA_CELL_TYPE;
@@ -38,7 +38,7 @@ public class MediaGalleryActivity extends BaseActivity {
     TabLayout tabLayout;
     ViewPager viewPager;
     private MediaGalleryAdapter adapter;
-    public ArrayList<MediaModel> mediaModels = new ArrayList<>();
+    public ArrayList<MediaModel> photoModels = new ArrayList<>();
     public ArrayList<MediaModel> albumModels = new ArrayList<>();
 
     private Cursor cursor;
@@ -65,10 +65,10 @@ public class MediaGalleryActivity extends BaseActivity {
             @Override
             public void onPageSelected(int position) {
                 if (position == 1) {
-                    for (int i = 0; i < mediaModels.size(); i++) {
-                        mediaModels.get(i).setSelected(false);
+                    for (int i = 0; i < photoModels.size(); i++) {
+                        photoModels.get(i).setSelected(false);
                     }
-                    EventBus.getDefault().post(new MessageMediaFound());
+                    EventBus.getDefault().post(new MessagePhotoFound());
                 }
             }
 
@@ -103,7 +103,7 @@ public class MediaGalleryActivity extends BaseActivity {
             @Override
             protected void onPreExecute() {
                 super.onPreExecute();
-                mediaModels.clear();
+                photoModels.clear();
             }
 
             @Override
@@ -122,7 +122,9 @@ public class MediaGalleryActivity extends BaseActivity {
             int column_index_type = cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.MEDIA_TYPE);
             int column_index_size = cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.SIZE);
 
-            int mediaIndex = 0, albumIndex = 0;
+            ArrayList<MediaModel> tempPhotoModels = new ArrayList<>();
+
+            int lastIndex = -1, mediaIndex = 0, albumIndex = 0;
             while (cursor.moveToNext()) {
                 String pathFile = cursor.getString(column_index_data);
                 int id = cursor.getInt(column_index_id);
@@ -138,22 +140,33 @@ public class MediaGalleryActivity extends BaseActivity {
                         albumIndex++;
                     }
 
-                    if (mediaModels.isEmpty() || !mediaModels.get(mediaModels.size() - 1).getDate().equalsIgnoreCase(mediaModel.getDate())) {
-                        mediaModels.add(getDateHeader(file.lastModified()));
+                    if (photoModels.isEmpty() || !photoModels.get(photoModels.size() - 1).getDate().equalsIgnoreCase(mediaModel.getDate())) {
+                        photoModels.add(getDateHeader(file.lastModified()));
+                        mediaIndex++;
                     }
                     mediaModel.setId(id);
                     mediaModel.setType(mediaType);
-                    mediaModels.add(mediaModel);
-                    mediaIndex++;
+                    photoModels.add(mediaModel);
 
-                    if (mediaIndex % 100 == 0)
-                        EventBus.getDefault().post(new MessageMediaFound());
+
+                    if (mediaIndex > lastIndex + 100) {
+                        MessagePhotoFound message = new MessagePhotoFound();
+                        message.insertionIndex = lastIndex+1;
+                        message.totalCount = photoModels.size();
+                        EventBus.getDefault().post(message);
+                        lastIndex = mediaIndex;
+                    }
                     if (albumIndex % 4 == 0)
                         EventBus.getDefault().post(new MessageAlbumFound());
                 }
             }
             EventBus.getDefault().post(new MessageAlbumFound());
-            EventBus.getDefault().post(new MessageMediaFound());
+
+            MessagePhotoFound message = new MessagePhotoFound();
+            message.insertionIndex = lastIndex+1;
+            message.totalCount = photoModels.size();
+            EventBus.getDefault().post(message);
+
             cursor.close();
         }
     }

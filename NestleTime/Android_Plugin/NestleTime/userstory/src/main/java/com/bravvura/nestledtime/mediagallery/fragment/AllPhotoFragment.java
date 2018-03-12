@@ -18,7 +18,7 @@ import android.widget.Toast;
 
 import com.bravvura.nestledtime.R;
 import com.bravvura.nestledtime.activity.BaseActivity;
-import com.bravvura.nestledtime.eventbusmodel.MessageMediaFound;
+import com.bravvura.nestledtime.eventbusmodel.MessagePhotoFound;
 import com.bravvura.nestledtime.mediagallery.adapter.AllPhotoGalleryAdapter;
 import com.bravvura.nestledtime.mediagallery.listener.MediaElementClick;
 import com.bravvura.nestledtime.mediagallery.model.MEDIA_CELL_TYPE;
@@ -61,8 +61,8 @@ public class AllPhotoFragment extends Fragment {
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onMessageEvent(MessageMediaFound event) {
-        adapter.notifyDataSetChanged();
+    public void onMessageEvent(MessagePhotoFound event) {
+        adapter.notifyItemRangeChanged(event.insertionIndex, event.totalCount);
     }
 
 
@@ -74,7 +74,7 @@ public class AllPhotoFragment extends Fragment {
     }
 
     private void fetchAllPicture() {
-        mediaModels = ((MediaGalleryActivity) getActivity()).mediaModels;
+        mediaModels = ((MediaGalleryActivity) getActivity()).photoModels;
         adapter.setResult(mediaModels);
         adapter.notifyDataSetChanged();
     }

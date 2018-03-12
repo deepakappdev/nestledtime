@@ -27,7 +27,12 @@ public class MyMediaPlayer {
 
     public MyMediaPlayer(Context context) {
         videoView = new VideoView(context);
+        initVideoView();
         MyLogs.d(TAG, "Initialize");
+
+    }
+
+    private void initVideoView() {
         videoView.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
             @Override
             public void onPrepared(MediaPlayer mp) {
@@ -50,12 +55,6 @@ public class MyMediaPlayer {
                 return true;
             }
         });
-    }
-
-    public void startPlayer(Uri mediaPath, MediaPlayerCallBack callBack) {
-        this.mediaPlayerCallBack = callBack;
-        MyLogs.d(TAG, "Starting " + mediaPath);
-
         videoView.setOnInfoListener(new MediaPlayer.OnInfoListener() {
             @Override
             public boolean onInfo(MediaPlayer mediaPlayer, int what, int extra) {
@@ -79,9 +78,25 @@ public class MyMediaPlayer {
             }
         });
 
+    }
+
+    public MyMediaPlayer(VideoView videoView) {
+        this.videoView = videoView;
+        initVideoView();
+    }
+
+    public void startPlayer(Uri mediaPath, MediaPlayerCallBack callBack) {
+        this.mediaPlayerCallBack = callBack;
+        MyLogs.d(TAG, "Starting " + mediaPath);
+        initVideoView();
         videoView.setVideoURI(mediaPath);
-//        videoView.requestFocus();
-//        videoView.start();
+    }
+
+    public void startPlayer(String mediaPath, MediaPlayerCallBack callBack) {
+        this.mediaPlayerCallBack = callBack;
+        MyLogs.d(TAG, "Starting " + mediaPath);
+        initVideoView();
+        videoView.setVideoPath(mediaPath);
     }
 
     public void stopPlayer() {

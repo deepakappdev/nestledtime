@@ -31,20 +31,20 @@ public class UserStoryMediaPagerAdapter extends FragmentStatePagerAdapter {
         return userStoryMediaModel.mediaModels.size();
     }
 
-    UserStoryImageFragment getImageFragment(MediaModel mediaModel) {
-        return UserStoryImageFragment.create(mediaModel);
+    UserStoryImageFragment getImageFragment(MediaModel mediaModel, int index) {
+        return UserStoryImageFragment.create(mediaModel, index);
     }
 
-    UserStoryVideoFragment getVideoFragment(MediaModel mediaModel) {
-        return UserStoryVideoFragment.create(mediaModel);
+    UserStoryVideoFragment getVideoFragment(MediaModel mediaModel, int index) {
+        return UserStoryVideoFragment.create(mediaModel, index);
     }
 
     @Override
     public Fragment getItem(int position) {
         MediaModel mediaModel = userStoryMediaModel.mediaModels.get(position);
         if (mediaModel.mediaCellType == MEDIA_CELL_TYPE.TYPE_VIDEO)
-            return getVideoFragment(mediaModel);
-        else return getImageFragment(mediaModel);
+            return getVideoFragment(mediaModel, position);
+        else return getImageFragment(mediaModel, position);
     }
 
 }

@@ -27,11 +27,7 @@
         <activity
             android:name="com.bravvura.nestledtime.MainActivity"
             android:screenOrientation="portrait">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
 
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
         </activity>
         <activity
             android:name="com.bravvura.nestledtime.imageedittor.main.activity.EditPhotoActivity"
@@ -48,7 +44,11 @@
         <activity
             android:name="com.bravvura.nestledtime.userstory.ui.activity.UserStoryMediaListActivity"
             android:screenOrientation="portrait" />
-        <activity android:name="com.bravvura.nestledtime.userstory.ui.activity.UserStoryMediaPagerActivity"/>
+        <activity
+            android:name="com.bravvura.nestledtime.userstory.ui.activity.UserStoryMediaPagerActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize">
+
+        </activity>
 
     </application>
 

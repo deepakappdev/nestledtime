@@ -23,6 +23,7 @@ import com.bravvura.nestledtime.mediagallery.model.MediaModel;
 import com.bravvura.nestledtime.userstory.model.UserStoryElementType;
 import com.bravvura.nestledtime.userstory.model.UserStoryMediaModel;
 import com.bravvura.nestledtime.userstory.ui.activity.UserStoryMediaPagerActivity;
+import com.bravvura.nestledtime.utils.CloudinaryManager;
 import com.bravvura.nestledtime.utils.Constants;
 import com.bravvura.nestledtime.utils.MyFileSystem;
 import com.bravvura.nestledtime.utils.MyLogs;
@@ -120,17 +121,6 @@ public class UserStoryMediaListAdapter extends RecyclerView.Adapter<RecyclerView
 
         ImageViewHolder(final View itemView) {
             super(itemView);
-            itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Intent intent = new Intent(itemView.getContext(), UserStoryMediaPagerActivity.class);
-                    Bundle bundle = new Bundle();
-                    bundle.putParcelable(Constants.BUNDLE_KEY.USER_STORY_MEDIA_MODEL, userStoryMediaModel);
-                    bundle.putInt(Constants.BUNDLE_KEY.INDEX, getAdapterPosition() - 1);
-                    intent.putExtras(bundle);
-                    itemView.getContext().startActivity(intent);
-                }
-            });
             editDescription = itemView.findViewById(R.id.edit_description);
             imageView = itemView.findViewById(R.id.image_view);
             if (itemView.findViewById(R.id.text_edit) != null)
@@ -184,7 +174,11 @@ public class UserStoryMediaListAdapter extends RecyclerView.Adapter<RecyclerView
             if (mediaModel.isEdited || mediaModel.sourceType != MEDIA_SOURCE_TYPE.TYPE_CLOUD) {
                 Glide.with(itemView.getContext()).load(new File(mediaModel.getPathFile())).into(imageView);
             } else {
-                Glide.with(itemView.getContext()).load(mediaModel.getUrl()).into(imageView);
+                if(mediaModel.mediaCellType==MEDIA_CELL_TYPE.TYPE_IMAGE) {
+                    Glide.with(itemView.getContext()).load(mediaModel.getUrl()).into(imageView);
+                } else {
+                    Glide.with(itemView.getContext()).load(CloudinaryManager.getVideoThumbnail(mediaModel.getPublicId())).into(imageView);
+                }
             }
         }
     }
@@ -199,7 +193,7 @@ public class UserStoryMediaListAdapter extends RecyclerView.Adapter<RecyclerView
 
             image_play = itemView.findViewById(R.id.image_play);
             image_play.setVisibility(View.VISIBLE);
-            image_play.setImageResource(R.drawable.ic_play_black);
+            image_play.setImageResource(R.drawable.ic_play_white);
             image_play.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -207,32 +201,34 @@ public class UserStoryMediaListAdapter extends RecyclerView.Adapter<RecyclerView
                     if (mediaPlayer.getMediaPlayer().isPlaying() && mediaPlayer.getCurrentIndex() == getAdapterPosition()) {
                         mediaPlayer.getMediaPlayer().pause();
                         image_play.setVisibility(View.VISIBLE);
-                        image_play.setImageResource(R.drawable.ic_play_black);
+                        image_play.setImageResource(R.drawable.ic_play_white);
                     } else {
                         image_play.setVisibility(View.GONE);
-                        image_play.setImageResource(R.drawable.ic_pause_black);
+                        image_play.setImageResource(R.drawable.ic_pause_white);
                         if (mediaPlayer.getCurrentIndex() == getAdapterPosition()) {
                             mediaPlayer.getMediaPlayer().start();
                         } else {
                             String filePath = "";
-                            if (!StringUtils.isNullOrEmpty(mediaModel.getPathFile()))
+                            if (!StringUtils.isNullOrEmpty(mediaModel.getPathFile())) {
                                 filePath = mediaModel.getPathFile();
-                            else if (!StringUtils.isNullOrEmpty(mediaModel.getUrl()))
-                                filePath = mediaModel.getUrl();
-
-                            if (!StringUtils.isNullOrEmpty(filePath))
                                 playMediaPlayer(Uri.parse(filePath));
+                            }
+                            else if (!StringUtils.isNullOrEmpty(mediaModel.getUrl())) {
+                                filePath = mediaModel.getUrl();
+                                playMediaPlayer(filePath);
+                            }
                         }
                     }
                 }
             });
+
             layout_video.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     if (mediaPlayer.getMediaPlayer().isPlaying())
-                        image_play.setImageResource(R.drawable.ic_pause_black);
+                        image_play.setImageResource(R.drawable.ic_pause_white);
                     else
-                        image_play.setImageResource(R.drawable.ic_play_black);
+                        image_play.setImageResource(R.drawable.ic_play_white);
                     image_play.setVisibility(View.VISIBLE);
                 }
             });
@@ -240,46 +236,48 @@ public class UserStoryMediaListAdapter extends RecyclerView.Adapter<RecyclerView
 
         private MyMediaPlayer.MediaPlayerCallBack mediaCallBack = new MyMediaPlayer.MediaPlayerCallBack() {
             int currentIndex;
-
             @Override
             public void onRenderStart(int currentIndex) {
                 this.currentIndex = currentIndex;
                 imageView.setVisibility(View.INVISIBLE);
-                image_play.setImageResource(R.drawable.ic_pause_black);
+                image_play.setImageResource(R.drawable.ic_pause_white);
                 image_play.setVisibility(View.GONE);
             }
 
             @Override
             public void onStop() {
                 imageView.setVisibility(View.VISIBLE);
-                image_play.setImageResource(R.drawable.ic_play_black);
+                image_play.setImageResource(R.drawable.ic_play_white);
                 image_play.setVisibility(View.VISIBLE);
             }
 
             @Override
-            public void onClick() {
-
-            }
+            public void onClick() { }
         };
 
-        void playMediaPlayer(final Uri path) {
-            releaseMediaPlayer();
-            mediaPlayer.setItemIndex(getAdapterPosition());
+        void attachMediaPlayer() {
             RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
             layoutParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
             layoutParams.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
             layoutParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
             layoutParams.addRule(RelativeLayout.ALIGN_PARENT_TOP);
             layout_video.addView(mediaPlayer.getMediaPlayer(), layoutParams);
+        }
+
+        void playMediaPlayer(final Uri path) {
+            releaseMediaPlayer();
+            mediaPlayer.setItemIndex(getAdapterPosition());
+            attachMediaPlayer();
             imageView.setVisibility(View.VISIBLE);
             UserStoryMediaListAdapter.this.mediaPlayer.startPlayer(path, mediaCallBack);
-/*
-            new Handler().post(new Runnable() {
-                @Override
-                public void run() {
-                }
-            });
-*/
+        }
+
+        void playMediaPlayer(String path) {
+            releaseMediaPlayer();
+            mediaPlayer.setItemIndex(getAdapterPosition());
+            attachMediaPlayer();
+            imageView.setVisibility(View.VISIBLE);
+            UserStoryMediaListAdapter.this.mediaPlayer.startPlayer(path, mediaCallBack);
         }
 
         void releaseMediaPlayer() {
@@ -290,7 +288,6 @@ public class UserStoryMediaListAdapter extends RecyclerView.Adapter<RecyclerView
             mediaPlayer.stopPlayer();
 //            }
         }
-
     }
 
     class TextViewHolder extends RecyclerView.ViewHolder {

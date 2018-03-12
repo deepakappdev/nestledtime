@@ -31,6 +31,7 @@ public class MediaModel implements Parcelable {
     private boolean isUploaded;
     private long progress;
     private String publicId;
+    public boolean cleanCache;
 
 
     public MediaModel() {

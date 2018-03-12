@@ -40,7 +40,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Map;
-import java.util.concurrent.ExecutionException;
+
 
 /**
  * Created by Deepak Saini on 12-02-2018.
@@ -95,8 +95,10 @@ public class UserStoryMediaListActivity extends BaseActivity implements View.OnC
                     if (!StringUtils.isNullOrEmpty(publilcId))
                         mediaModel.setPublicId(publilcId);
                     mediaModel.setIsUploaded(true);
+                    mediaModel.setRequestId(null);
+                    mediaModel.sourceType = MEDIA_SOURCE_TYPE.TYPE_CLOUD;
                     updateProgress();
-                    if(!startUploadingFiles()) {
+                    if (!startUploadingFiles()) {
                         checkForFinish();
                     }
                 }
@@ -105,16 +107,33 @@ public class UserStoryMediaListActivity extends BaseActivity implements View.OnC
 
         @Override
         public void onError(String requestId, ErrorInfo error) {
-
+            MediaModel mediaModel = getMediaModelByRequestId(requestId);
+            if(mediaModel!=null) {
+                mediaModel.setUploaded(false);
+                mediaModel.setRequestId(null);
+            }
+            if (!startUploadingFiles()) {
+                checkForFinish();
+            }
         }
 
         @Override
         public void onReschedule(String requestId, ErrorInfo error) {
-
+            MediaModel mediaModel = getMediaModelByRequestId(requestId);
+            if(mediaModel!=null) {
+                mediaModel.setUploaded(false);
+                mediaModel.setRequestId(null);
+            }
+            if (!startUploadingFiles()) {
+                checkForFinish();
+            }
         }
     };
     private int editedIndex;
     private MediaElementClick onEditClick = new MediaElementClick() {
+        void abc() {
+        }
+
         @Override
         public void onClick(final int index, MediaModel mediaModel) {
             if (mediaModel.isEdited) {
@@ -224,11 +243,17 @@ public class UserStoryMediaListActivity extends BaseActivity implements View.OnC
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        if (StringUtils.isNullOrEmpty(userStoryMediaModel.title)) {
+            showToast("Please Fill Title");
+            return false;
+        }
         if (item.getItemId() == R.id.menu_done) {
+//            finishWithResult(userStoryMediaModel);
             compressMediaFiles();
         }
         return super.onOptionsItemSelected(item);
     }
+
 
     private void compressMediaFiles() {
         if (dialog != null) dialog.dismiss();
@@ -283,7 +308,7 @@ public class UserStoryMediaListActivity extends BaseActivity implements View.OnC
                         mediaModel.setRequestId("");
                         mediaModel.sourceType = MEDIA_SOURCE_TYPE.TYPE_LOCAL;
                         mediaModel.isEdited = false;
-                        if(mediaModel.isDeleted)
+                        if (mediaModel.isDeleted)
                             userStoryMediaModel.mediaModels.remove(mediaModel);
                         this.publishProgress(map);
                     } else {
@@ -301,13 +326,12 @@ public class UserStoryMediaListActivity extends BaseActivity implements View.OnC
             @Override
             protected void onPostExecute(Void aVoid) {
                 super.onPostExecute(aVoid);
-                if(!startUploadingFiles()) {
+                if (!startUploadingFiles()) {
                     checkForFinish();
                 }
             }
         }.execute((Void) null);
     }
-
 
     private void doUpload(MediaModel mediaModel) {
         String fileToUpload = null;
@@ -425,6 +449,7 @@ public class UserStoryMediaListActivity extends BaseActivity implements View.OnC
                     MediaModel mediaModel = adapter.getItem(editedIndex);
                     mediaModel.setPathFile(editedPath);
                     mediaModel.isEdited = true;
+                    mediaModel.cleanCache = true;
                     adapter.notifyDataSetChanged();
 //                    adapter.notifyItemChanged(editedIndex);
                 }
@@ -433,8 +458,10 @@ public class UserStoryMediaListActivity extends BaseActivity implements View.OnC
                 if (resultCode == RESULT_OK) {
                     ArrayList<MediaModel> selectedModels = data.getParcelableArrayListExtra(Constants.BUNDLE_KEY.SELECTED_MEDIA);
                     if (selectedModels != null) {
+                        int lastsize = userStoryMediaModel.mediaModels.size();
                         userStoryMediaModel.mediaModels.addAll(selectedModels);
-                        adapter.notifyDataSetChanged();
+                        adapter.notifyItemRangeInserted(lastsize + 1, selectedModels.size());
+                        layoutManager.scrollToPosition(lastsize + 1);
                     }
                 }
                 break;

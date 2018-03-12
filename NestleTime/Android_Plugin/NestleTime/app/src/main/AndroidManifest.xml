@@ -52,6 +52,10 @@
         <activity
             android:name="com.bravvura.nestledtime.userstory.ui.activity.UserStoryMediaListActivity"
             android:screenOrientation="portrait" />
+        <activity
+            android:name="com.bravvura.nestledtime.userstory.ui.activity.UserStoryMediaPagerActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize" />
+
 
     </application>
 

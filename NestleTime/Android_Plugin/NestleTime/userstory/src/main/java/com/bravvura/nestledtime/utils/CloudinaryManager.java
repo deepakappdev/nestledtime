@@ -64,4 +64,29 @@ public class CloudinaryManager {
         }
         return null;
     }
+
+    public static String getVideoThumbnail(String publicId) {
+        return MediaManager.get().url()
+                .transformation(new Transformation().startOffset("0"))
+                .resourceType("video").generate(publicId + ".png");
+    }
+
+    public static String getVideoThumbnail(String publicId, int width, int height) {
+        return MediaManager.get().url()
+                .transformation(new Transformation().startOffset("0").width(width).height(height).crop("fill"))
+                .resourceType("video").generate(publicId + ".png");
+    }
+
+    public static String getVideoUrl(String publicId, int width, int height) {
+        return MediaManager.get().url()
+                .transformation(new Transformation().width(width).height(height).crop("fill"))
+                .resourceType("video").generate(publicId + ".m3u8");
+    }
+
+
+    public static String getFacesThumbnail(String publicId, int width, int height) {
+        return MediaManager.get().url().transformation(
+                new Transformation().gravity("faces").width(width).height(height).crop("fill")).
+                generate(publicId);
+    }
 }

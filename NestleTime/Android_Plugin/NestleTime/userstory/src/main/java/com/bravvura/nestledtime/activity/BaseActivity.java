@@ -12,7 +12,9 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bravvura.nestledtime.R;
 import com.bravvura.nestledtime.mediagallery.fragment.AlbumPhotoFragment;
@@ -120,6 +122,13 @@ public class BaseActivity extends AppCompatActivity {
         setResult(Activity.RESULT_OK, intent);
         finish();
     }
+
+    public void hideKeyBoard() {
+        if (getCurrentFocus() != null) {
+            InputMethodManager imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
+        }
+    }
     public void finishWithResult(ArrayList<MediaModel> selectedMediaModels) {
         Bundle bundle = new Bundle();
         JSONArray selectedMedias = getSelectedMediaPath(selectedMediaModels);
@@ -130,6 +139,7 @@ public class BaseActivity extends AppCompatActivity {
         setResult(Activity.RESULT_OK, intent);
         finish();
     }
+
     private void removeCacheFromLocal(ArrayList<MediaModel> mediaModels) {
         for (MediaModel mediaModel : mediaModels) {
             mediaModel.removeTempFile();
@@ -143,5 +153,16 @@ public class BaseActivity extends AppCompatActivity {
                 jsonArray.put(mediaModels.get(index).getPathFile());
         }
         return jsonArray;
+    }
+
+    Toast toast;
+    public void showToast(String message) {
+        if (toast == null)
+            toast = Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT);
+        else {
+            toast.cancel();
+            toast.setText(message);
+        }
+        toast.show();
     }
 }
