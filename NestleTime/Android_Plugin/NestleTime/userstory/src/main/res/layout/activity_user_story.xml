@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/layout_content"
@@ -9,106 +9,117 @@
     android:orientation="vertical"
     tools:context="com.bravvura.nestledtime.MainActivity">
 
-    <include layout="@layout/toolbar_layout" />
-
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:padding="@dimen/margin_normal">
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
-        <ImageView
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:background="@drawable/round_primary_color" />
+        <include layout="@layout/toolbar_layout" />
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_marginLeft="@dimen/margin_normal"
-            android:gravity="center_vertical"
-            android:orientation="vertical">
+            android:layout_height="wrap_content"
+            android:padding="@dimen/margin_normal">
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textSize="@dimen/textSizeLarge"
-                android:text="Deepak"
-                android:textColor="@color/black" />
+            <ImageView
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:background="@drawable/round_primary_color" />
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Draft"
-                android:textColor="@color/colorPrimary" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginLeft="@dimen/margin_normal"
+                android:gravity="center_vertical"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Deepak"
+                    android:textColor="@color/black"
+                    android:textSize="@dimen/textSizeLarge" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Draft"
+                    android:textColor="@color/colorPrimary" />
+
+            </LinearLayout>
 
         </LinearLayout>
 
-    </LinearLayout>
-
-    <ImageView
-        android:layout_width="match_parent"
-        android:layout_height="0.5dp"
-        android:src="@color/grey" />
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="0.5dp"
+            android:src="@color/grey" />
 
 
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/recycler_view"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1" />
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/recycler_view"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
 
-    <ImageView
-        android:layout_width="match_parent"
-        android:layout_height="0.5dp"
-        android:src="@color/grey" />
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="0.5dp"
+            android:src="@color/grey" />
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-
-        android:layout_marginLeft="@dimen/margin_large"
-
-        android:gravity="center_vertical">
-
-        <TextView
-            android:layout_width="0dp"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Add to your memory"
-            android:textColor="@color/black" />
 
-        <android.support.design.widget.FloatingActionButton
-            android:id="@+id/fab_message"
-            android:layout_width="35dp"
-            android:layout_height="35dp"
-            android:layout_margin="@dimen/margin_medium"
-            android:src="@drawable/ic_message_white"
-            app:fabSize="mini" />
+            android:layout_marginLeft="@dimen/margin_large"
 
-        <android.support.design.widget.FloatingActionButton
-            android:id="@+id/fab_media"
-            android:layout_width="35dp"
-            android:layout_height="35dp"
-            android:layout_margin="@dimen/margin_medium"
-            android:src="@drawable/ic_photo_gallery_white"
-            app:fabSize="mini" />
+            android:gravity="center_vertical">
 
-        <android.support.design.widget.FloatingActionButton
-            android:id="@+id/fab_audio"
-            android:layout_width="35dp"
-            android:layout_height="35dp"
-            android:layout_margin="@dimen/margin_medium"
-            android:src="@drawable/ic_audio_white"
-            app:fabSize="mini" />
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Add to your memory"
+                android:textColor="@color/black" />
 
-        <android.support.design.widget.FloatingActionButton
-            android:id="@+id/fab_location"
-            android:layout_width="35dp"
-            android:layout_height="35dp"
-            android:layout_margin="@dimen/margin_medium"
-            android:src="@drawable/ic_location_white"
-            app:fabSize="mini" />
+            <android.support.design.widget.FloatingActionButton
+                android:id="@+id/fab_message"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:layout_margin="@dimen/margin_medium"
+                android:src="@drawable/ic_message_white"
+                app:fabSize="mini" />
+
+            <android.support.design.widget.FloatingActionButton
+                android:id="@+id/fab_media"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:layout_margin="@dimen/margin_medium"
+                android:src="@drawable/ic_photo_gallery_white"
+                app:fabSize="mini" />
+
+            <android.support.design.widget.FloatingActionButton
+                android:id="@+id/fab_audio"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:layout_margin="@dimen/margin_medium"
+                android:src="@drawable/ic_audio_white"
+                app:fabSize="mini" />
+
+            <android.support.design.widget.FloatingActionButton
+                android:id="@+id/fab_location"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:layout_margin="@dimen/margin_medium"
+                android:src="@drawable/ic_location_white"
+                app:fabSize="mini" />
 
 
+        </LinearLayout>
     </LinearLayout>
-</LinearLayout>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:id="@+id/frame_layout"
+        android:layout_height="match_parent" />
+</RelativeLayout>

@@ -92,6 +92,17 @@ public class MyFileSystem {
         return file;
     }
 
+    public static File getTempAudioFile() {
+        createDirs();
+        File file = new File(ROOT_COMPRESS_PATH + System.currentTimeMillis() + ".mp3");
+        try {
+            file.createNewFile();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return file;
+    }
+
     private static void createDirs() {
         File file = new File(ROOT_COMPRESS_PATH);
         if (!file.exists())
@@ -124,5 +135,57 @@ public class MyFileSystem {
             e.printStackTrace();
         }
         return false;
+    }
+
+    public static boolean isImageFile(File file) {
+        if (file == null) {
+            return false;
+        }
+        if (!file.isFile()) {
+            return false;
+        }
+        String name = file.getName();
+        if (name.startsWith(".") || file.length() == 0) {
+            return false;
+        }
+        boolean isCheck = false;
+
+        for (int k = 0; k < Constants.FORMAT_IMAGE.length; k++) {
+            if (name.toLowerCase().endsWith(Constants.FORMAT_IMAGE[k].toLowerCase())) {
+                isCheck = true;
+                break;
+            }
+        }
+        return isCheck;
+    }
+
+    public static boolean isVideoFile(File file) {
+        if (file == null) {
+            return false;
+        }
+        if (!file.isFile()) {
+            return false;
+        }
+        String name = file.getName();
+        if (name.startsWith(".") || file.length() == 0) {
+            return false;
+        }
+        boolean isCheck = false;
+
+        for (int k = 0; k < Constants.FORMAT_VIDEO.length; k++) {
+            if (name.toLowerCase().endsWith(Constants.FORMAT_VIDEO[k].toLowerCase())) {
+                isCheck = true;
+                break;
+            }
+        }
+        return isCheck;
+    }
+
+    public static void deleteFile(File outputFile) {
+        try {
+            if (outputFile != null && outputFile.exists()) {
+                outputFile.delete();
+            }
+        } catch(Exception x){}
     }
 }

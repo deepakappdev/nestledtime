@@ -19,6 +19,7 @@ public class Constants {
         int REQUEST_AUDIO = 106;
         int REQUEST_EDIT_GALLERY_MEDIA = 107;
         int REQUEST_EDIT_LOCATION = 108;
+        int REQUEST_RECORD_AUDIO = 109;
     }
 
     public interface BUNDLE_KEY {

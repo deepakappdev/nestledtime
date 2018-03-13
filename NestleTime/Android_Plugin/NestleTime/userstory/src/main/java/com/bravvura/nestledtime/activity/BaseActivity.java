@@ -22,6 +22,7 @@ import com.bravvura.nestledtime.mediagallery.fragment.AllAlbumFragment;
 import com.bravvura.nestledtime.mediagallery.fragment.AllPhotoFragment;
 import com.bravvura.nestledtime.mediagallery.model.MediaModel;
 import com.bravvura.nestledtime.userstory.model.UserStoryMediaModel;
+import com.bravvura.nestledtime.userstory.ui.fragment.UserStoryAudioRecorderFragment;
 import com.bravvura.nestledtime.utils.Constants;
 import com.bravvura.nestledtime.utils.FRAGMENTS;
 
@@ -71,6 +72,9 @@ public class BaseActivity extends AppCompatActivity {
                 break;
             case ALL_PHOTO:
                 fragment = new AllPhotoFragment();
+                break;
+            case AUDIO_RECORDER:
+                fragment = new UserStoryAudioRecorderFragment();
                 break;
         }
         return fragment;

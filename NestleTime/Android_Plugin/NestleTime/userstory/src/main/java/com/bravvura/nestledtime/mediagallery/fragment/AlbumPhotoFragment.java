@@ -26,7 +26,7 @@ import com.bravvura.nestledtime.mediagallery.listener.MediaElementClick;
 import com.bravvura.nestledtime.mediagallery.model.MEDIA_CELL_TYPE;
 import com.bravvura.nestledtime.mediagallery.model.MediaModel;
 import com.bravvura.nestledtime.utils.Constants;
-import com.bravvura.nestledtime.utils.FileUtils;
+import com.bravvura.nestledtime.utils.MyFileSystem;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -99,8 +99,8 @@ public class AlbumPhotoFragment extends Fragment {
 
                     for (File fileTmp : files) {
                         if (fileTmp.exists()) {
-                            boolean isImage = FileUtils.isImageFile(fileTmp);
-                            boolean isVideo = !isImage ? FileUtils.isVideoFile(fileTmp) : false;
+                            boolean isImage = MyFileSystem.isImageFile(fileTmp);
+                            boolean isVideo = !isImage ? MyFileSystem.isVideoFile(fileTmp) : false;
                             boolean check = isImage || isVideo;
                             if (!fileTmp.isDirectory() && check) {
                                 MediaModel mediaModel = new MediaModel("", fileTmp.getAbsolutePath(), fileTmp.getAbsolutePath(), fileTmp.lastModified());

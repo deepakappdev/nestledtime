@@ -10,7 +10,7 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="@dimen/margin_normal"
         android:layout_marginTop="@dimen/margin_normal"
-        app:cardBackgroundColor="@color/white">
+        app:cardBackgroundColor="@color/card_bg">
 
 
         <RelativeLayout

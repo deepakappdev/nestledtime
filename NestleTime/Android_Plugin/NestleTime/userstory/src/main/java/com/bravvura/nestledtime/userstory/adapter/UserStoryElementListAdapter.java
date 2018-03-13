@@ -1,9 +1,7 @@
 package com.bravvura.nestledtime.userstory.adapter;
 
 import android.content.Context;
-import android.content.Intent;
-import android.net.Uri;
-import android.os.Bundle;
+import android.media.MediaPlayer;
 import android.os.Handler;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
@@ -13,8 +11,9 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
+import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bravvura.nestledtime.R;
 import com.bravvura.nestledtime.customview.MyMediaPlayer;
@@ -25,10 +24,6 @@ import com.bravvura.nestledtime.userstory.listener.OnMediaClickListener;
 import com.bravvura.nestledtime.userstory.model.UserStoryElement;
 import com.bravvura.nestledtime.userstory.model.UserStoryElementType;
 import com.bravvura.nestledtime.userstory.model.UserStoryMediaModel;
-import com.bravvura.nestledtime.userstory.ui.activity.UserStoryMediaPagerActivity;
-import com.bravvura.nestledtime.utils.Constants;
-import com.bravvura.nestledtime.utils.MyLogs;
-import com.bravvura.nestledtime.utils.StringUtils;
 import com.bravvura.nestledtime.utils.Utils;
 import com.bumptech.glide.Glide;
 
@@ -105,7 +100,9 @@ public class UserStoryElementListAdapter extends RecyclerView.Adapter<RecyclerVi
         if (viewType == VIEW_MEDIA) {
             return new MediaViewHolder(View.inflate(parent.getContext(), R.layout.cell_user_story_media, null));
         } else if (viewType == VIEW_DATE) {
-            return new DateViewHolder(View.inflate(parent.getContext(), R.layout.cell_user_story_location, null));
+            return new DateViewHolder(View.inflate(parent.getContext(), R.layout.cell_user_story_date, null));
+        } else if (viewType == VIEW_AUDIO) {
+            return new AudioViewHolder(View.inflate(parent.getContext(), R.layout.cell_user_story_audio, null));
         } else if (viewType == VIEW_LOCATION) {
             return new LocationViewHolder(View.inflate(parent.getContext(), R.layout.cell_user_story_location, null));
         } else if (viewType == VIEW_TEXT) {
@@ -132,6 +129,9 @@ public class UserStoryElementListAdapter extends RecyclerView.Adapter<RecyclerVi
                 ((TextViewHolder) holder).edit_text.setHint("Text");
             }
             ((TextViewHolder) holder).edit_text.setText(userStoryElements.get(position).textModel.data);
+        } else if (holder instanceof AudioViewHolder) {
+            ((AudioViewHolder) holder).reset();
+            ((AudioViewHolder) holder).setUpDataSource(userStoryElements.get(position).audioModel.audioUrl);
         }
     }
 
@@ -146,15 +146,13 @@ public class UserStoryElementListAdapter extends RecyclerView.Adapter<RecyclerVi
 
     public void updateHighlightPosition(int highlightPosition) {
         middlePosition = highlightPosition;
-
     }
 
     public void checkStopForMedia() {
-        if(lastMediaPlayerView!=null && lastMediaPlayerView.getPosition()!=middlePosition) {
+        if (lastMediaPlayerView != null && lastMediaPlayerView.getPosition() != middlePosition) {
             lastMediaPlayerView.releaseMediaPlayer(middlePosition);
         }
     }
-
 
     class BaseViewHolder extends RecyclerView.ViewHolder {
 
@@ -193,6 +191,141 @@ public class UserStoryElementListAdapter extends RecyclerView.Adapter<RecyclerVi
 
         public BlankViewHolder(View itemView) {
             super(itemView);
+        }
+    }
+
+    class AudioViewHolder extends BaseViewHolder implements View.OnClickListener, MediaPlayer.OnCompletionListener, MediaPlayer.OnPreparedListener, SeekBar.OnSeekBarChangeListener {
+
+        private ImageView imagePlayPause;
+        private SeekBar seekBar;
+        private TextView textDuration;
+        private MediaPlayer audioPlayer;
+        private String audioUrl;
+        private boolean isPlaying;
+        private Handler handler = new Handler();
+        private Runnable updateTimeTask = new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    if (isMediaPlaying()) {
+                        seekBar.setProgress(audioPlayer.getCurrentPosition());
+                        seekBar.setMax(audioPlayer.getDuration());
+                        int current = audioPlayer.getCurrentPosition() / 1000;
+                        textDuration.setText(String.format("%02d", current / 3600) + ":" + String.format("%02d", current / 60) + ":" + String.format("%02d", current % 60));
+                    }
+                    updateProgressBar();
+                } catch (Exception x) {
+                }
+            }
+        };
+        public boolean isMediaPlaying() {
+            try {
+                return audioPlayer != null && audioPlayer.isPlaying();
+            } catch (Exception x) {
+                return false;
+            }
+        }
+        public AudioViewHolder(View itemView) {
+            super(itemView);
+            initComponent();
+        }
+
+        private void initComponent() {
+            imagePlayPause = itemView.findViewById(R.id.image_play_pause);
+            seekBar = itemView.findViewById(R.id.seek_bar);
+            seekBar.setOnSeekBarChangeListener(this);
+            textDuration = itemView.findViewById(R.id.text_duration);
+            imagePlayPause.setOnClickListener(this);
+        }
+
+        public void setUpDataSource(String url) {
+            this.audioUrl = url;
+        }
+
+        public void play() {
+            audioPlayer = new MediaPlayer();
+            try {
+                audioPlayer.setDataSource(audioUrl);
+                audioPlayer.prepare();
+                audioPlayer.start();
+                audioPlayer.setOnCompletionListener(this);
+                audioPlayer.setOnPreparedListener(this);
+                Toast.makeText(itemView.getContext(), "Playing Audio", Toast.LENGTH_LONG).show();
+                isPlaying = true;
+            } catch (Exception e) {
+                // make something
+            }
+        }
+
+        public void pause() {
+            if (audioPlayer != null && audioPlayer.isPlaying()) {
+                audioPlayer.pause();
+            }
+            imagePlayPause.setImageResource(R.drawable.ic_play_arrow_grey);
+            isPlaying = false;
+        }
+
+        public void resume() {
+            if (audioPlayer != null && !audioPlayer.isPlaying()) {
+                audioPlayer.start();
+            }
+            imagePlayPause.setImageResource(R.drawable.ic_pause_arrow_grey);
+            isPlaying = true;
+        }
+
+        public void reset() {
+            imagePlayPause.setImageResource(R.drawable.ic_play_arrow_grey);
+            seekBar.setProgress(0);
+            seekBar.setEnabled(false);
+            textDuration.setText("00:00:00");
+            audioPlayer = null;
+            isPlaying = false;
+            handler.removeCallbacks(updateTimeTask);
+        }
+
+        @Override
+        public void onClick(View v) {
+            if (v.getId() == R.id.image_play_pause) {
+                if (audioPlayer == null) {
+                    play();
+                } else if (isPlaying) {
+                    pause();
+                } else {
+                    resume();
+                }
+            }
+        }
+
+        @Override
+        public void onCompletion(MediaPlayer mp) {
+            reset();
+        }
+
+        private void updateProgressBar() {
+            handler.postDelayed(updateTimeTask, 200);
+        }
+
+        @Override
+        public void onPrepared(MediaPlayer mp) {
+            updateProgressBar();
+            imagePlayPause.setImageResource(R.drawable.ic_pause_arrow_grey);
+        }
+
+        @Override
+        public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+            if(fromUser) {
+                audioPlayer.seekTo(progress);
+            }
+        }
+
+        @Override
+        public void onStartTrackingTouch(SeekBar seekBar) {
+
+        }
+
+        @Override
+        public void onStopTrackingTouch(SeekBar seekBar) {
+
         }
     }
 

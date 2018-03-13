@@ -39,14 +39,13 @@ android {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation 'com.android.support:appcompat-v7:27.0.2'
     implementation 'org.aspectj:aspectjrt:1.8.5'
 }
 
 
 def siteUrl = 'https://github.com/yovenny/VideoCompress'
-def gitUrl = 'https://github.com/yovenny/VideoCompress.git' // Git仓库的url
-group = "com.yovenny.VideoCompress" // Maven Group ID for the artifact，一般填你唯一的包名
+def gitUrl = 'https://github.com/yovenny/VideoCompress.git'
+group = "com.yovenny.VideoCompress"
 
 task sourcesJar(type: Jar) {
     from android.sourceSets.main.java.srcDirs

@@ -12,11 +12,12 @@ import java.util.ArrayList;
  * Created by Deepak Saini on 26-02-2018.
  */
 
-public class UserStoryElement implements Parcelable{
+public class UserStoryElement implements Parcelable {
     public UserStoryElementType elementType;
     public UserStoryAddressModel addressModel;
     public UserStoryMediaModel mediaModel;
     public UserStoryTextModel textModel;
+    public UserStoryAudioModel audioModel;
     public UserStoryDateModel dateModel;
     public boolean isdeleted;
 
@@ -30,6 +31,10 @@ public class UserStoryElement implements Parcelable{
         this.addressModel = addressModel;
         elementType = UserStoryElementType.ELEMENT_TYPE_LOCATION;
     }
+    public UserStoryElement(UserStoryAudioModel audioModel) {
+        this.audioModel =audioModel;
+        elementType = UserStoryElementType.ELEMENT_TYPE_AUDIO;
+    }
 
 
     public UserStoryElement(UserStoryMediaModel mediaModel) {
@@ -41,6 +46,7 @@ public class UserStoryElement implements Parcelable{
         addressModel = in.readParcelable(UserStoryAddressModel.class.getClassLoader());
         mediaModel = in.readParcelable(UserStoryMediaModel.class.getClassLoader());
         textModel = in.readParcelable(UserStoryTextModel.class.getClassLoader());
+        audioModel = in.readParcelable(UserStoryAudioModel.class.getClassLoader());
         dateModel = in.readParcelable(UserStoryDateModel.class.getClassLoader());
         isdeleted = in.readByte() != 0;
     }
@@ -67,6 +73,7 @@ public class UserStoryElement implements Parcelable{
         dest.writeParcelable(addressModel, flags);
         dest.writeParcelable(mediaModel, flags);
         dest.writeParcelable(textModel, flags);
+        dest.writeParcelable(audioModel, flags);
         dest.writeParcelable(dateModel, flags);
         dest.writeByte((byte) (isdeleted ? 1 : 0));
     }

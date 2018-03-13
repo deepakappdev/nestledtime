@@ -5,5 +5,5 @@ package com.bravvura.nestledtime.utils;
  */
 
 public enum FRAGMENTS {
-    ALL_ALBUM, ALL_PHOTO, ALBUM_PHOTO
+    ALL_ALBUM, ALL_PHOTO, ALBUM_PHOTO, AUDIO_RECORDER
 }

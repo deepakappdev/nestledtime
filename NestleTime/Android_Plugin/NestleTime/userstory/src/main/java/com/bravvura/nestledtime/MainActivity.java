@@ -11,10 +11,11 @@ import android.view.MenuItem;
 import android.view.View;
 
 import com.bravvura.nestledtime.activity.BaseActivity;
-import com.bravvura.nestledtime.mediagallery.model.MediaModel;
+import com.bravvura.nestledtime.eventbusmodel.AudioRecordEventModel;
 import com.bravvura.nestledtime.userstory.adapter.UserStoryElementListAdapter;
 import com.bravvura.nestledtime.userstory.listener.OnMediaClickListener;
 import com.bravvura.nestledtime.userstory.model.UserStoryAddressModel;
+import com.bravvura.nestledtime.userstory.model.UserStoryAudioModel;
 import com.bravvura.nestledtime.userstory.model.UserStoryElement;
 import com.bravvura.nestledtime.userstory.model.UserStoryElementType;
 import com.bravvura.nestledtime.userstory.model.UserStoryMediaModel;
@@ -22,8 +23,11 @@ import com.bravvura.nestledtime.userstory.ui.activity.GoogleMapActivity;
 import com.bravvura.nestledtime.userstory.ui.activity.UserStoryMediaListActivity;
 import com.bravvura.nestledtime.userstory.ui.activity.UserStoryMediaPagerActivity;
 import com.bravvura.nestledtime.utils.Constants;
+import com.bravvura.nestledtime.utils.FRAGMENTS;
 
-import java.util.ArrayList;
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 public class MainActivity extends BaseActivity implements View.OnClickListener {
     private RecyclerView recyclerView;
@@ -84,7 +88,25 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
         initComponent();
         setupToolBar();
         setTitle("New Memory");
+        if (!EventBus.getDefault().isRegistered(this))
+            EventBus.getDefault().register(this);
+    }
 
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onMessageEvent(AudioRecordEventModel event) {
+        UserStoryAudioModel model = new UserStoryAudioModel();
+        model.audioUrl = event.audioFileUrl;
+        UserStoryElement userStoryMedia = new UserStoryElement(model);
+        int index = adapter.getAllItems().size();
+        adapter.addResult(userStoryMedia);
+        adapter.notifyItemInserted(index);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (EventBus.getDefault().isRegistered(this))
+            EventBus.getDefault().register(this);
     }
 
     @Override
@@ -108,6 +130,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
         DividerItemDecoration itemDecorator = new DividerItemDecoration(this, DividerItemDecoration.VERTICAL);
         itemDecorator.setDrawable(ContextCompat.getDrawable(this, R.drawable.transparent_divider));
 //        recyclerView.addItemDecoration(itemDecorator);
+        if(adapter==null)
         adapter = new UserStoryElementListAdapter(getApplicationContext(), mediaClickListener);
         UserStoryElement textElement = new UserStoryElement("", UserStoryElementType.ELEMENT_TYPE_TITLE);
         adapter.addResult(textElement);
@@ -131,7 +154,8 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
                     if (adapter.middlePosition != highlightPosition || !adapter.showMediaPlayer) {
                         adapter.showMediaPlayer = true;
                         adapter.checkStopForMedia();
-                        adapter.notifyItemChanged(adapter.middlePosition);
+                        if (adapter.getAllItems().get(adapter.middlePosition).elementType == UserStoryElementType.ELEMENT_TYPE_MEDIA)
+                            adapter.notifyItemChanged(adapter.middlePosition);
                     }
                 } else if (newState == RecyclerView.SCROLL_STATE_DRAGGING) {
                     isIdle = false;
@@ -227,7 +251,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
             Intent intent = new Intent(getApplicationContext(), GoogleMapActivity.class);
             startActivityForResult(intent, Constants.REQUEST_CODE.REQUEST_LOCATION);
         } else if (v.getId() == R.id.fab_audio) {
-
+            pushFragment(FRAGMENTS.AUDIO_RECORDER, null, true, true);
         } else if (v.getId() == R.id.fab_message) {
             UserStoryElement textElement = new UserStoryElement("", UserStoryElementType.ELEMENT_TYPE_TEXT);
             adapter.addResult(textElement);
