@@ -10,6 +10,7 @@ import android.os.Parcelable;
 
 public class UserStoryAudioModel implements Parcelable {
     public String audioUrl;
+    public String publicId;
 
     public UserStoryAudioModel(){}
 

@@ -56,6 +56,14 @@ public class CloudinaryManager {
         return requestId;
     }
 
+    public static String uploadAudioFile(String fileToUpload, UploadCallback callBack) {
+        String requestId = MediaManager.get()
+                .upload(fileToUpload).option("resource_type", "video")
+                .policy(GlobalUploadPolicy.defaultPolicy())
+                .callback(callBack).dispatch();
+        return requestId;
+    }
+
     public static Map deleteFile(String publicId) {
         try {
             return MediaManager.get().getCloudinary().uploader().destroy(publicId, null);
@@ -88,5 +96,10 @@ public class CloudinaryManager {
         return MediaManager.get().url().transformation(
                 new Transformation().gravity("faces").width(width).height(height).crop("fill")).
                 generate(publicId);
+    }
+
+    public static String getAudioWaveUrl(String publicId) {
+        return MediaManager.get().url().transformation(
+                new Transformation().height(150).width(500).flags("waveform").color("white").background("transparent").startOffset(0).endOffset(0)).resourceType("video").generate(publicId + ".png");
     }
 }

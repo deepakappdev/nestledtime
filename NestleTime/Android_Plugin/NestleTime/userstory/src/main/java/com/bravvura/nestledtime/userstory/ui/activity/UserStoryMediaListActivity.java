@@ -457,12 +457,16 @@ public class UserStoryMediaListActivity extends BaseActivity implements View.OnC
             case Constants.REQUEST_CODE.REQUEST_GALLERY_MEDIA:
                 if (resultCode == RESULT_OK) {
                     ArrayList<MediaModel> selectedModels = data.getParcelableArrayListExtra(Constants.BUNDLE_KEY.SELECTED_MEDIA);
+
                     if (selectedModels != null) {
                         int lastsize = userStoryMediaModel.mediaModels.size();
                         userStoryMediaModel.mediaModels.addAll(selectedModels);
                         adapter.notifyItemRangeInserted(lastsize + 1, selectedModels.size());
                         layoutManager.scrollToPosition(lastsize + 1);
                     }
+                } else {
+                    if(userStoryMediaModel.mediaModels.isEmpty())
+                        finish();
                 }
                 break;
         }

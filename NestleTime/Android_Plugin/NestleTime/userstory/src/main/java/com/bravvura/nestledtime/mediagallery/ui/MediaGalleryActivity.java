@@ -104,6 +104,7 @@ public class MediaGalleryActivity extends BaseActivity {
             protected void onPreExecute() {
                 super.onPreExecute();
                 photoModels.clear();
+                addCameraElement(photoModels);
             }
 
             @Override
@@ -115,14 +116,20 @@ public class MediaGalleryActivity extends BaseActivity {
 
     }
 
+    private void addCameraElement(ArrayList<MediaModel> mediaModels) {
+        if (mediaModels.size() == 0 || mediaModels.get(0).mediaCellType != MEDIA_CELL_TYPE.TYPE_CAMERA) {
+            MediaModel mediaModel = new MediaModel();
+            mediaModel.mediaCellType = MEDIA_CELL_TYPE.TYPE_CAMERA;
+            mediaModels.add(0, mediaModel);
+        }
+    }
+
     private void makeMediaModel() {
         if (cursor != null) {
             int column_index_data = cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.DATA);
             int column_index_id = cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns._ID);
             int column_index_type = cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.MEDIA_TYPE);
             int column_index_size = cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.SIZE);
-
-            ArrayList<MediaModel> tempPhotoModels = new ArrayList<>();
 
             int lastIndex = -1, mediaIndex = 0, albumIndex = 0;
             while (cursor.moveToNext()) {
@@ -140,7 +147,7 @@ public class MediaGalleryActivity extends BaseActivity {
                         albumIndex++;
                     }
 
-                    if (photoModels.isEmpty() || !photoModels.get(photoModels.size() - 1).getDate().equalsIgnoreCase(mediaModel.getDate())) {
+                    if (photoModels.size()==1 || (photoModels.get(photoModels.size() - 1).getDate()!=null && !photoModels.get(photoModels.size() - 1).getDate().equalsIgnoreCase(mediaModel.getDate()))) {
                         photoModels.add(getDateHeader(file.lastModified()));
                         mediaIndex++;
                     }

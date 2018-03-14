@@ -11,9 +11,9 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.SeekBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.bravvura.nestledtime.R;
 import com.bravvura.nestledtime.customview.MyMediaPlayer;
@@ -21,9 +21,11 @@ import com.bravvura.nestledtime.mediagallery.model.MEDIA_CELL_TYPE;
 import com.bravvura.nestledtime.mediagallery.model.MediaModel;
 import com.bravvura.nestledtime.userstory.customview.UserStoryMediaView;
 import com.bravvura.nestledtime.userstory.listener.OnMediaClickListener;
+import com.bravvura.nestledtime.userstory.model.UserStoryAudioModel;
 import com.bravvura.nestledtime.userstory.model.UserStoryElement;
 import com.bravvura.nestledtime.userstory.model.UserStoryElementType;
 import com.bravvura.nestledtime.userstory.model.UserStoryMediaModel;
+import com.bravvura.nestledtime.utils.CloudinaryManager;
 import com.bravvura.nestledtime.utils.Utils;
 import com.bumptech.glide.Glide;
 
@@ -131,7 +133,16 @@ public class UserStoryElementListAdapter extends RecyclerView.Adapter<RecyclerVi
             ((TextViewHolder) holder).edit_text.setText(userStoryElements.get(position).textModel.data);
         } else if (holder instanceof AudioViewHolder) {
             ((AudioViewHolder) holder).reset();
-            ((AudioViewHolder) holder).setUpDataSource(userStoryElements.get(position).audioModel.audioUrl);
+            ((AudioViewHolder) holder).setUpDataSource(userStoryElements.get(position).audioModel);
+        }
+    }
+
+    @Override
+    public void onViewDetachedFromWindow(RecyclerView.ViewHolder holder) {
+        super.onViewDetachedFromWindow(holder);
+        if (holder instanceof AudioViewHolder) {
+
+            ((AudioViewHolder) holder).reset();
         }
     }
 
@@ -194,13 +205,13 @@ public class UserStoryElementListAdapter extends RecyclerView.Adapter<RecyclerVi
         }
     }
 
-    class AudioViewHolder extends BaseViewHolder implements View.OnClickListener, MediaPlayer.OnCompletionListener, MediaPlayer.OnPreparedListener, SeekBar.OnSeekBarChangeListener {
-
+    class AudioViewHolder extends BaseViewHolder implements View.OnClickListener, MediaPlayer.OnCompletionListener, MediaPlayer.OnPreparedListener, SeekBar.OnSeekBarChangeListener, MediaPlayer.OnSeekCompleteListener, MediaPlayer.OnBufferingUpdateListener {
         private ImageView imagePlayPause;
         private SeekBar seekBar;
         private TextView textDuration;
         private MediaPlayer audioPlayer;
-        private String audioUrl;
+        private ProgressBar progressBar;
+        private UserStoryAudioModel audioModel;
         private boolean isPlaying;
         private Handler handler = new Handler();
         private Runnable updateTimeTask = new Runnable() {
@@ -218,6 +229,9 @@ public class UserStoryElementListAdapter extends RecyclerView.Adapter<RecyclerVi
                 }
             }
         };
+        private ImageView imageView;
+
+
         public boolean isMediaPlaying() {
             try {
                 return audioPlayer != null && audioPlayer.isPlaying();
@@ -225,6 +239,7 @@ public class UserStoryElementListAdapter extends RecyclerView.Adapter<RecyclerVi
                 return false;
             }
         }
+
         public AudioViewHolder(View itemView) {
             super(itemView);
             initComponent();
@@ -233,24 +248,30 @@ public class UserStoryElementListAdapter extends RecyclerView.Adapter<RecyclerVi
         private void initComponent() {
             imagePlayPause = itemView.findViewById(R.id.image_play_pause);
             seekBar = itemView.findViewById(R.id.seek_bar);
+            imageView = itemView.findViewById(R.id.image_view);
             seekBar.setOnSeekBarChangeListener(this);
             textDuration = itemView.findViewById(R.id.text_duration);
+            progressBar = itemView.findViewById(R.id.progress_bar);
             imagePlayPause.setOnClickListener(this);
         }
 
-        public void setUpDataSource(String url) {
-            this.audioUrl = url;
+        public void setUpDataSource(UserStoryAudioModel audioModel) {
+            this.audioModel = audioModel;
+            Glide.with(itemView.getContext()).load(CloudinaryManager.getAudioWaveUrl(audioModel.publicId)).into(imageView);
         }
 
         public void play() {
             audioPlayer = new MediaPlayer();
             try {
-                audioPlayer.setDataSource(audioUrl);
+                audioPlayer.setDataSource(audioModel.audioUrl);
                 audioPlayer.prepare();
                 audioPlayer.start();
+                seekBar.setEnabled(false);
+                showProgressBar();
                 audioPlayer.setOnCompletionListener(this);
                 audioPlayer.setOnPreparedListener(this);
-                Toast.makeText(itemView.getContext(), "Playing Audio", Toast.LENGTH_LONG).show();
+                audioPlayer.setOnSeekCompleteListener(this);
+                audioPlayer.setOnBufferingUpdateListener(this);
                 isPlaying = true;
             } catch (Exception e) {
                 // make something
@@ -261,7 +282,7 @@ public class UserStoryElementListAdapter extends RecyclerView.Adapter<RecyclerVi
             if (audioPlayer != null && audioPlayer.isPlaying()) {
                 audioPlayer.pause();
             }
-            imagePlayPause.setImageResource(R.drawable.ic_play_arrow_grey);
+            imagePlayPause.setImageResource(R.drawable.ic_play_arrow);
             isPlaying = false;
         }
 
@@ -269,12 +290,15 @@ public class UserStoryElementListAdapter extends RecyclerView.Adapter<RecyclerVi
             if (audioPlayer != null && !audioPlayer.isPlaying()) {
                 audioPlayer.start();
             }
-            imagePlayPause.setImageResource(R.drawable.ic_pause_arrow_grey);
+            imagePlayPause.setImageResource(R.drawable.ic_pause_arrow);
             isPlaying = true;
         }
 
         public void reset() {
-            imagePlayPause.setImageResource(R.drawable.ic_play_arrow_grey);
+            imagePlayPause.setImageResource(R.drawable.ic_play_arrow);
+            if (audioPlayer != null)
+                audioPlayer.stop();
+            hideProgressBar();
             seekBar.setProgress(0);
             seekBar.setEnabled(false);
             textDuration.setText("00:00:00");
@@ -296,6 +320,16 @@ public class UserStoryElementListAdapter extends RecyclerView.Adapter<RecyclerVi
             }
         }
 
+        void showProgressBar() {
+            imagePlayPause.setVisibility(View.GONE);
+            progressBar.setVisibility(View.VISIBLE);
+        }
+
+        void hideProgressBar() {
+            imagePlayPause.setVisibility(View.VISIBLE);
+            progressBar.setVisibility(View.GONE);
+        }
+
         @Override
         public void onCompletion(MediaPlayer mp) {
             reset();
@@ -308,12 +342,14 @@ public class UserStoryElementListAdapter extends RecyclerView.Adapter<RecyclerVi
         @Override
         public void onPrepared(MediaPlayer mp) {
             updateProgressBar();
-            imagePlayPause.setImageResource(R.drawable.ic_pause_arrow_grey);
+            seekBar.setEnabled(true);
+            hideProgressBar();
+            imagePlayPause.setImageResource(R.drawable.ic_pause_arrow);
         }
 
         @Override
         public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-            if(fromUser) {
+            if (fromUser) {
                 audioPlayer.seekTo(progress);
             }
         }
@@ -326,6 +362,18 @@ public class UserStoryElementListAdapter extends RecyclerView.Adapter<RecyclerVi
         @Override
         public void onStopTrackingTouch(SeekBar seekBar) {
 
+        }
+
+        @Override
+        public void onSeekComplete(MediaPlayer mp) {
+            hideProgressBar();
+        }
+
+        @Override
+        public void onBufferingUpdate(MediaPlayer mp, int percent) {
+            int total = seekBar.getMax();
+            int secondary = total * percent / 100;
+            seekBar.setSecondaryProgress(secondary);
         }
     }
 

@@ -1,9 +1,11 @@
 package com.bravvura.nestledtime.userstory.ui.fragment;
 
 import android.Manifest;
+import android.content.Intent;
 import android.graphics.Color;
 import android.media.MediaRecorder;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.os.SystemClock;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -17,14 +19,19 @@ import android.widget.Toast;
 
 import com.bravvura.nestledtime.R;
 import com.bravvura.nestledtime.eventbusmodel.AudioRecordEventModel;
+import com.bravvura.nestledtime.utils.CloudinaryManager;
 import com.bravvura.nestledtime.utils.Constants;
 import com.bravvura.nestledtime.utils.MyFileSystem;
 import com.bravvura.nestledtime.utils.PermissionUtils;
+import com.cloudinary.android.callback.ErrorInfo;
+import com.cloudinary.android.callback.ListenerService;
+import com.cloudinary.android.callback.UploadCallback;
 
 import org.greenrobot.eventbus.EventBus;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Map;
 
 /**
  * Project Name Nestled Time
@@ -37,6 +44,56 @@ public class UserStoryAudioRecorderFragment extends BaseFragment implements View
     private ImageView imageRecord;
     private MediaRecorder mRecorder;
     private File outputFile;
+    private String requestId;
+    private UploadCallback callBack = new ListenerService() {
+        @Nullable
+        @Override
+        public IBinder onBind(Intent intent) {
+            return null;
+        }
+
+        @Override
+        public void onStart(String requestId) {
+
+        }
+
+        @Override
+        public void onProgress(String requestId, long bytes, long totalBytes) {
+
+        }
+
+        @Override
+        public void onSuccess(String requestId, Map resultData) {
+            if (UserStoryAudioRecorderFragment.this.requestId.equalsIgnoreCase(requestId)) {
+                if (resultData.containsKey("url")) {
+                    AudioRecordEventModel eventModel = new AudioRecordEventModel();
+                    eventModel.audioFileUrl = resultData.get("url").toString();
+                    eventModel.publicId = resultData.get("public_id").toString();
+
+                    EventBus.getDefault().post(eventModel);
+                    MyFileSystem.deleteFile(outputFile);
+                    hideDialog();
+                    getFragmentManager().popBackStack();
+                }
+            }
+        }
+
+        @Override
+        public void onError(String requestId, ErrorInfo error) {
+            if (UserStoryAudioRecorderFragment.this.requestId.equalsIgnoreCase(requestId)) {
+                showToast("Something working wrong");
+//                startUploadingToCloudinary(outputFile.getAbsolutePath());
+            }
+        }
+
+        @Override
+        public void onReschedule(String requestId, ErrorInfo error) {
+            if (UserStoryAudioRecorderFragment.this.requestId.equalsIgnoreCase(requestId)) {
+//                startUploadingToCloudinary(outputFile.getAbsolutePath());
+            }
+        }
+    };
+
 
     @Nullable
     @Override
@@ -121,13 +178,14 @@ public class UserStoryAudioRecorderFragment extends BaseFragment implements View
 
     private void finishRecording() {
         stopRecording();
-        Toast.makeText(getContext(), "Recording saved successfully.", Toast.LENGTH_SHORT).show();
-        AudioRecordEventModel eventModel = new AudioRecordEventModel();
-        eventModel.audioFileUrl = outputFile.getAbsolutePath();
-        EventBus.getDefault().post(eventModel);
-        getFragmentManager().popBackStack();
-
+        startUploadingToCloudinary(outputFile.getAbsolutePath());
     }
+
+    private void startUploadingToCloudinary(String absolutePath) {
+        showDialog();
+        requestId = CloudinaryManager.uploadAudioFile(absolutePath, callBack);
+    }
+
 
     private void cancelRecording() {
         stopRecording();

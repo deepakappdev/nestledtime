@@ -70,6 +70,11 @@ public class MyFileSystem {
         return null;
     }
 
+    public static File getNewFile() {
+        createDirs();
+        return new File(ROOT_COMPRESS_PATH , System.currentTimeMillis() + ".jpg");
+    }
+
     public static File getTempImageFile() {
         createDirs();
         File file = new File(ROOT_COMPRESS_PATH + System.currentTimeMillis() + ".jpg");

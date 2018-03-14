@@ -23,7 +23,9 @@ import java.util.ArrayList;
 
 public class AllPhotoGalleryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private static final int HEADER_VIEW = 1;
-    private static final int CELL_VIEW = 2;
+    private static final int CAMERA_VIEW = 2;
+    private static final int CELL_VIEW = 3;
+
 
     private ArrayList<MediaModel> mediaModels;
     private final int cellWidth;
@@ -38,6 +40,8 @@ public class AllPhotoGalleryAdapter extends RecyclerView.Adapter<RecyclerView.Vi
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         if (viewType == CELL_VIEW)
             return new MediaViewHolder(View.inflate(parent.getContext(), R.layout.cell_media_gallery, null));
+        else if (viewType == CAMERA_VIEW)
+            return new CameraViewHolder(View.inflate(parent.getContext(), R.layout.cell_camera_gallery, null));
         else
             return new HeaderViewHolder(View.inflate(parent.getContext(), R.layout.cell_header_gallery, null));
     }
@@ -46,7 +50,10 @@ public class AllPhotoGalleryAdapter extends RecyclerView.Adapter<RecyclerView.Vi
     public int getItemViewType(int position) {
         if (mediaModels.get(position).mediaCellType == MEDIA_CELL_TYPE.TYPE_HEADER)
             return HEADER_VIEW;
-        else return CELL_VIEW;
+        else if (mediaModels.get(position).mediaCellType == MEDIA_CELL_TYPE.TYPE_CAMERA)
+            return CAMERA_VIEW;
+        else
+            return CELL_VIEW;
     }
 
     @Override
@@ -57,6 +64,9 @@ public class AllPhotoGalleryAdapter extends RecyclerView.Adapter<RecyclerView.Vi
             ((MediaViewHolder) holder).populate(mediaModels.get(position));
         } else if (holder instanceof HeaderViewHolder) {
             ((HeaderViewHolder) holder).textDate.setText(mediaModels.get(position).getDate());
+        } else if (holder instanceof CameraViewHolder) {
+            ((CameraViewHolder) holder).updateModel(mediaModels.get(position));
+            ((CameraViewHolder) holder).updateSize(cellWidth, cellWidth);
         }
     }
 
@@ -79,6 +89,37 @@ public class AllPhotoGalleryAdapter extends RecyclerView.Adapter<RecyclerView.Vi
         public HeaderViewHolder(View itemView) {
             super(itemView);
             textDate = itemView.findViewById(R.id.text_date);
+        }
+    }
+
+    class CameraViewHolder extends RecyclerView.ViewHolder {
+        public View layoutContent;
+        private MediaModel mediaModel;
+
+        public CameraViewHolder(View itemView) {
+            super(itemView);
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (mediaElementClick != null)
+                        mediaElementClick.onClick(getAdapterPosition(), mediaModel);
+                }
+            });
+            layoutContent = itemView.findViewById(R.id.layout_content);
+        }
+
+        public void updateModel(MediaModel mediaModel) {
+            this.mediaModel = mediaModel;
+        }
+
+        public void updateSize(final int cellWidth, int cellHeight) {
+            layoutContent.post(new Runnable() {
+                @Override
+                public void run() {
+                    layoutContent.getLayoutParams().height = cellWidth;
+                    layoutContent.getLayoutParams().width = cellWidth;
+                }
+            });
         }
     }
 

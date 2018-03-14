@@ -96,6 +96,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
     public void onMessageEvent(AudioRecordEventModel event) {
         UserStoryAudioModel model = new UserStoryAudioModel();
         model.audioUrl = event.audioFileUrl;
+        model.publicId = event.publicId;
         UserStoryElement userStoryMedia = new UserStoryElement(model);
         int index = adapter.getAllItems().size();
         adapter.addResult(userStoryMedia);
@@ -106,7 +107,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
     protected void onDestroy() {
         super.onDestroy();
         if (EventBus.getDefault().isRegistered(this))
-            EventBus.getDefault().register(this);
+            EventBus.getDefault().unregister(this);
     }
 
     @Override
@@ -130,8 +131,8 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
         DividerItemDecoration itemDecorator = new DividerItemDecoration(this, DividerItemDecoration.VERTICAL);
         itemDecorator.setDrawable(ContextCompat.getDrawable(this, R.drawable.transparent_divider));
 //        recyclerView.addItemDecoration(itemDecorator);
-        if(adapter==null)
-        adapter = new UserStoryElementListAdapter(getApplicationContext(), mediaClickListener);
+        if (adapter == null)
+            adapter = new UserStoryElementListAdapter(getApplicationContext(), mediaClickListener);
         UserStoryElement textElement = new UserStoryElement("", UserStoryElementType.ELEMENT_TYPE_TITLE);
         adapter.addResult(textElement);
         recyclerView.setAdapter(adapter);
