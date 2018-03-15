@@ -48,7 +48,7 @@ import java.util.ArrayList;
  * Created by Deepak Saini on 07-02-2018.
  */
 
-public class AllPhotoFragment extends BaseFragment {
+public class LocalPhotoFragment extends BaseFragment {
     private AllPhotoGalleryAdapter adapter;
     ArrayList<MediaModel> mediaModels;
     private MenuItem menuItem;

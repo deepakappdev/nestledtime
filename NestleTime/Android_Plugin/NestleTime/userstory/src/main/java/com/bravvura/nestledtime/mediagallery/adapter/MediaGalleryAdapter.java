@@ -4,8 +4,8 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 
-import com.bravvura.nestledtime.mediagallery.fragment.AllAlbumFragment;
-import com.bravvura.nestledtime.mediagallery.fragment.AllPhotoFragment;
+import com.bravvura.nestledtime.mediagallery.fragment.LocalAlbumFragment;
+import com.bravvura.nestledtime.mediagallery.fragment.LocalPhotoFragment;
 
 /**
  * Created by Deepak Saini on 06-02-2018.
@@ -20,12 +20,12 @@ public class MediaGalleryAdapter extends FragmentStatePagerAdapter {
     }
 
     Fragment getAllPhotoFragment() {
-        Fragment fragment = new AllPhotoFragment();
+        Fragment fragment = new LocalPhotoFragment();
         return fragment;
     }
 
     Fragment getAllAlbumFragment() {
-        Fragment fragment = new AllAlbumFragment();
+        Fragment fragment = new LocalAlbumFragment();
         return fragment;
     }
 

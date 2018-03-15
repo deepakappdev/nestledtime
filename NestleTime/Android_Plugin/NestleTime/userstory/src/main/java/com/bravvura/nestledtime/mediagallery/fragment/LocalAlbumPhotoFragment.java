@@ -25,6 +25,7 @@ import com.bravvura.nestledtime.mediagallery.filesystem.CursorManager;
 import com.bravvura.nestledtime.mediagallery.listener.MediaElementClick;
 import com.bravvura.nestledtime.mediagallery.model.MEDIA_CELL_TYPE;
 import com.bravvura.nestledtime.mediagallery.model.MediaModel;
+import com.bravvura.nestledtime.userstory.ui.fragment.BaseFragment;
 import com.bravvura.nestledtime.utils.Constants;
 import com.bravvura.nestledtime.utils.MyFileSystem;
 
@@ -37,7 +38,7 @@ import java.util.Comparator;
  * Created by Deepak Saini on 07-02-2018.
  */
 
-public class AlbumPhotoFragment extends Fragment {
+public class LocalAlbumPhotoFragment extends BaseFragment {
     private AllPhotoGalleryAdapter adapter;
     private ArrayList<MediaModel> mediaModels = new ArrayList<>();
     private MediaModel albumModel;
@@ -122,14 +123,6 @@ public class AlbumPhotoFragment extends Fragment {
                 }
             }
         }.execute((Void) null);
-    }
-
-
-    private MediaModel getDateHeader(long time) {
-        MediaModel mediaModel = new MediaModel();
-        mediaModel.setLastModified(time);
-        mediaModel.setType(-1);
-        return mediaModel;
     }
 
     private void initComponent(View view) {

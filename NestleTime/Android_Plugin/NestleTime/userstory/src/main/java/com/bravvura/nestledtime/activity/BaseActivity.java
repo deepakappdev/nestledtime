@@ -17,9 +17,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bravvura.nestledtime.R;
-import com.bravvura.nestledtime.mediagallery.fragment.AlbumPhotoFragment;
-import com.bravvura.nestledtime.mediagallery.fragment.AllAlbumFragment;
-import com.bravvura.nestledtime.mediagallery.fragment.AllPhotoFragment;
+import com.bravvura.nestledtime.mediagallery.fragment.LocalAlbumPhotoFragment;
+import com.bravvura.nestledtime.mediagallery.fragment.LocalAlbumFragment;
+import com.bravvura.nestledtime.mediagallery.fragment.LocalPhotoFragment;
 import com.bravvura.nestledtime.mediagallery.model.MediaModel;
 import com.bravvura.nestledtime.userstory.model.UserStoryMediaModel;
 import com.bravvura.nestledtime.userstory.ui.fragment.UserStoryAudioRecorderFragment;
@@ -64,14 +64,14 @@ public class BaseActivity extends AppCompatActivity {
     Fragment getFragment(FRAGMENTS fragmentId) {
         Fragment fragment = null;
         switch (fragmentId) {
-            case ALBUM_PHOTO:
-                fragment = new AlbumPhotoFragment();
+            case LOCAL_ALBUM_PHOTO:
+                fragment = new LocalAlbumPhotoFragment();
                 break;
-            case ALL_ALBUM:
-                fragment = new AllAlbumFragment();
+            case LOCAL_ALBUM:
+                fragment = new LocalAlbumFragment();
                 break;
-            case ALL_PHOTO:
-                fragment = new AllPhotoFragment();
+            case LOCAL_PHOTO:
+                fragment = new LocalPhotoFragment();
                 break;
             case AUDIO_RECORDER:
                 fragment = new UserStoryAudioRecorderFragment();

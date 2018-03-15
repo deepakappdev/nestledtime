@@ -13,7 +13,7 @@ import com.bravvura.nestledtime.utils.FRAGMENTS;
  * Created by Deepak Saini on 08-02-2018.
  */
 
-public class MediaAlbumActivity extends BaseActivity {
+public class InstagramMediaAlbumActivity extends BaseActivity {
     private MediaModel albumModel;
 
     @Override
@@ -24,7 +24,7 @@ public class MediaAlbumActivity extends BaseActivity {
         Bundle bundle =  getIntent().getExtras();
         albumModel = bundle.getParcelable(Constants.BUNDLE_KEY.MEDIA_MODEL);
         setTitle(albumModel.getTitle());
-        pushFragment(FRAGMENTS.ALBUM_PHOTO, bundle, false, false);
+        pushFragment(FRAGMENTS.INSTAGRAM_ALBUM_PHOTO, bundle, false, false);
     }
 
 

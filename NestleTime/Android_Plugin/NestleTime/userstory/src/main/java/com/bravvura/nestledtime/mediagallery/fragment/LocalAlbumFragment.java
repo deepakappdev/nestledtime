@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -16,8 +15,9 @@ import com.bravvura.nestledtime.eventbusmodel.MessageAlbumFound;
 import com.bravvura.nestledtime.mediagallery.adapter.AllAlbumGalleryAdapter;
 import com.bravvura.nestledtime.mediagallery.listener.MediaElementClick;
 import com.bravvura.nestledtime.mediagallery.model.MediaModel;
-import com.bravvura.nestledtime.mediagallery.ui.MediaAlbumActivity;
+import com.bravvura.nestledtime.mediagallery.ui.LocalMediaAlbumActivity;
 import com.bravvura.nestledtime.mediagallery.ui.MediaGalleryActivity;
+import com.bravvura.nestledtime.userstory.ui.fragment.BaseFragment;
 import com.bravvura.nestledtime.utils.Constants;
 
 import org.greenrobot.eventbus.EventBus;
@@ -30,13 +30,13 @@ import java.util.ArrayList;
  * Created by Deepak Saini on 07-02-2018.
  */
 
-public class AllAlbumFragment extends Fragment {
+public class LocalAlbumFragment extends BaseFragment {
     private AllAlbumGalleryAdapter adapter;
     ArrayList<MediaModel> albumModels = new ArrayList<>();
     private MediaElementClick albumClickListener = new MediaElementClick() {
         @Override
         public void onClick(int index, MediaModel mediaModel) {
-            Intent intent = new Intent(getContext(), MediaAlbumActivity.class);
+            Intent intent = new Intent(getContext(), LocalMediaAlbumActivity.class);
             Bundle bundle = new Bundle();
             bundle.putParcelable(Constants.BUNDLE_KEY.MEDIA_MODEL, mediaModel);
             intent.putExtras(bundle);

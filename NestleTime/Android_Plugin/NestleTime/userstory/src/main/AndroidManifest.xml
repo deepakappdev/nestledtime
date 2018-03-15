@@ -39,7 +39,7 @@
             android:name="com.bravvura.nestledtime.userstory.ui.activity.GoogleMapActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name="com.bravvura.nestledtime.mediagallery.ui.MediaAlbumActivity"
+            android:name="com.bravvura.nestledtime.mediagallery.ui.LocalMediaAlbumActivity"
             android:screenOrientation="portrait" />
         <activity
             android:name="com.bravvura.nestledtime.userstory.ui.activity.UserStoryMediaListActivity"
