@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:orientation="vertical"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
 
     <RelativeLayout
         android:id="@+id/layout_content"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginLeft="@dimen/margin_xlarge"
-        android:layout_marginRight="@dimen/margin_xlarge"
-        android:layout_marginBottom="@dimen/margin_small"
-        android:layout_marginTop="@dimen/margin_xlarge">
+        android:paddingBottom="@dimen/margin_small"
+        android:paddingLeft="@dimen/margin_xlarge"
+        android:paddingRight="@dimen/margin_xlarge"
+        android:paddingTop="@dimen/margin_xlarge">
 
 
         <ImageView
@@ -23,13 +23,13 @@
 
         <TextView
             android:id="@+id/text_media_count"
-            android:gravity="center"
             android:layout_width="100dp"
-            android:textSize="@dimen/textSizeLarge"
-            android:textColor="@color/white"
+            android:layout_height="100dp"
             android:layout_centerInParent="true"
             android:background="@drawable/round_black_semi"
-            android:layout_height="100dp" />
+            android:gravity="center"
+            android:textColor="@color/white"
+            android:textSize="@dimen/textSizeLarge" />
     </RelativeLayout>
 
     <TextView

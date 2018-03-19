@@ -21,6 +21,9 @@ public class Constants {
         int REQUEST_EDIT_LOCATION = 108;
         int REQUEST_RECORD_AUDIO = 109;
         int REQUEST_CAMERA = 110;
+        int REQUEST_SOCIAL_FB_LOGIN = 111;
+        int REQUEST_SOCIAL_FB_LOGOUT = 112;
+
     }
 
     public interface BUNDLE_KEY {
@@ -32,5 +35,11 @@ public class Constants {
         String SELECTED_LOCATION = "selected_location";
         String USER_STORY_MEDIA_MODEL = "user_story_media_model";
         String INDEX = "index";
+    }
+
+    public interface URLS {
+        String FACEBOOK_GET_PHOTOS = "http://api.nestledtime.com/newapi/index.php?fbid=125289771505044";
+        String FACEBOOK_GET_ALBUMS = "http://nestledtime.com/api/?q=pranjul&fbid=1579591118800311&allimage=1";
+
     }
 }

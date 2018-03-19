@@ -5,27 +5,32 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 
 import com.bravvura.nestledtime.mediagallery.fragment.LocalAlbumFragment;
+import com.bravvura.nestledtime.mediagallery.fragment.LocalGalleryFragment;
 import com.bravvura.nestledtime.mediagallery.fragment.LocalPhotoFragment;
 
 /**
  * Created by Deepak Saini on 06-02-2018.
  */
 
-public class MediaGalleryAdapter extends FragmentStatePagerAdapter {
+public class LocalMediaGalleryAdapter extends FragmentStatePagerAdapter {
 
+    private final LocalGalleryFragment localGalleryFragment;
     String[] tabs = new String[]{"Photos", "Albums"};
 
-    public MediaGalleryAdapter(FragmentManager fm) {
+    public LocalMediaGalleryAdapter(FragmentManager fm, LocalGalleryFragment localGalleryFragment) {
         super(fm);
+        this.localGalleryFragment = localGalleryFragment;
     }
 
     Fragment getAllPhotoFragment() {
-        Fragment fragment = new LocalPhotoFragment();
+        LocalPhotoFragment fragment = new LocalPhotoFragment();
+        fragment.parentFragment = localGalleryFragment;
         return fragment;
     }
 
     Fragment getAllAlbumFragment() {
-        Fragment fragment = new LocalAlbumFragment();
+        LocalAlbumFragment fragment = new LocalAlbumFragment();
+        fragment.parentFragment = localGalleryFragment;
         return fragment;
     }
 

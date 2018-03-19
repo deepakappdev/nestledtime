@@ -1,14 +1,12 @@
 package com.bravvura.nestledtime.mediagallery.fragment;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
 import android.support.v7.widget.GridLayoutManager;
@@ -35,7 +33,6 @@ import com.bravvura.nestledtime.mediagallery.ui.MediaGalleryActivity;
 import com.bravvura.nestledtime.userstory.ui.fragment.BaseFragment;
 import com.bravvura.nestledtime.utils.Constants;
 import com.bravvura.nestledtime.utils.MyFileSystem;
-import com.bravvura.nestledtime.utils.MyLogs;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -53,6 +50,7 @@ public class LocalPhotoFragment extends BaseFragment {
     ArrayList<MediaModel> mediaModels;
     private MenuItem menuItem;
     private File newCameraFile;
+    public LocalGalleryFragment parentFragment;
 
     @Nullable
     @Override
@@ -108,8 +106,10 @@ public class LocalPhotoFragment extends BaseFragment {
         recyclerView.setLayoutManager(layoutManager);
 
         int width = getActivity().getWindowManager().getDefaultDisplay().getWidth();
-
-        mediaModels = ((MediaGalleryActivity) getActivity()).photoModels;
+        if (parentFragment == null) {
+            parentFragment = ((MediaGalleryActivity) getActivity()).adapter.localGalleryFragment;
+        }
+        mediaModels = parentFragment.photoModels;
         adapter = new AllPhotoGalleryAdapter(mediaModels, width / 3);
         adapter.setOnMediaClickListener(new MediaElementClick() {
             @Override
@@ -151,7 +151,7 @@ public class LocalPhotoFragment extends BaseFragment {
             case Constants.REQUEST_CODE.REQUEST_CAMERA:
                 if (resultCode == Activity.RESULT_OK) {
                     MediaModel mediaModel = new MediaModel();
-                    mediaModel.mediaCellType=MEDIA_CELL_TYPE.TYPE_IMAGE;
+                    mediaModel.mediaCellType = MEDIA_CELL_TYPE.TYPE_IMAGE;
                     mediaModel.setSelected(true);
                     mediaModel.sourceType = MEDIA_SOURCE_TYPE.TYPE_LOCAL;
                     mediaModel.setPathFile(newCameraFile.getAbsolutePath());
@@ -161,10 +161,10 @@ public class LocalPhotoFragment extends BaseFragment {
 
 
                     MediaModel firstMediaModel = null;
-                    if(mediaModels.size()>1)
+                    if (mediaModels.size() > 1)
                         firstMediaModel = mediaModels.get(1);
 
-                    if(firstMediaModel==null || !firstMediaModel.getDate().equalsIgnoreCase(mediaModel.getDate())) {
+                    if (firstMediaModel == null || !firstMediaModel.getDate().equalsIgnoreCase(mediaModel.getDate())) {
                         mediaModels.add(1, mediaModel);
                         mediaModels.add(1, headerModel);
                     } else {
@@ -194,7 +194,7 @@ public class LocalPhotoFragment extends BaseFragment {
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        inflater.inflate(R.menu.gallery_media_menu, menu);
+        inflater.inflate(R.menu.menu_done, menu);
         menuItem = menu.findItem(R.id.menu_done);
 
         SpannableString s = new SpannableString("Done");

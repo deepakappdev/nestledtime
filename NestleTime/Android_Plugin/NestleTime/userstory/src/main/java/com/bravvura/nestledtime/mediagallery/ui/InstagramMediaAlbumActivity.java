@@ -26,6 +26,4 @@ public class InstagramMediaAlbumActivity extends BaseActivity {
         setTitle(albumModel.getTitle());
         pushFragment(FRAGMENTS.INSTAGRAM_ALBUM_PHOTO, bundle, false, false);
     }
-
-
 }

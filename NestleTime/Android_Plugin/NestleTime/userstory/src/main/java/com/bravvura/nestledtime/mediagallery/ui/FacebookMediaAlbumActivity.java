@@ -6,6 +6,7 @@ import android.support.annotation.Nullable;
 import com.bravvura.nestledtime.R;
 import com.bravvura.nestledtime.activity.BaseActivity;
 import com.bravvura.nestledtime.mediagallery.model.MediaModel;
+import com.bravvura.nestledtime.mediagallery.model.facebook.FacebookAlbumData;
 import com.bravvura.nestledtime.utils.Constants;
 import com.bravvura.nestledtime.utils.FRAGMENTS;
 
@@ -14,7 +15,7 @@ import com.bravvura.nestledtime.utils.FRAGMENTS;
  */
 
 public class FacebookMediaAlbumActivity extends BaseActivity {
-    private MediaModel albumModel;
+    private FacebookAlbumData albumModel;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -23,8 +24,8 @@ public class FacebookMediaAlbumActivity extends BaseActivity {
         setupToolBar();
         Bundle bundle =  getIntent().getExtras();
         albumModel = bundle.getParcelable(Constants.BUNDLE_KEY.MEDIA_MODEL);
-        setTitle(albumModel.getTitle());
-        pushFragment(FRAGMENTS.LOCAL_ALBUM_PHOTO, bundle, false, false);
+        setTitle(albumModel.name);
+        pushFragment(FRAGMENTS.FACEBOOK_ALBUM_PHOTO, bundle, false, false);
     }
 
 

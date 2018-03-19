@@ -3,7 +3,6 @@ package com.bravvura.nestledtime.mediagallery.fragment;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -190,7 +189,7 @@ public class LocalAlbumPhotoFragment extends BaseFragment {
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        inflater.inflate(R.menu.gallery_media_menu, menu);
+        inflater.inflate(R.menu.menu_done, menu);
         menuItem = menu.findItem(R.id.menu_done);
 
         SpannableString s = new SpannableString("Done");

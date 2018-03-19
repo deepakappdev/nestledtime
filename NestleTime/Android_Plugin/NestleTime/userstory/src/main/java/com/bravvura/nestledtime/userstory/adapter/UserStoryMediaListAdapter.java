@@ -171,14 +171,25 @@ public class UserStoryMediaListAdapter extends RecyclerView.Adapter<RecyclerView
             editDescription.setText(mediaModel.getTitle());
             editDescription.clearFocus();
             itemView.clearFocus();
-            if (mediaModel.isEdited || mediaModel.sourceType != MEDIA_SOURCE_TYPE.TYPE_CLOUD) {
+            if (mediaModel.isEdited) {
                 Glide.with(itemView.getContext()).load(new File(mediaModel.getPathFile())).into(imageView);
             } else {
-                if(mediaModel.mediaCellType==MEDIA_CELL_TYPE.TYPE_IMAGE) {
-                    Glide.with(itemView.getContext()).load(mediaModel.getUrl()).into(imageView);
-                } else {
-                    Glide.with(itemView.getContext()).load(CloudinaryManager.getVideoThumbnail(mediaModel.getPublicId())).into(imageView);
+                switch(mediaModel.sourceType) {
+                    case TYPE_CLOUD:
+                        if(mediaModel.mediaCellType==MEDIA_CELL_TYPE.TYPE_IMAGE) {
+                            Glide.with(itemView.getContext()).load(mediaModel.getUrl()).into(imageView);
+                        } else {
+                            Glide.with(itemView.getContext()).load(CloudinaryManager.getVideoThumbnail(mediaModel.getPublicId())).into(imageView);
+                        }
+                    case TYPE_FACEBOOK:
+                    case TYPE_INSTAGRAM:
+                        Glide.with(itemView.getContext()).load(mediaModel.getUrl()).into(imageView);
+                        break;
+                    case TYPE_LOCAL:
+                        Glide.with(itemView.getContext()).load(new File(mediaModel.getPathFile())).into(imageView);
+                        break;
                 }
+
             }
         }
     }

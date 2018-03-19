@@ -152,6 +152,25 @@ public class AllPhotoGalleryAdapter extends RecyclerView.Adapter<RecyclerView.Vi
         void populate(MediaModel mediaModel) {
             this.mediaModel = mediaModel;
             viewSelected.setSelected(mediaModel.isSelected());
+            switch(mediaModel.sourceType) {
+                case TYPE_LOCAL:
+                    populateLocal();
+                    break;
+                case TYPE_FACEBOOK:
+                    populateFacebook();
+                    break;
+                case TYPE_INSTAGRAM:
+                    populateInstagram();
+                    break;
+            }
+
+        }
+
+        private void populateInstagram() {
+
+        }
+
+        private void populateLocal() {
             Glide.with(itemView.getContext()).load(new File(mediaModel.getPathFile())).into(imageItem);
             if (mediaModel.mediaCellType == MEDIA_CELL_TYPE.TYPE_VIDEO) {
                 iconVideo.setVisibility(View.VISIBLE);
@@ -169,6 +188,25 @@ public class AllPhotoGalleryAdapter extends RecyclerView.Adapter<RecyclerView.Vi
                 textDuration.setVisibility(View.GONE);
             }
         }
+        private void populateFacebook() {
+            Glide.with(itemView.getContext()).load(mediaModel.getUrl()).into(imageItem);
+            if (mediaModel.mediaCellType == MEDIA_CELL_TYPE.TYPE_VIDEO) {
+                iconVideo.setVisibility(View.VISIBLE);
+                textDuration.setVisibility(View.VISIBLE);
+                if (mediaModel.duration == 0 && mediaModel.getId() > 0) {
+                    mediaModel.duration = CursorManager.getVideoDuration(itemView.getContext(), mediaModel.getId()) / 1000;
+                }
+
+                if (mediaModel.duration > 0) {
+                    textDuration.setText(String.format("%02d", mediaModel.duration / 60) + ":"
+                            + String.format("%02d", mediaModel.duration % 60));
+                }
+            } else {
+                iconVideo.setVisibility(View.GONE);
+                textDuration.setVisibility(View.GONE);
+            }
+        }
+
 
     }
 }

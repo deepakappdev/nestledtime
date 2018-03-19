@@ -1,7 +1,9 @@
 package com.bravvura.nestledtime.userstory.ui.fragment;
 
 import android.app.ProgressDialog;
+import android.content.pm.PackageManager;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.widget.Toast;
 
 import com.bravvura.nestledtime.mediagallery.model.MediaModel;
@@ -43,5 +45,17 @@ public class BaseFragment extends Fragment {
             progressDialog.setTitle("Please wait");
             progressDialog.show();
         }
+    }
+
+    protected boolean isPermissionGranted(String permission) {
+        //Getting the permission status
+        int result = ContextCompat.checkSelfPermission(getContext(), permission);
+
+        //If permission is granted returning true
+        if (result == PackageManager.PERMISSION_GRANTED)
+            return true;
+
+        //If permission is not granted returning false
+        return false;
     }
 }

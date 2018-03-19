@@ -8,4 +8,5 @@ import com.bravvura.nestledtime.userstory.ui.fragment.BaseFragment;
  */
 
 public class InstagramPhotoFragment extends BaseFragment {
+    public InstagramGalleryFragment parentFragment;
 }

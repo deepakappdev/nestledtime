@@ -1,6 +1,7 @@
 package com.bravvura.nestledtime.utils;
 
 import android.content.Context;
+import android.net.Uri;
 
 import com.cloudinary.Configuration;
 import com.cloudinary.Transformation;

@@ -15,7 +15,7 @@ import android.widget.TextView;
 
 import com.bravvura.nestledtime.R;
 import com.bravvura.nestledtime.activity.BaseActivity;
-import com.bravvura.nestledtime.imageedittor.main.activity.EditPhotoActivity;
+//import com.bravvura.nestledtime.imageedittor.main.activity.EditPhotoActivity;
 import com.bravvura.nestledtime.mediagallery.listener.MediaElementClick;
 import com.bravvura.nestledtime.mediagallery.model.MEDIA_CELL_TYPE;
 import com.bravvura.nestledtime.mediagallery.model.MEDIA_SOURCE_TYPE;
@@ -31,9 +31,11 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.cloudinary.Transformation;
+import com.cloudinary.android.MediaManager;
 import com.cloudinary.android.callback.ErrorInfo;
 import com.cloudinary.android.callback.UploadCallback;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -98,9 +100,7 @@ public class UserStoryMediaListActivity extends BaseActivity implements View.OnC
                     mediaModel.setRequestId(null);
                     mediaModel.sourceType = MEDIA_SOURCE_TYPE.TYPE_CLOUD;
                     updateProgress();
-                    if (!startUploadingFiles()) {
-                        checkForFinish();
-                    }
+                    checkForUpload();
                 }
             }
         }
@@ -112,9 +112,7 @@ public class UserStoryMediaListActivity extends BaseActivity implements View.OnC
                 mediaModel.setUploaded(false);
                 mediaModel.setRequestId(null);
             }
-            if (!startUploadingFiles()) {
-                checkForFinish();
-            }
+            checkForUpload();
         }
 
         @Override
@@ -124,9 +122,7 @@ public class UserStoryMediaListActivity extends BaseActivity implements View.OnC
                 mediaModel.setUploaded(false);
                 mediaModel.setRequestId(null);
             }
-            if (!startUploadingFiles()) {
-                checkForFinish();
-            }
+            checkForUpload();
         }
     };
     private int editedIndex;
@@ -138,9 +134,9 @@ public class UserStoryMediaListActivity extends BaseActivity implements View.OnC
         public void onClick(final int index, MediaModel mediaModel) {
             if (mediaModel.isEdited) {
                 editedIndex = index;
-                Intent intent = new Intent(getApplicationContext(), EditPhotoActivity.class);
-                intent.putExtra(EditPhotoActivity.INPUT_URL, mediaModel.getPathFile());
-                startActivityForResult(intent, Constants.REQUEST_CODE.REQUEST_EDIT_IMAGE);
+//                Intent intent = new Intent(getApplicationContext(), EditPhotoActivity.class);
+//                intent.putExtra(EditPhotoActivity.INPUT_URL, mediaModel.getPathFile());
+//                startActivityForResult(intent, Constants.REQUEST_CODE.REQUEST_EDIT_IMAGE);
             } else {
                 switch (mediaModel.sourceType) {
                     case TYPE_CLOUD:
@@ -157,9 +153,9 @@ public class UserStoryMediaListActivity extends BaseActivity implements View.OnC
                                         outputStream.flush();
                                         outputStream.close();
                                         editedIndex = index;
-                                        Intent intent = new Intent(getApplicationContext(), EditPhotoActivity.class);
-                                        intent.putExtra(EditPhotoActivity.INPUT_URL, toFile.getAbsolutePath());
-                                        startActivityForResult(intent, Constants.REQUEST_CODE.REQUEST_EDIT_IMAGE);
+//                                        Intent intent = new Intent(getApplicationContext(), EditPhotoActivity.class);
+//                                        intent.putExtra(EditPhotoActivity.INPUT_URL, toFile.getAbsolutePath());
+//                                        startActivityForResult(intent, Constants.REQUEST_CODE.REQUEST_EDIT_IMAGE);
                                     } catch (FileNotFoundException e) {
                                         e.printStackTrace();
                                     } catch (IOException e) {
@@ -175,9 +171,9 @@ public class UserStoryMediaListActivity extends BaseActivity implements View.OnC
                         File toFile = MyFileSystem.getTempImageFile();
                         if (MyFileSystem.copyFile(mediaModel.getPathFile(), toFile.getAbsolutePath())) {
                             editedIndex = index;
-                            Intent intent = new Intent(getApplicationContext(), EditPhotoActivity.class);
-                            intent.putExtra(EditPhotoActivity.INPUT_URL, toFile.getAbsolutePath());
-                            startActivityForResult(intent, Constants.REQUEST_CODE.REQUEST_EDIT_IMAGE);
+//                            Intent intent = new Intent(getApplicationContext(), EditPhotoActivity.class);
+//                            intent.putExtra(EditPhotoActivity.INPUT_URL, toFile.getAbsolutePath());
+//                            startActivityForResult(intent, Constants.REQUEST_CODE.REQUEST_EDIT_IMAGE);
                         }
                         break;
                 }
@@ -236,7 +232,7 @@ public class UserStoryMediaListActivity extends BaseActivity implements View.OnC
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.gallery_media_menu, menu);
+        getMenuInflater().inflate(R.menu.menu_done, menu);
         menuItem = menu.findItem(R.id.menu_done);
         return super.onCreateOptionsMenu(menu);
     }
@@ -326,14 +322,51 @@ public class UserStoryMediaListActivity extends BaseActivity implements View.OnC
             @Override
             protected void onPostExecute(Void aVoid) {
                 super.onPostExecute(aVoid);
-                if (!startUploadingFiles()) {
-                    checkForFinish();
-                }
+                checkForUpload();
             }
         }.execute((Void) null);
     }
 
     private void doUpload(MediaModel mediaModel) {
+        if(mediaModel.isEdited || mediaModel.sourceType==MEDIA_SOURCE_TYPE.TYPE_LOCAL) {
+            doUploadLocalFile(mediaModel);
+        } else {
+            doUploadRemoteFile(mediaModel);
+        }
+
+    }
+
+    private void doUploadRemoteFile(final MediaModel mediaModel) {
+        String fileToUpload = null;
+        if (!StringUtils.isNullOrEmpty(mediaModel.getUrl())) {
+            fileToUpload = mediaModel.getUrl();
+        }
+        Transformation tr = new Transformation();
+        tr.crop("fit").width(100);
+        if (!StringUtils.isNullOrEmpty(fileToUpload)) {
+            if (mediaModel.mediaCellType == MEDIA_CELL_TYPE.TYPE_IMAGE) {
+                mediaModel.setIsUploaded(true);
+                String serverUrl = MediaManager.get().url().generate(fileToUpload);
+                mediaModel.setThumbnail(null);
+                mediaModel.setUrl(serverUrl);
+                mediaModel.setPublicId(fileToUpload);
+                mediaModel.sourceType=MEDIA_SOURCE_TYPE.TYPE_CLOUD;
+                checkForUpload();
+            } else if (mediaModel.mediaCellType == MEDIA_CELL_TYPE.TYPE_VIDEO) {
+                mediaModel.setIsUploaded(false);
+                String requestId = CloudinaryManager.uploadVideoFile(fileToUpload, callBack);
+                mediaModel.setRequestId(requestId);
+            }
+        }
+    }
+
+    private void checkForUpload() {
+        if (!startUploadingFiles()) {
+            checkForFinish();
+        }
+    }
+
+    private void doUploadLocalFile(MediaModel mediaModel) {
         String fileToUpload = null;
         if (!StringUtils.isNullOrEmpty(mediaModel.getCompressPath())) {
             fileToUpload = mediaModel.getCompressPath();
@@ -443,17 +476,17 @@ public class UserStoryMediaListActivity extends BaseActivity implements View.OnC
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         switch (requestCode) {
-            case Constants.REQUEST_CODE.REQUEST_EDIT_IMAGE:
-                if (resultCode == RESULT_OK && data != null && data.hasExtra(EditPhotoActivity.OUTPUT_URL)) {
-                    String editedPath = data.getStringExtra(EditPhotoActivity.OUTPUT_URL);
-                    MediaModel mediaModel = adapter.getItem(editedIndex);
-                    mediaModel.setPathFile(editedPath);
-                    mediaModel.isEdited = true;
-                    mediaModel.cleanCache = true;
-                    adapter.notifyDataSetChanged();
-//                    adapter.notifyItemChanged(editedIndex);
-                }
-                break;
+//            case Constants.REQUEST_CODE.REQUEST_EDIT_IMAGE:
+//                if (resultCode == RESULT_OK && data != null && data.hasExtra(EditPhotoActivity.OUTPUT_URL)) {
+//                    String editedPath = data.getStringExtra(EditPhotoActivity.OUTPUT_URL);
+//                    MediaModel mediaModel = adapter.getItem(editedIndex);
+//                    mediaModel.setPathFile(editedPath);
+//                    mediaModel.isEdited = true;
+//                    mediaModel.cleanCache = true;
+//                    adapter.notifyDataSetChanged();
+////                    adapter.notifyItemChanged(editedIndex);
+//                }
+//                break;
             case Constants.REQUEST_CODE.REQUEST_GALLERY_MEDIA:
                 if (resultCode == RESULT_OK) {
                     ArrayList<MediaModel> selectedModels = data.getParcelableArrayListExtra(Constants.BUNDLE_KEY.SELECTED_MEDIA);

@@ -17,8 +17,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bravvura.nestledtime.R;
+import com.bravvura.nestledtime.mediagallery.fragment.FacebookAlbumFragment;
+import com.bravvura.nestledtime.mediagallery.fragment.FacebookAlbumPhotoFragment;
+import com.bravvura.nestledtime.mediagallery.fragment.FacebookPhotoFragment;
 import com.bravvura.nestledtime.mediagallery.fragment.LocalAlbumPhotoFragment;
 import com.bravvura.nestledtime.mediagallery.fragment.LocalAlbumFragment;
+import com.bravvura.nestledtime.mediagallery.fragment.LocalGalleryFragment;
 import com.bravvura.nestledtime.mediagallery.fragment.LocalPhotoFragment;
 import com.bravvura.nestledtime.mediagallery.model.MediaModel;
 import com.bravvura.nestledtime.userstory.model.UserStoryMediaModel;
@@ -64,6 +68,18 @@ public class BaseActivity extends AppCompatActivity {
     Fragment getFragment(FRAGMENTS fragmentId) {
         Fragment fragment = null;
         switch (fragmentId) {
+            case FACEBOOK_ALBUM:
+                fragment = new FacebookAlbumFragment();
+                break;
+            case FACEBOOK_ALBUM_PHOTO:
+                fragment = new FacebookAlbumPhotoFragment();
+                break;
+            case FACEBOOK_PHOTO:
+                fragment = new FacebookPhotoFragment();
+                break;
+            case LOCAL_GALLERY:
+                fragment = new LocalGalleryFragment();
+                break;
             case LOCAL_ALBUM_PHOTO:
                 fragment = new LocalAlbumPhotoFragment();
                 break;
@@ -133,6 +149,7 @@ public class BaseActivity extends AppCompatActivity {
             imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
         }
     }
+
     public void finishWithResult(ArrayList<MediaModel> selectedMediaModels) {
         Bundle bundle = new Bundle();
         JSONArray selectedMedias = getSelectedMediaPath(selectedMediaModels);
@@ -160,6 +177,7 @@ public class BaseActivity extends AppCompatActivity {
     }
 
     Toast toast;
+
     public void showToast(String message) {
         if (toast == null)
             toast = Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT);

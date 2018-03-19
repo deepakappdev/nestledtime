@@ -1,3 +1,6 @@
 <resources>
     <string name="app_name">NestleTime</string>
+    <string name="facebook_app_id">712850155590381<!--1794005604224599--></string>
+    <string name="fb_login_protocol_scheme">fb712850155590381</string>
+
 </resources>
