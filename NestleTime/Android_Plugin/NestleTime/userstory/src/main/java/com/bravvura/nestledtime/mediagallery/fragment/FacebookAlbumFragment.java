@@ -5,13 +5,20 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.SpannableString;
+import android.text.style.ForegroundColorSpan;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.bravvura.nestledtime.R;
+import com.bravvura.nestledtime.activity.BaseActivity;
 import com.bravvura.nestledtime.mediagallery.adapter.FacebookAlbumGalleryAdapter;
 import com.bravvura.nestledtime.mediagallery.listener.MediaElementClick;
 import com.bravvura.nestledtime.mediagallery.model.MEDIA_CELL_TYPE;
@@ -35,7 +42,6 @@ import java.util.ArrayList;
  */
 
 public class FacebookAlbumFragment extends BaseFragment implements RequestCallback {
-    public FacebookGalleryFragment parentFragment;
     private ViewGroup layoutFacebookLogin;
     private FacebookResponse facebookResponse;
     private ArrayList<MediaModel> mediaModels = new ArrayList<>();
@@ -50,6 +56,7 @@ public class FacebookAlbumFragment extends BaseFragment implements RequestCallba
             startActivityForResult(intent, Constants.REQUEST_CODE.REQUEST_GALLERY_MEDIA);
         }
     };
+    private MenuItem menuItem;
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -66,9 +73,47 @@ public class FacebookAlbumFragment extends BaseFragment implements RequestCallba
         }
     }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.menu_done) {
+            if (getActivity() != null && getActivity() instanceof BaseActivity) {
+                ((BaseActivity) getActivity()).finishWithResult(getSelectedMediaModels());
+            }
+        }
+        return super.onOptionsItemSelected(item);
+    }
+    private int getSelectedMediaCount() {
+        return getSelectedMediaModels().size();
+    }
+
+    private ArrayList<MediaModel> getSelectedMediaModels() {
+        ArrayList<MediaModel> selectedMedias = new ArrayList<MediaModel>();
+        for (int index = 0; index < mediaModels.size(); index++) {
+            if (mediaModels.get(index).isSelected())
+                selectedMedias.add(mediaModels.get(index));
+        }
+        return selectedMedias;
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.menu_done, menu);
+        menuItem = menu.findItem(R.id.menu_done);
+
+        SpannableString s = new SpannableString("Done");
+        s.setSpan(new ForegroundColorSpan(ContextCompat.getColor(getContext(), R.color.white)), 0, s.length(), 0);
+        menuItem.setTitle(s);
+
+        int selectedCount = getSelectedMediaCount();
+        menuItem.setEnabled(selectedCount > 0);
+
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        setHasOptionsMenu(true);
         return inflater.inflate(R.layout.frag_facebook_photo_gallery, container, false);
     }
 

@@ -10,25 +10,25 @@ import java.util.ArrayList;
  * Created by Deepak Saini on 19-03-2018.
  */
 
-public class FacebookPhotoCollection implements Parcelable {
+public class FacebookAlbumCollection implements Parcelable {
     public ArrayList<FacebookItemData> data;
 
-    public FacebookPhotoCollection() {
+    public FacebookAlbumCollection() {
     }
 
-    protected FacebookPhotoCollection(Parcel in) {
+    protected FacebookAlbumCollection(Parcel in) {
         data = in.createTypedArrayList(FacebookItemData.CREATOR);
     }
 
-    public static final Creator<FacebookPhotoCollection> CREATOR = new Creator<FacebookPhotoCollection>() {
+    public static final Creator<FacebookAlbumCollection> CREATOR = new Creator<FacebookAlbumCollection>() {
         @Override
-        public FacebookPhotoCollection createFromParcel(Parcel in) {
-            return new FacebookPhotoCollection(in);
+        public FacebookAlbumCollection createFromParcel(Parcel in) {
+            return new FacebookAlbumCollection(in);
         }
 
         @Override
-        public FacebookPhotoCollection[] newArray(int size) {
-            return new FacebookPhotoCollection[size];
+        public FacebookAlbumCollection[] newArray(int size) {
+            return new FacebookAlbumCollection[size];
         }
     };
 

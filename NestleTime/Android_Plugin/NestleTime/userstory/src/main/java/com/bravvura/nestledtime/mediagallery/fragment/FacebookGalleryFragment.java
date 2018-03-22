@@ -13,6 +13,8 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.bravvura.nestledtime.R;
+import com.bravvura.nestledtime.eventbusmodel.MessageFacebookIndexEvent;
+import com.bravvura.nestledtime.eventbusmodel.MessageLocalIndexEvent;
 import com.bravvura.nestledtime.eventbusmodel.MessagePhotoFound;
 import com.bravvura.nestledtime.mediagallery.adapter.FaceBookMediaGalleryAdapter;
 import com.bravvura.nestledtime.mediagallery.adapter.LocalMediaGalleryAdapter;
@@ -48,6 +50,26 @@ public class FacebookGalleryFragment extends BaseFragment {
         tabLayout = view.findViewById(R.id.tab_layout);
         viewPager = view.findViewById(R.id.view_pager);
         viewPager.setAdapter(adapter);
+        viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+                if (position == 1) {
+                    MessageFacebookIndexEvent facebookIndexEvent = new MessageFacebookIndexEvent();
+                    facebookIndexEvent.selectedIndex = position;
+                    EventBus.getDefault().post(facebookIndexEvent);
+                }
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+
+            }
+        });
         tabLayout.setupWithViewPager(viewPager);
 
         View view1 = LayoutInflater.from(getContext()).inflate(R.layout.custom_tab, null);

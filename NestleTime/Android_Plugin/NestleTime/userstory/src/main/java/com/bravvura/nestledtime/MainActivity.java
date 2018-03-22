@@ -77,9 +77,10 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
         @Override
         public void onRemoveClick(UserStoryElement userStoryElement, int index) {
             adapter.removeIndex(index);
-            adapter.notifyItemChanged(index);
+            adapter.notifyItemRemoved(index);
         }
     };
+    private View fab_message, fab_audio, fab_media, fab_location;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -136,10 +137,12 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
         UserStoryElement textElement = new UserStoryElement("", UserStoryElementType.ELEMENT_TYPE_TITLE);
         adapter.addResult(textElement);
         recyclerView.setAdapter(adapter);
-        findViewById(R.id.fab_message).setOnClickListener(this);
-        findViewById(R.id.fab_media).setOnClickListener(this);
-        findViewById(R.id.fab_audio).setOnClickListener(this);
-        findViewById(R.id.fab_location).setOnClickListener(this);
+
+        (fab_message = findViewById(R.id.fab_message)).setOnClickListener(this);
+        (fab_media = findViewById(R.id.fab_media)).setOnClickListener(this);
+        (fab_audio = findViewById(R.id.fab_audio)).setOnClickListener(this);
+        (fab_location = findViewById(R.id.fab_location)).setOnClickListener(this);
+
         findViewById(R.id.layout_content).setOnClickListener(this);
         recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             public int lastPos, firstPos;
@@ -242,22 +245,34 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
     @Override
     public void onClick(View v) {
         hideKeyBoard();
+        deselectAll();
         if (v.getId() == R.id.fab_media) {
+            fab_media.setSelected(true);
             Intent intent = new Intent(getApplicationContext(), UserStoryMediaListActivity.class);
             Bundle bundle = new Bundle();
             bundle.putBoolean(Constants.BUNDLE_KEY.ADD_PICTURE, true);
             intent.putExtras(bundle);
             startActivityForResult(intent, Constants.REQUEST_CODE.REQUEST_GALLERY_MEDIA);
         } else if (v.getId() == R.id.fab_location) {
+            fab_location.setSelected(true);
             Intent intent = new Intent(getApplicationContext(), GoogleMapActivity.class);
             startActivityForResult(intent, Constants.REQUEST_CODE.REQUEST_LOCATION);
         } else if (v.getId() == R.id.fab_audio) {
+            fab_audio.setSelected(true);
             pushFragment(FRAGMENTS.AUDIO_RECORDER, null, true, true);
         } else if (v.getId() == R.id.fab_message) {
+            fab_message.setSelected(true);
             UserStoryElement textElement = new UserStoryElement("", UserStoryElementType.ELEMENT_TYPE_TEXT);
             adapter.addResult(textElement);
             adapter.notifyItemInserted(adapter.getItemCount() - 1);
             scrollToBottom();
         }
+    }
+    void deselectAll(){
+        fab_audio.setSelected(false);
+        fab_media.setSelected(false);
+        fab_message.setSelected(false);
+        fab_location.setSelected(false);
+
     }
 }

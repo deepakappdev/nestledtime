@@ -131,6 +131,10 @@ public class UserStoryElementListAdapter extends RecyclerView.Adapter<RecyclerVi
                 ((TextViewHolder) holder).edit_text.setHint("Text");
             }
             ((TextViewHolder) holder).edit_text.setText(userStoryElements.get(position).textModel.data);
+            if(userStoryElements.get(position).textModel.autoFocus) {
+                userStoryElements.get(position).textModel.autoFocus = false;
+                ((TextViewHolder) holder).edit_text.requestFocus();
+            }
         } else if (holder instanceof AudioViewHolder) {
             ((AudioViewHolder) holder).reset();
             ((AudioViewHolder) holder).setUpDataSource(userStoryElements.get(position).audioModel);

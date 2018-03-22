@@ -17,6 +17,7 @@ import android.widget.TextView;
 
 import com.bravvura.nestledtime.R;
 import com.bravvura.nestledtime.eventbusmodel.MessageAlbumFound;
+import com.bravvura.nestledtime.eventbusmodel.MessageLocalIndexEvent;
 import com.bravvura.nestledtime.eventbusmodel.MessagePhotoFound;
 import com.bravvura.nestledtime.mediagallery.adapter.LocalMediaGalleryAdapter;
 import com.bravvura.nestledtime.mediagallery.filesystem.CursorManager;
@@ -46,6 +47,7 @@ public class LocalGalleryFragment extends BaseFragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        setRetainInstance(true);
         return inflater.inflate(R.layout.fragment_media_gallery_pager, container, false);
     }
 
@@ -71,7 +73,9 @@ public class LocalGalleryFragment extends BaseFragment {
                     for (int i = 0; i < photoModels.size(); i++) {
                         photoModels.get(i).setSelected(false);
                     }
-                    EventBus.getDefault().post(new MessagePhotoFound());
+                    MessageLocalIndexEvent localIndexEvent = new MessageLocalIndexEvent();
+                    localIndexEvent.selectedIndex = position;
+                    EventBus.getDefault().post(localIndexEvent);
                 }
             }
 
@@ -100,6 +104,7 @@ public class LocalGalleryFragment extends BaseFragment {
         }
     }
     private void fetchAllPictureAlbums() {
+        if(cursor!=null)return;
         cursor = CursorManager.getCursorForMedia(getContext());
         adapter = new LocalMediaGalleryAdapter(getChildFragmentManager(), this);
         viewPager.setAdapter(adapter);

@@ -71,7 +71,7 @@ public class Utils {
     public static String getStaticMapUrl(LatLng markerLocation) {
         return "https://maps.googleapis.com/maps/api/staticmap?" +
                 "center=" + markerLocation.latitude + "," + markerLocation.longitude +
-                "&size=720x400&maptype=roadmap&zoom=16&scale=2" +
+                "&size=720x400&maptype=roadmap&zoom=17" +
                 "&markers=" + markerLocation.latitude + "," + markerLocation.longitude;
     }
 }

@@ -23,6 +23,7 @@ import android.widget.Toast;
 
 import com.bravvura.nestledtime.R;
 import com.bravvura.nestledtime.activity.BaseActivity;
+import com.bravvura.nestledtime.eventbusmodel.MessageLocalIndexEvent;
 import com.bravvura.nestledtime.eventbusmodel.MessagePhotoFound;
 import com.bravvura.nestledtime.mediagallery.adapter.AllPhotoGalleryAdapter;
 import com.bravvura.nestledtime.mediagallery.listener.MediaElementClick;
@@ -51,12 +52,19 @@ public class LocalPhotoFragment extends BaseFragment {
     private MenuItem menuItem;
     private File newCameraFile;
     public LocalGalleryFragment parentFragment;
+    private int myIndex;
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         setHasOptionsMenu(true);
+        initArguments();
         return inflater.inflate(R.layout.frag_all_photo_gallery, null);
+    }
+
+    private void initArguments() {
+        Bundle bundle = getArguments();
+        myIndex = bundle.getInt(Constants.BUNDLE_KEY.INDEX, -1);
     }
 
     @Override
@@ -75,6 +83,14 @@ public class LocalPhotoFragment extends BaseFragment {
     public void onMessageEvent(MessagePhotoFound event) {
         if (event.insertionIndex != 0)
             adapter.notifyItemRangeInserted(event.insertionIndex, event.totalCount);
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onMessageEvent(MessageLocalIndexEvent event) {
+        if (event.selectedIndex != myIndex) {
+            menuItem.setEnabled(getSelectedMediaCount() > 0);
+            adapter.notifyDataSetChanged();
+        }
     }
 
 
@@ -201,8 +217,7 @@ public class LocalPhotoFragment extends BaseFragment {
         s.setSpan(new ForegroundColorSpan(ContextCompat.getColor(getContext(), R.color.white)), 0, s.length(), 0);
         menuItem.setTitle(s);
 
-        int selectedCount = getSelectedMediaCount();
-        menuItem.setEnabled(selectedCount > 0);
+        menuItem.setEnabled(getSelectedMediaCount() > 0);
 
         super.onCreateOptionsMenu(menu, inflater);
     }

@@ -1,5 +1,6 @@
 package com.bravvura.nestledtime.mediagallery.adapter;
 
+import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
@@ -10,6 +11,7 @@ import com.bravvura.nestledtime.mediagallery.fragment.FacebookPhotoFragment;
 import com.bravvura.nestledtime.mediagallery.fragment.LocalAlbumFragment;
 import com.bravvura.nestledtime.mediagallery.fragment.LocalGalleryFragment;
 import com.bravvura.nestledtime.mediagallery.fragment.LocalPhotoFragment;
+import com.bravvura.nestledtime.utils.Constants;
 
 /**
  * Project Name Nestled Time
@@ -25,22 +27,26 @@ public class FaceBookMediaGalleryAdapter extends FragmentStatePagerAdapter{
         this.facebookGalleryFragment = facebookGalleryFragment;
     }
 
-    Fragment getAllPhotoFragment() {
+    Fragment getAllPhotoFragment(int index) {
         FacebookPhotoFragment fragment = new FacebookPhotoFragment();
-        fragment.parentFragment = facebookGalleryFragment;
+        Bundle bundle = new Bundle();
+        bundle.putInt(Constants.BUNDLE_KEY.INDEX, index);
+        fragment.setArguments(bundle);
         return fragment;
     }
 
-    Fragment getAllAlbumFragment() {
+    Fragment getAllAlbumFragment(int index) {
         FacebookAlbumFragment fragment = new FacebookAlbumFragment();
-        fragment.parentFragment = facebookGalleryFragment;
+        Bundle bundle = new Bundle();
+        bundle.putInt(Constants.BUNDLE_KEY.INDEX, index);
+        fragment.setArguments(bundle);
         return fragment;
     }
 
     @Override
     public Fragment getItem(int position) {
-        if (position == 0) return getAllPhotoFragment();
-        else return getAllAlbumFragment();
+        if (position == 0) return getAllPhotoFragment(position);
+        else return getAllAlbumFragment(position);
     }
 
     @Override

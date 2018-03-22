@@ -15,6 +15,7 @@
             android:layout_height="wrap_content"
             android:background="@null"
             android:gravity="top"
+            android:maxLength="50"
             android:textSize="@dimen/textSizeXLarge"
             android:layout_toStartOf="@id/ic_close"
             android:minLines="2"

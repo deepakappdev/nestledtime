@@ -2,6 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical">
 
     <include layout="@layout/toolbar_layout" />
@@ -10,17 +11,16 @@
         android:id="@+id/text_address_search"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="@dimen/margin_normal"
-        android:singleLine="true"
         android:background="@color/white"
         android:drawableLeft="@drawable/ic_search_black"
-        android:gravity="center_vertical"
-        android:textSize="@dimen/textSizeMedium"
-        android:hint="Enter Location..."
         android:drawablePadding="@dimen/margin_normal"
+        android:gravity="center_vertical"
+        android:hint="Enter Location..."
+        android:padding="@dimen/margin_normal"
+        android:singleLine="true"
         android:textColor="@color/grey"
         android:textColorHint="@color/grey"
-        />
+        android:textSize="@dimen/textSizeMedium" />
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -33,19 +33,31 @@
             android:layout_height="match_parent"
             android:layout_gravity="center" />
 
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/image_current_location"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            app:backgroundTint="@color/white"
+            app:borderWidth="0dp"
+            app:fabSize="normal"
+            android:layout_margin="@dimen/margin_large"
+            android:src="@drawable/ic_my_location_grey" />
+
+
         <View
-            android:layout_width="0dp"
             android:id="@+id/view_center"
-            android:layout_centerInParent="true"
-            android:layout_height="0dp"/>
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_centerInParent="true" />
 
         <ImageView
             android:layout_width="wrap_content"
-            android:scaleType="centerInside"
-            android:layout_centerHorizontal="true"
+            android:layout_height="wrap_content"
             android:layout_above="@id/view_center"
-            android:src="@drawable/ic_location"
-            android:layout_height="wrap_content" />
+            android:layout_centerHorizontal="true"
+            android:scaleType="centerInside"
+            android:src="@drawable/ic_location" />
 
     </RelativeLayout>
 </LinearLayout>

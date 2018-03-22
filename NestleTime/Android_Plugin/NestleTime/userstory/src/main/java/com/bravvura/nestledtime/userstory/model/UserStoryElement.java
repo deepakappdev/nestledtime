@@ -25,6 +25,9 @@ public class UserStoryElement implements Parcelable {
         textModel = new UserStoryTextModel();
         textModel.data = message;
         this.elementType = elementType;
+        if(elementType==UserStoryElementType.ELEMENT_TYPE_TEXT) {
+            textModel.autoFocus = true;
+        }
     }
 
     public UserStoryElement(UserStoryAddressModel addressModel) {

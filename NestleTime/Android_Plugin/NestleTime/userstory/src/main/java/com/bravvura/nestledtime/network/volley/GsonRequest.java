@@ -13,6 +13,7 @@ import com.android.volley.toolbox.HttpHeaderParser;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
@@ -145,7 +146,16 @@ public class GsonRequest<T> extends Request<T> {
     protected Response<T> parseNetworkResponse(NetworkResponse response) {
         try {
             String json = new String(response.data, HttpHeaderParser.parseCharset(response.headers));
-            T gsonResp = gson.fromJson(json, clazz);
+            T gsonResp = null;
+            if(clazz.equals(JSONObject.class)) {
+                try {
+                    gsonResp = (T) new JSONObject(json);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            } else {
+                gsonResp = gson.fromJson(json, clazz);
+            }
             return Response.success(gsonResp, HttpHeaderParser.parseCacheHeaders(response));
         } catch (UnsupportedEncodingException e) {
             return Response.error(new ParseError(e));

@@ -12,6 +12,7 @@ import com.google.android.gms.maps.model.LatLng;
 
 public class UserStoryTextModel implements Parcelable {
     public String data;
+    public boolean autoFocus;
 
     public UserStoryTextModel() {
     }

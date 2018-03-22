@@ -14,6 +14,7 @@ import com.android.volley.toolbox.DiskBasedCache;
 import com.android.volley.toolbox.HurlStack;
 import com.bravvura.nestledtime.MyApplication;
 import com.bravvura.nestledtime.network.request.BaseRequest;
+import com.bravvura.nestledtime.network.request.GetFacebookAlbumRequest;
 import com.bravvura.nestledtime.network.request.GetFacebookPhotoRequest;
 import com.bravvura.nestledtime.network.request.GetGooglePlaceRequest;
 
@@ -81,7 +82,7 @@ public class RequestController {
         getmRequestQueue().add(gsonRequest);
     }
     public static void getFacebookAlbum(RequestCallback callBack) {
-        GetFacebookPhotoRequest request = new GetFacebookPhotoRequest();
+        GetFacebookAlbumRequest request = new GetFacebookAlbumRequest();
         GsonRequest gsonRequest = request.createServerRequest(getErrorListener(callBack), getListener(callBack, request));
         getmRequestQueue().add(gsonRequest);
     }

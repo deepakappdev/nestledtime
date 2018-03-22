@@ -12,7 +12,7 @@ public class FacebookAlbumData implements Parcelable {
     public String name;
     public int photo_count;
     public String id;
-    public FacebookPhotoCollection photos;
+    public FacebookAlbumCollection photos;
 
     public FacebookAlbumData() {
     }
@@ -21,7 +21,7 @@ public class FacebookAlbumData implements Parcelable {
         name = in.readString();
         photo_count = in.readInt();
         id = in.readString();
-        photos = in.readParcelable(FacebookPhotoCollection.class.getClassLoader());
+        photos = in.readParcelable(FacebookAlbumCollection.class.getClassLoader());
     }
 
     public static final Creator<FacebookAlbumData> CREATOR = new Creator<FacebookAlbumData>() {
