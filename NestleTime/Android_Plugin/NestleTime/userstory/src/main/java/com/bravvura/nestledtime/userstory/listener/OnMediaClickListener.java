@@ -1,5 +1,7 @@
 package com.bravvura.nestledtime.userstory.listener;
 
+import android.support.v7.widget.RecyclerView;
+
 import com.bravvura.nestledtime.userstory.model.UserStoryElement;
 
 import java.util.ArrayList;
@@ -10,7 +12,7 @@ import java.util.ArrayList;
  */
 
 public interface OnMediaClickListener {
-    void onClick(UserStoryElement userStoryElement, int index);
+    void onClick(RecyclerView.ViewHolder viewHolder, UserStoryElement userStoryElement, int index);
 
     void onEditClick(UserStoryElement userStoryElement, int index);
 

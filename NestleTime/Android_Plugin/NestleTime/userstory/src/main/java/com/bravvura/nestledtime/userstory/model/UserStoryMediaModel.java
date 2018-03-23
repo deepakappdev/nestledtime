@@ -16,6 +16,7 @@ import java.util.ArrayList;
 public class UserStoryMediaModel implements Parcelable {
     public String title;
     public ArrayList<MediaModel> mediaModels;
+    public int mediaCount;
 
     public UserStoryMediaModel() {
         mediaModels = new ArrayList<>();

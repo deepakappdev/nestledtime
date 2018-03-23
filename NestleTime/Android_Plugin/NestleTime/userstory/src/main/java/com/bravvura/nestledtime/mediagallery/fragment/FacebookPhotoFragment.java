@@ -124,6 +124,11 @@ public class FacebookPhotoFragment extends BaseFragment implements RequestCallba
         adapter = new AllPhotoGalleryAdapter(mediaModels, width / 3);
         adapter.setOnMediaClickListener(new MediaElementClick() {
             @Override
+            public void onEditClick(int index, MediaModel mediaModel) {
+
+            }
+
+            @Override
             public void onClick(int index, MediaModel mediaModel) {
 
                 mediaModel.setSelected(!mediaModel.isSelected());
@@ -137,6 +142,11 @@ public class FacebookPhotoFragment extends BaseFragment implements RequestCallba
                 } else {
                     adapter.notifyItemChanged(index);
                 }
+            }
+
+            @Override
+            public void onRemoveClick(int index, MediaModel mediaModel) {
+
             }
         });
 

@@ -45,6 +45,11 @@ public class UserStoryElement implements Parcelable {
         elementType = UserStoryElementType.ELEMENT_TYPE_MEDIA;
     }
 
+    public UserStoryElement(UserStoryDateModel dateModel) {
+        this.dateModel = dateModel;
+        elementType = UserStoryElementType.ELEMENT_TYPE_DATE;
+    }
+
     protected UserStoryElement(Parcel in) {
         addressModel = in.readParcelable(UserStoryAddressModel.class.getClassLoader());
         mediaModel = in.readParcelable(UserStoryMediaModel.class.getClassLoader());

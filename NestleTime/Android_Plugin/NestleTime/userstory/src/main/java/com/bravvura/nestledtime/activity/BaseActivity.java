@@ -1,10 +1,16 @@
 package com.bravvura.nestledtime.activity;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -20,8 +26,8 @@ import com.bravvura.nestledtime.R;
 import com.bravvura.nestledtime.mediagallery.fragment.FacebookAlbumFragment;
 import com.bravvura.nestledtime.mediagallery.fragment.FacebookAlbumPhotoFragment;
 import com.bravvura.nestledtime.mediagallery.fragment.FacebookPhotoFragment;
-import com.bravvura.nestledtime.mediagallery.fragment.LocalAlbumPhotoFragment;
 import com.bravvura.nestledtime.mediagallery.fragment.LocalAlbumFragment;
+import com.bravvura.nestledtime.mediagallery.fragment.LocalAlbumPhotoFragment;
 import com.bravvura.nestledtime.mediagallery.fragment.LocalGalleryFragment;
 import com.bravvura.nestledtime.mediagallery.fragment.LocalPhotoFragment;
 import com.bravvura.nestledtime.mediagallery.model.MediaModel;
@@ -29,6 +35,7 @@ import com.bravvura.nestledtime.userstory.model.UserStoryMediaModel;
 import com.bravvura.nestledtime.userstory.ui.fragment.UserStoryAudioRecorderFragment;
 import com.bravvura.nestledtime.utils.Constants;
 import com.bravvura.nestledtime.utils.FRAGMENTS;
+import com.bravvura.nestledtime.utils.MyLogs;
 
 import org.json.JSONArray;
 
@@ -39,10 +46,60 @@ import java.util.ArrayList;
  */
 
 public class BaseActivity extends AppCompatActivity {
+    private static final String TAG = "ACTIVITY_LIFE_CYCLE";
     public Handler handler = new Handler();
 
     TextView toolbarTitle;
     public Toolbar toolbar;
+    private AlertDialog progressDialog;
+
+    @Override
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        MyLogs.i(TAG, "onCreate of " + getClass().getName());
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        MyLogs.i(TAG, "onNewIntent of " + getClass().getName());
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        MyLogs.i(TAG, "onStart of " + getClass().getName());
+    }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        MyLogs.i(TAG, "onRestart of " + getClass().getName());
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        MyLogs.i(TAG, "onResume of " + getClass().getName());
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        MyLogs.i(TAG, "onPause of " + getClass().getName());
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        MyLogs.i(TAG, "onStop of " + getClass().getName());
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        MyLogs.i(TAG, "onDestroy of " + getClass().getName());
+    }
 
     @Override
     public void setTitle(CharSequence title) {
@@ -132,10 +189,8 @@ public class BaseActivity extends AppCompatActivity {
     }
 
     public void finishWithResult(UserStoryMediaModel selectedMediaModel) {
-        removeCacheFromLocal(selectedMediaModel.mediaModels);
+//        removeCacheFromLocal(selectedMediaModel.mediaModels);
         Bundle bundle = new Bundle();
-//        JSONArray selectedMedias = getSelectedMediaPath(selectedMediaModel.mediaModels);
-//        bundle.putString(Constants.BUNDLE_KEY.SELECTED_MEDIA_PATH, selectedMedias.toString());
         bundle.putParcelable(Constants.BUNDLE_KEY.SELECTED_MEDIA, selectedMediaModel);
         Intent intent = new Intent();
         intent.putExtras(bundle);
@@ -186,5 +241,49 @@ public class BaseActivity extends AppCompatActivity {
             toast.setText(message);
         }
         toast.show();
+    }
+
+    public interface DialogCallBack {
+        void onOKClick();
+
+        void onCancelClick();
+    }
+
+    public void showRemoveDialog(final DialogCallBack callBack) {
+        AlertDialog.Builder adb = new AlertDialog.Builder(this);
+        adb.setTitle("Nestled Time");
+        adb.setMessage("Are you sure? This cannot be undone.");
+        adb.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                callBack.onOKClick();
+            }
+        });
+
+
+        adb.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                callBack.onCancelClick();
+            }
+        });
+        adb.show();
+    }
+
+    public void showProgressDialog() {
+        hideProgressDialog();
+        if (progressDialog == null) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setView(getLayoutInflater().inflate(R.layout.custom_progress_dialog, null));
+
+            progressDialog = builder.create();
+            progressDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+
+            progressDialog.setCancelable(false);
+        }
+        progressDialog.show();
+    }
+
+    public void hideProgressDialog() {
+        if (progressDialog != null && progressDialog.isShowing())
+            progressDialog.dismiss();
     }
 }

@@ -55,66 +55,87 @@
             android:layout_height="0.5dp"
             android:src="@color/grey" />
 
-
-        <android.support.v7.widget.RecyclerView
-            android:id="@+id/recycler_view"
+        <android.support.design.widget.CoordinatorLayout
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="1" />
+            android:layout_weight="1">
 
-        <ImageView
-            android:layout_width="match_parent"
-            android:layout_height="0.5dp"
-            android:src="@color/grey" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+                <android.support.v7.widget.RecyclerView
+                    android:id="@+id/recycler_view"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    app:fastScrollEnabled="false" />
 
-            android:layout_marginLeft="@dimen/margin_large"
+                <ImageView
+                    android:layout_width="match_parent"
+                    android:layout_height="0.5dp"
+                    android:src="@color/grey" />
 
-            android:gravity="center_vertical">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="@dimen/margin_large"
+                    android:gravity="center_vertical">
 
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Add to your memory"
-                android:textColor="@color/black" />
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Add to your memory"
+                        android:textColor="@color/black" />
 
-            <ImageView
-                android:id="@+id/fab_message"
-                android:layout_width="45dp"
-                android:layout_height="45dp"
-                android:src="@drawable/user_story_text_selector"/>
+                    <ImageView
+                        android:id="@+id/fab_message"
+                        android:layout_width="45dp"
+                        android:layout_height="45dp"
+                        android:src="@drawable/user_story_text_selector" />
 
-            <ImageView
-                android:id="@+id/fab_media"
-                android:layout_width="45dp"
-                android:layout_height="45dp"
-                android:src="@drawable/user_story_media_selector"
-                 />
+                    <ImageView
+                        android:id="@+id/fab_media"
+                        android:layout_width="45dp"
+                        android:layout_height="45dp"
+                        android:src="@drawable/user_story_media_selector" />
 
-            <ImageView
-                android:id="@+id/fab_audio"
-                android:layout_width="45dp"
-                android:layout_height="45dp"
-                android:src="@drawable/user_story_audio_selector"
-                />
+                    <ImageView
+                        android:id="@+id/fab_audio"
+                        android:layout_width="45dp"
+                        android:layout_height="45dp"
+                        android:src="@drawable/user_story_audio_selector" />
 
-            <ImageView
-                android:id="@+id/fab_location"
-                android:layout_width="45dp"
-                android:layout_height="45dp"
-                android:src="@drawable/user_story_location_selector"
-                />
+                    <ImageView
+                        android:id="@+id/fab_location"
+                        android:layout_width="45dp"
+                        android:layout_height="45dp"
+                        android:src="@drawable/user_story_location_selector" />
 
 
-        </LinearLayout>
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/action_recycler_view"
+                android:layout_width="match_parent"
+                android:background="@color/white"
+                android:layout_height="245dp"
+                app:behavior_hideable="true"
+                app:behavior_peekHeight="0dp"
+                app:layout_behavior="@string/bottom_sheet_behavior" />
+
+
+        </android.support.design.widget.CoordinatorLayout>
+
+
     </LinearLayout>
 
     <FrameLayout
-        android:layout_width="match_parent"
         android:id="@+id/frame_layout"
+        android:layout_width="match_parent"
         android:layout_height="match_parent" />
 </RelativeLayout>

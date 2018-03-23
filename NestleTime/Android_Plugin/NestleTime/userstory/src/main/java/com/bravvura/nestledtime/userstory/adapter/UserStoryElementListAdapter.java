@@ -17,19 +17,25 @@ import android.widget.TextView;
 
 import com.bravvura.nestledtime.R;
 import com.bravvura.nestledtime.customview.MyMediaPlayer;
+import com.bravvura.nestledtime.customview.spinnerdatepicker.DatePicker;
+import com.bravvura.nestledtime.customview.spinnerdatepicker.DatePickerDialog;
+import com.bravvura.nestledtime.customview.spinnerdatepicker.SpinnerDatePickerDialogBuilder;
 import com.bravvura.nestledtime.mediagallery.model.MEDIA_CELL_TYPE;
 import com.bravvura.nestledtime.mediagallery.model.MediaModel;
 import com.bravvura.nestledtime.userstory.customview.UserStoryMediaView;
 import com.bravvura.nestledtime.userstory.listener.OnMediaClickListener;
 import com.bravvura.nestledtime.userstory.model.UserStoryAudioModel;
+import com.bravvura.nestledtime.userstory.model.UserStoryDateModel;
 import com.bravvura.nestledtime.userstory.model.UserStoryElement;
 import com.bravvura.nestledtime.userstory.model.UserStoryElementType;
 import com.bravvura.nestledtime.userstory.model.UserStoryMediaModel;
 import com.bravvura.nestledtime.utils.CloudinaryManager;
+import com.bravvura.nestledtime.utils.DatetUtils;
 import com.bravvura.nestledtime.utils.Utils;
 import com.bumptech.glide.Glide;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 
 /**
  * Project Name Nestled Time
@@ -45,8 +51,9 @@ public class UserStoryElementListAdapter extends RecyclerView.Adapter<RecyclerVi
     public int middlePosition;
     public boolean showMediaPlayer;
 
-    public UserStoryElementListAdapter(Context context, OnMediaClickListener mediaClickListener) {
+    public UserStoryElementListAdapter(Context context, ArrayList<UserStoryElement> userStoryElements, OnMediaClickListener mediaClickListener) {
         this.mediaClickListener = mediaClickListener;
+        this.userStoryElements = userStoryElements;
         mediaPlayer = new MyMediaPlayer(context);
 
     }
@@ -131,13 +138,15 @@ public class UserStoryElementListAdapter extends RecyclerView.Adapter<RecyclerVi
                 ((TextViewHolder) holder).edit_text.setHint("Text");
             }
             ((TextViewHolder) holder).edit_text.setText(userStoryElements.get(position).textModel.data);
-            if(userStoryElements.get(position).textModel.autoFocus) {
+            if (userStoryElements.get(position).textModel.autoFocus) {
                 userStoryElements.get(position).textModel.autoFocus = false;
                 ((TextViewHolder) holder).edit_text.requestFocus();
             }
         } else if (holder instanceof AudioViewHolder) {
             ((AudioViewHolder) holder).reset();
             ((AudioViewHolder) holder).setUpDataSource(userStoryElements.get(position).audioModel);
+        } else if (holder instanceof DateViewHolder) {
+            ((DateViewHolder) holder).populateDate(userStoryElements.get(position).dateModel);
         }
     }
 
@@ -177,7 +186,7 @@ public class UserStoryElementListAdapter extends RecyclerView.Adapter<RecyclerVi
                 @Override
                 public void onClick(View v) {
                     if (mediaClickListener != null)
-                        mediaClickListener.onClick(userStoryElements.get(getAdapterPosition()), getAdapterPosition());
+                        mediaClickListener.onClick(BaseViewHolder.this, userStoryElements.get(getAdapterPosition()), getAdapterPosition());
                 }
             });
             if (itemView.findViewById(R.id.ic_close) != null)
@@ -197,8 +206,42 @@ public class UserStoryElementListAdapter extends RecyclerView.Adapter<RecyclerVi
 
     class DateViewHolder extends BaseViewHolder {
 
-        public DateViewHolder(View itemView) {
+        private final TextView textDate;
+        private UserStoryDateModel dateModel;
+
+        public DateViewHolder(final View itemView) {
             super(itemView);
+            textDate = itemView.findViewById(R.id.text_date);
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Calendar todayCalendar = Calendar.getInstance();
+                    final Calendar calendar = Calendar.getInstance();
+                    calendar.setTime(dateModel.date);
+                    SpinnerDatePickerDialogBuilder dialog = new SpinnerDatePickerDialogBuilder()
+                            .context(itemView.getContext())
+                            .callback(new DatePickerDialog.OnDateSetListener() {
+                                @Override
+                                public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
+                                    calendar.set(year, monthOfYear, dayOfMonth);
+                                    dateModel.date = calendar.getTime();
+                                    populateDate(dateModel);
+                                }
+                            })
+//                            .spinnerTheme(spinnerTheme)
+                            .defaultDate(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH))
+                            .maxDate(todayCalendar.get(Calendar.YEAR), todayCalendar.get(Calendar.MONTH), todayCalendar.get(Calendar.DAY_OF_MONTH));
+                    dialog.build().show();
+                }
+            });
+
+        }
+
+        public void populateDate(UserStoryDateModel dateModel) {
+            if (dateModel != null && dateModel.date != null) {
+                textDate.setText(DatetUtils.getDateElementString(dateModel.date));
+                this.dateModel = dateModel;
+            }
         }
     }
 
@@ -427,14 +470,17 @@ public class UserStoryElementListAdapter extends RecyclerView.Adapter<RecyclerVi
         }
     }
 
-    class MediaViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+    public class MediaViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         private final UserStoryMediaView mediaView1, mediaView2, mediaView3, mediaView4;
         public final TextView textPicMore, textTitle;
         private final LinearLayout layoutMorePic;
         private final View textEdit;
+        private final ProgressBar progressBar;
+        private final View imageProgress;
         public View layouotImage4;
         private UserStoryMediaModel userStoryMediaModel;
+        private boolean isUploaded;
 
 
         public MediaViewHolder(View itemView) {
@@ -448,7 +494,8 @@ public class UserStoryElementListAdapter extends RecyclerView.Adapter<RecyclerVi
             textPicMore = itemView.findViewById(R.id.text_more_pic);
             layouotImage4 = itemView.findViewById(R.id.layout_image_4);
             (textEdit = itemView.findViewById(R.id.text_edit)).setOnClickListener(this);
-
+            progressBar = itemView.findViewById(R.id.progress_bar);
+            imageProgress = itemView.findViewById(R.id.image_progress);
             mediaView1.setOnClickListener(this);
             mediaView2.setOnClickListener(this);
             mediaView3.setOnClickListener(this);
@@ -458,12 +505,20 @@ public class UserStoryElementListAdapter extends RecyclerView.Adapter<RecyclerVi
 
         void showMediaGallery(final int index) {
             if (mediaClickListener != null)
-                mediaClickListener.onClick(userStoryElements.get(getAdapterPosition()), index);
+                mediaClickListener.onClick(MediaViewHolder.this, userStoryElements.get(getAdapterPosition()), index);
         }
 
         public void populateMedia(UserStoryMediaModel userStoryMediaModel) {
             this.userStoryMediaModel = userStoryMediaModel;
             textTitle.setText(userStoryMediaModel.title);
+            isUploaded = updateProgress();
+            if (isUploaded) {
+                progressBar.setVisibility(View.GONE);
+                imageProgress.setVisibility(View.GONE);
+            } else {
+                progressBar.setVisibility(View.VISIBLE);
+                imageProgress.setVisibility(View.VISIBLE);
+            }
             showMediaImage();
             if (showMediaPlayer && middlePosition == getAdapterPosition()) {
                 UserStoryMediaView userStoryMediaView = getVideoView();
@@ -478,6 +533,19 @@ public class UserStoryElementListAdapter extends RecyclerView.Adapter<RecyclerVi
                 if (lastMediaPlayerView != null && lastMediaPlayerView.getPosition() != middlePosition)
                     lastMediaPlayerView.releaseMediaPlayer(getAdapterPosition());
             }
+        }
+
+        private boolean updateProgress() {
+            int totalProgress, progress;
+            totalProgress = userStoryMediaModel.mediaCount + 1;
+            progress = 1;
+            for (MediaModel mediaModel : userStoryMediaModel.mediaModels) {
+                if (mediaModel.isUploaded())
+                    progress++;
+            }
+            progressBar.setMax(totalProgress);
+            progressBar.setProgress(progress);
+            return totalProgress == progress;
         }
 
         private void showMediaImage() {

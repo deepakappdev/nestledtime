@@ -7,20 +7,13 @@
 
     <include layout="@layout/toolbar_layout" />
 
-    <TextView
-        android:id="@+id/text_address_search"
+    <fragment
+        android:id="@+id/place_fragment"
+
+        android:name="com.google.android.gms.location.places.ui.PlaceAutocompleteFragment"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/white"
-        android:drawableLeft="@drawable/ic_search_black"
-        android:drawablePadding="@dimen/margin_normal"
-        android:gravity="center_vertical"
-        android:hint="Enter Location..."
-        android:padding="@dimen/margin_normal"
-        android:singleLine="true"
-        android:textColor="@color/grey"
-        android:textColorHint="@color/grey"
-        android:textSize="@dimen/textSizeMedium" />
+        android:layout_height="wrap_content"/>
+
 
     <RelativeLayout
         android:layout_width="match_parent"

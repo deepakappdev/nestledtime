@@ -132,6 +132,11 @@ public class UserStoryMediaPagerActivity extends BaseActivity {
         PagerAdapter adapter = new UserStoryMediaPagerAdapter(getSupportFragmentManager(), userStoryMediaModel);
         viewPager.setAdapter(adapter);
         viewPager.setCurrentItem(index);
+
+        MediaStopEventModel model = new MediaStopEventModel();
+        model.selectedIndex = index;
+        EventBus.getDefault().post(model);
+
         setTitle(index + 1 + " of " + userStoryMediaModel.mediaModels.size());
 
     }

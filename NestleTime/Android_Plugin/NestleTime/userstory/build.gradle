@@ -51,6 +51,9 @@ dependencies {
     implementation 'com.google.android.gms:play-services:11.0.4'
     implementation 'com.google.code.gson:gson:2.8.0'
 
+//    compile 'com.google.android.exoplayer:exoplayer:r2.X.X'
+
+
     implementation 'com.android.volley:volley:1.0.0'
     implementation 'com.facebook.android:facebook-android-sdk:4.25.0'
     implementation 'com.cloudinary:cloudinary-android:1.20.0'
@@ -86,5 +89,5 @@ ext {
     licenseUrl = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
     allLicenses = ["Apache-2.0"]
 }
-apply from: 'https://raw.githubusercontent.com/nuuneoi/JCenter/master/installv1.gradle'
-apply from: 'https://raw.githubusercontent.com/nuuneoi/JCenter/master/bintrayv1.gradle'
+//apply from: 'https://raw.githubusercontent.com/nuuneoi/JCenter/master/installv1.gradle'
+//apply from: 'https://raw.githubusercontent.com/nuuneoi/JCenter/master/bintrayv1.gradle'

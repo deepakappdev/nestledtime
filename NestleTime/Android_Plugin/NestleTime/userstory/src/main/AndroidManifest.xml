@@ -49,7 +49,11 @@
             android:configChanges="keyboardHidden|orientation|screenSize">
 
         </activity>
-
+        <service
+            android:name="com.bravvura.nestledtime.network.UploadListner" />
+        <meta-data
+            android:name="cloudinaryCallbackService"
+            android:value="com.bravvura.nestledtime.network.UploadListner" />
     </application>
 
 </manifest>

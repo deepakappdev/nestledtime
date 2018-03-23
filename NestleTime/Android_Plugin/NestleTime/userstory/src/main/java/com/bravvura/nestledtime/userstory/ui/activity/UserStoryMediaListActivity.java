@@ -1,6 +1,5 @@
 package com.bravvura.nestledtime.userstory.ui.activity;
 
-import android.app.ProgressDialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
@@ -15,7 +14,6 @@ import android.widget.TextView;
 
 import com.bravvura.nestledtime.R;
 import com.bravvura.nestledtime.activity.BaseActivity;
-//import com.bravvura.nestledtime.imageedittor.main.activity.EditPhotoActivity;
 import com.bravvura.nestledtime.mediagallery.listener.MediaElementClick;
 import com.bravvura.nestledtime.mediagallery.model.MEDIA_CELL_TYPE;
 import com.bravvura.nestledtime.mediagallery.model.MEDIA_SOURCE_TYPE;
@@ -28,6 +26,7 @@ import com.bravvura.nestledtime.utils.Constants;
 import com.bravvura.nestledtime.utils.MyFileSystem;
 import com.bravvura.nestledtime.utils.StringUtils;
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.cloudinary.Transformation;
@@ -35,13 +34,14 @@ import com.cloudinary.android.MediaManager;
 import com.cloudinary.android.callback.ErrorInfo;
 import com.cloudinary.android.callback.UploadCallback;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Map;
+
+//import com.bravvura.nestledtime.imageedittor.main.activity.EditPhotoActivity;
 
 
 /**
@@ -58,7 +58,6 @@ public class UserStoryMediaListActivity extends BaseActivity implements View.OnC
     private ProgressBar progressBar;
     private TextView textProgressBar;
     private MenuItem menuItem;
-    private ProgressDialog dialog;
     private UploadCallback callBack = new UploadCallback() {
         @Override
         public void onStart(String requestId) {
@@ -108,7 +107,7 @@ public class UserStoryMediaListActivity extends BaseActivity implements View.OnC
         @Override
         public void onError(String requestId, ErrorInfo error) {
             MediaModel mediaModel = getMediaModelByRequestId(requestId);
-            if(mediaModel!=null) {
+            if (mediaModel != null) {
                 mediaModel.setUploaded(false);
                 mediaModel.setRequestId(null);
             }
@@ -118,7 +117,7 @@ public class UserStoryMediaListActivity extends BaseActivity implements View.OnC
         @Override
         public void onReschedule(String requestId, ErrorInfo error) {
             MediaModel mediaModel = getMediaModelByRequestId(requestId);
-            if(mediaModel!=null) {
+            if (mediaModel != null) {
                 mediaModel.setUploaded(false);
                 mediaModel.setRequestId(null);
             }
@@ -126,12 +125,15 @@ public class UserStoryMediaListActivity extends BaseActivity implements View.OnC
         }
     };
     private int editedIndex;
-    private MediaElementClick onEditClick = new MediaElementClick() {
-        void abc() {
+    private MediaElementClick mediaElementClick = new MediaElementClick() {
+
+        @Override
+        public void onClick(int index, MediaModel mediaModel) {
+
         }
 
         @Override
-        public void onClick(final int index, MediaModel mediaModel) {
+        public void onEditClick(final int index, MediaModel mediaModel) {
             if (mediaModel.isEdited) {
                 editedIndex = index;
 //                Intent intent = new Intent(getApplicationContext(), EditPhotoActivity.class);
@@ -143,7 +145,10 @@ public class UserStoryMediaListActivity extends BaseActivity implements View.OnC
                     case TYPE_FACEBOOK:
                     case TYPE_INSTAGRAM:
                         try {
-                            Glide.with(getApplicationContext()).load(mediaModel.getUrl()).asBitmap().into(new SimpleTarget<Bitmap>() {
+                            Glide.with(getApplicationContext()).load(mediaModel.getUrl()).asBitmap()
+                                    .diskCacheStrategy(DiskCacheStrategy.NONE)
+                                    .skipMemoryCache(true)
+                                    .into(new SimpleTarget<Bitmap>() {
                                 @Override
                                 public void onResourceReady(Bitmap resource, GlideAnimation<? super Bitmap> glideAnimation) {
                                     File toFile = MyFileSystem.getTempImageFile();
@@ -178,6 +183,33 @@ public class UserStoryMediaListActivity extends BaseActivity implements View.OnC
                         break;
                 }
             }
+        }
+
+        @Override
+        public void onRemoveClick(final int index, final MediaModel mediaModel) {
+            showRemoveDialog(new DialogCallBack() {
+                @Override
+                public void onOKClick() {
+                    if (mediaModel.sourceType == MEDIA_SOURCE_TYPE.TYPE_LOCAL
+                            || mediaModel.sourceType == MEDIA_SOURCE_TYPE.TYPE_FACEBOOK
+                            || mediaModel.sourceType == MEDIA_SOURCE_TYPE.TYPE_INSTAGRAM) {
+                        if (mediaModel.isEdited) {
+                            MyFileSystem.removeFile(mediaModel.getPathFile());
+                        }
+                        userStoryMediaModel.mediaModels.remove(mediaModel);
+                        adapter.notifyItemRemoved(index);
+                    } else {
+                        mediaModel.isDeleted = true;
+                        adapter.notifyItemChanged(index);
+                    }
+                }
+
+                @Override
+                public void onCancelClick() {
+
+                }
+            });
+
         }
     };
 
@@ -244,18 +276,15 @@ public class UserStoryMediaListActivity extends BaseActivity implements View.OnC
             return false;
         }
         if (item.getItemId() == R.id.menu_done) {
-//            finishWithResult(userStoryMediaModel);
-            compressMediaFiles();
+            finishWithResult(userStoryMediaModel);
+//            compressMediaFiles();
         }
         return super.onOptionsItemSelected(item);
     }
 
 
     private void compressMediaFiles() {
-        if (dialog != null) dialog.dismiss();
-        dialog = new ProgressDialog(this);
-        dialog.setCancelable(false);
-        dialog.show();
+        showProgressDialog();
         AsyncFileCompression compressingFileAsync = new AsyncFileCompression();
         compressingFileAsync.execute((Void) null);
     }
@@ -328,7 +357,7 @@ public class UserStoryMediaListActivity extends BaseActivity implements View.OnC
     }
 
     private void doUpload(MediaModel mediaModel) {
-        if(mediaModel.isEdited || mediaModel.sourceType==MEDIA_SOURCE_TYPE.TYPE_LOCAL) {
+        if (mediaModel.isEdited || mediaModel.sourceType == MEDIA_SOURCE_TYPE.TYPE_LOCAL) {
             doUploadLocalFile(mediaModel);
         } else {
             doUploadRemoteFile(mediaModel);
@@ -341,8 +370,6 @@ public class UserStoryMediaListActivity extends BaseActivity implements View.OnC
         if (!StringUtils.isNullOrEmpty(mediaModel.getUrl())) {
             fileToUpload = mediaModel.getUrl();
         }
-        Transformation tr = new Transformation();
-        tr.crop("fit").width(100);
         if (!StringUtils.isNullOrEmpty(fileToUpload)) {
             if (mediaModel.mediaCellType == MEDIA_CELL_TYPE.TYPE_IMAGE) {
                 mediaModel.setIsUploaded(true);
@@ -350,7 +377,7 @@ public class UserStoryMediaListActivity extends BaseActivity implements View.OnC
                 mediaModel.setThumbnail(null);
                 mediaModel.setUrl(serverUrl);
                 mediaModel.setPublicId(fileToUpload);
-                mediaModel.sourceType=MEDIA_SOURCE_TYPE.TYPE_CLOUD;
+                mediaModel.sourceType = MEDIA_SOURCE_TYPE.TYPE_CLOUD;
                 checkForUpload();
             } else if (mediaModel.mediaCellType == MEDIA_CELL_TYPE.TYPE_VIDEO) {
                 mediaModel.setIsUploaded(false);
@@ -448,7 +475,7 @@ public class UserStoryMediaListActivity extends BaseActivity implements View.OnC
         progressBar.setVisibility(View.GONE);
         textProgressBar.setVisibility(View.GONE);
         menuItem.setEnabled(true);
-        dialog.dismiss();
+        hideProgressDialog();
     }
 
     private void initComponent() {
@@ -460,7 +487,7 @@ public class UserStoryMediaListActivity extends BaseActivity implements View.OnC
     }
 
     private void initAdapter() {
-        adapter = new UserStoryMediaListAdapter(this, onEditClick);
+        adapter = new UserStoryMediaListAdapter(this, mediaElementClick);
         adapter.setResults(userStoryMediaModel);
         recyclerView.setAdapter(adapter);
     }
@@ -498,7 +525,7 @@ public class UserStoryMediaListActivity extends BaseActivity implements View.OnC
                         layoutManager.scrollToPosition(lastsize + 1);
                     }
                 } else {
-                    if(userStoryMediaModel.mediaModels.isEmpty())
+                    if (userStoryMediaModel.mediaModels.isEmpty())
                         finish();
                 }
                 break;

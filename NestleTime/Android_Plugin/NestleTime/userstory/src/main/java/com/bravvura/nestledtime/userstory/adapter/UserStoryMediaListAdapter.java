@@ -1,9 +1,9 @@
 package com.bravvura.nestledtime.userstory.adapter;
 
 import android.content.Context;
-import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
-import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -18,20 +18,16 @@ import com.bravvura.nestledtime.R;
 import com.bravvura.nestledtime.customview.MyMediaPlayer;
 import com.bravvura.nestledtime.mediagallery.listener.MediaElementClick;
 import com.bravvura.nestledtime.mediagallery.model.MEDIA_CELL_TYPE;
-import com.bravvura.nestledtime.mediagallery.model.MEDIA_SOURCE_TYPE;
 import com.bravvura.nestledtime.mediagallery.model.MediaModel;
-import com.bravvura.nestledtime.userstory.model.UserStoryElementType;
 import com.bravvura.nestledtime.userstory.model.UserStoryMediaModel;
-import com.bravvura.nestledtime.userstory.ui.activity.UserStoryMediaPagerActivity;
 import com.bravvura.nestledtime.utils.CloudinaryManager;
-import com.bravvura.nestledtime.utils.Constants;
-import com.bravvura.nestledtime.utils.MyFileSystem;
 import com.bravvura.nestledtime.utils.MyLogs;
 import com.bravvura.nestledtime.utils.StringUtils;
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.animation.GlideAnimation;
+import com.bumptech.glide.request.target.SimpleTarget;
 
 import java.io.File;
-import java.util.ArrayList;
 
 /**
  * Project Name Nestled Time
@@ -43,14 +39,16 @@ public class UserStoryMediaListAdapter extends RecyclerView.Adapter<RecyclerView
     private static final int VIEW_VIDEO = 2;
     private static final int VIEW_IMAGE = 3;
     private static final int VIEW_NONE = 4;
-    private final MediaElementClick onEditClick;
+    private final MediaElementClick mediaElementClick;
+    private final Context context;
 
     private UserStoryMediaModel userStoryMediaModel;
     private MyMediaPlayer mediaPlayer;
 
-    public UserStoryMediaListAdapter(Context context, MediaElementClick onEditClick) {
+    public UserStoryMediaListAdapter(Context context, MediaElementClick mediaElementClick) {
+        this.context = context;
         mediaPlayer = new MyMediaPlayer(context);
-        this.onEditClick = onEditClick;
+        this.mediaElementClick = mediaElementClick;
     }
 
     public void setResults(UserStoryMediaModel userStoryMediaModel) {
@@ -72,13 +70,13 @@ public class UserStoryMediaListAdapter extends RecyclerView.Adapter<RecyclerView
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         if (viewType == VIEW_NONE)
-            return new BlankViewHolder(new View(parent.getContext()));
+            return new BlankViewHolder(new View(context));
         else if (viewType == VIEW_TITLE)
-            return new TextViewHolder(View.inflate(parent.getContext(), R.layout.cell_user_story_text, null));
+            return new TextViewHolder(View.inflate(context, R.layout.cell_user_story_text, null));
         else if (viewType == VIEW_IMAGE)
-            return new ImageViewHolder(View.inflate(parent.getContext(), R.layout.cell_story_media_list_image, null));
+            return new ImageViewHolder(View.inflate(context, R.layout.cell_story_media_list_image, null));
         else {
-            return new VideoViewHolder(View.inflate(parent.getContext(), R.layout.cell_story_media_list_video, null));
+            return new VideoViewHolder(View.inflate(context, R.layout.cell_story_media_list_video, null));
         }
     }
 
@@ -91,7 +89,7 @@ public class UserStoryMediaListAdapter extends RecyclerView.Adapter<RecyclerView
         MediaModel mediaModel = userStoryMediaModel.mediaModels.get(position - 1);
         if (holder instanceof VideoViewHolder) {
             ((VideoViewHolder) holder).populateMediaItem(mediaModel);
-            ((VideoViewHolder) holder).releaseMediaPlayer();
+//            ((VideoViewHolder) holder).releaseMediaPlayer();
         } else if (holder instanceof ImageViewHolder) {
             ((ImageViewHolder) holder).populateMediaItem(mediaModel);
         }
@@ -127,25 +125,14 @@ public class UserStoryMediaListAdapter extends RecyclerView.Adapter<RecyclerView
                 itemView.findViewById(R.id.text_edit).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        onEditClick.onClick(getAdapterPosition() - 1, mediaModel);
+                        mediaElementClick.onEditClick(getAdapterPosition() - 1, mediaModel);
                     }
                 });
             imageClose = itemView.findViewById(R.id.image_remove);
             imageClose.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if (mediaModel.sourceType == MEDIA_SOURCE_TYPE.TYPE_LOCAL
-                            || mediaModel.sourceType == MEDIA_SOURCE_TYPE.TYPE_FACEBOOK
-                            || mediaModel.sourceType == MEDIA_SOURCE_TYPE.TYPE_INSTAGRAM) {
-                        if (mediaModel.isEdited) {
-                            MyFileSystem.removeFile(mediaModel.getPathFile());
-                        }
-                        userStoryMediaModel.mediaModels.remove(mediaModel);
-                        notifyItemRemoved(getAdapterPosition());
-                    } else {
-                        mediaModel.isDeleted = true;
-                        notifyItemChanged(getAdapterPosition());
-                    }
+                    mediaElementClick.onRemoveClick(getAdapterPosition() - 1, mediaModel);
                 }
             });
             editDescription.addTextChangedListener(new TextWatcher() {
@@ -171,22 +158,35 @@ public class UserStoryMediaListAdapter extends RecyclerView.Adapter<RecyclerView
             editDescription.setText(mediaModel.getTitle());
             editDescription.clearFocus();
             itemView.clearFocus();
+            imageView.setVisibility(View.VISIBLE);
             if (mediaModel.isEdited) {
-                Glide.with(itemView.getContext()).load(new File(mediaModel.getPathFile())).into(imageView);
+                Glide.with(context).load(new File(mediaModel.getPathFile())).into(imageView);
             } else {
-                switch(mediaModel.sourceType) {
+                switch (mediaModel.sourceType) {
                     case TYPE_CLOUD:
-                        if(mediaModel.mediaCellType==MEDIA_CELL_TYPE.TYPE_IMAGE) {
-                            Glide.with(itemView.getContext()).load(mediaModel.getUrl()).into(imageView);
+                        if (mediaModel.mediaCellType == MEDIA_CELL_TYPE.TYPE_IMAGE) {
+                            Glide.with(context).load(mediaModel.getUrl()).into(imageView);
                         } else {
-                            Glide.with(itemView.getContext()).load(CloudinaryManager.getVideoThumbnail(mediaModel.getPublicId())).into(imageView);
+                            Glide.with(context).load(CloudinaryManager.getVideoThumbnail(mediaModel.getPublicId())).asBitmap()
+                                    .into(new SimpleTarget<Bitmap>() {
+                                        @Override
+                                        public void onResourceReady(Bitmap resource, GlideAnimation<? super Bitmap> glideAnimation) {
+                                            imageView.setImageBitmap(resource);
+                                        }
+
+                                        @Override
+                                        public void onLoadFailed(Exception e, Drawable errorDrawable) {
+                                            super.onLoadFailed(e, errorDrawable);
+                                        }
+                                    });
+//                            Glide.with(context).load(CloudinaryManager.getVideoThumbnail(mediaModel.getPublicId())).into(imageView);
                         }
                     case TYPE_FACEBOOK:
                     case TYPE_INSTAGRAM:
-                        Glide.with(itemView.getContext()).load(mediaModel.getUrl()).into(imageView);
+                        Glide.with(context).load(mediaModel.getUrl()).into(imageView);
                         break;
                     case TYPE_LOCAL:
-                        Glide.with(itemView.getContext()).load(new File(mediaModel.getPathFile())).into(imageView);
+                        Glide.with(context).load(new File(mediaModel.getPathFile())).into(imageView);
                         break;
                 }
 
@@ -201,9 +201,8 @@ public class UserStoryMediaListAdapter extends RecyclerView.Adapter<RecyclerView
         VideoViewHolder(final View itemView) {
             super(itemView);
             layout_video = itemView.findViewById(R.id.layout_video);
-
             image_play = itemView.findViewById(R.id.image_play);
-            image_play.setVisibility(View.VISIBLE);
+            image_play.setVisibility(View.GONE);
             image_play.setImageResource(R.drawable.ic_play_white);
             image_play.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -223,8 +222,7 @@ public class UserStoryMediaListAdapter extends RecyclerView.Adapter<RecyclerView
                             if (!StringUtils.isNullOrEmpty(mediaModel.getPathFile())) {
                                 filePath = mediaModel.getPathFile();
                                 playMediaPlayer(Uri.parse(filePath));
-                            }
-                            else if (!StringUtils.isNullOrEmpty(mediaModel.getUrl())) {
+                            } else if (!StringUtils.isNullOrEmpty(mediaModel.getUrl())) {
                                 filePath = mediaModel.getUrl();
                                 playMediaPlayer(filePath);
                             }
@@ -247,6 +245,7 @@ public class UserStoryMediaListAdapter extends RecyclerView.Adapter<RecyclerView
 
         private MyMediaPlayer.MediaPlayerCallBack mediaCallBack = new MyMediaPlayer.MediaPlayerCallBack() {
             int currentIndex;
+
             @Override
             public void onRenderStart(int currentIndex) {
                 this.currentIndex = currentIndex;
@@ -263,7 +262,8 @@ public class UserStoryMediaListAdapter extends RecyclerView.Adapter<RecyclerView
             }
 
             @Override
-            public void onClick() { }
+            public void onClick() {
+            }
         };
 
         void attachMediaPlayer() {

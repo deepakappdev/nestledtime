@@ -120,7 +120,7 @@ public class MyFileSystem {
             MediaController.getInstance().convertVideo(pathFile, file.getAbsolutePath());
             return file.getAbsolutePath();
         } else {
-            return pathFile;
+            return null;
         }
     }
 
@@ -186,11 +186,17 @@ public class MyFileSystem {
         return isCheck;
     }
 
-    public static void deleteFile(File outputFile) {
+    public static void deleteFile(File fileToDelete) {
         try {
-            if (outputFile != null && outputFile.exists()) {
-                outputFile.delete();
+            if (fileToDelete != null && fileToDelete.exists()) {
+                fileToDelete.delete();
             }
+        } catch(Exception x){}
+    }
+
+    public static void deleteFile(String path) {
+        try {
+            deleteFile(new File(path));
         } catch(Exception x){}
     }
 }

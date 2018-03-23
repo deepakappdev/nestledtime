@@ -21,7 +21,8 @@ public class NetworkError extends Exception {
     }
 
     public NetworkError(VolleyError volleyError) {
-        localizedMessage = new String(volleyError.networkResponse.data);
+        if(volleyError.networkResponse.data!=null)
+            localizedMessage = new String(volleyError.networkResponse.data);
     }
 
     @Override

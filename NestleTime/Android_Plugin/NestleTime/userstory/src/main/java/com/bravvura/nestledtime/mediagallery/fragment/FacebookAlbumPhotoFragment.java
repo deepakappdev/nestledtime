@@ -91,6 +91,11 @@ public class FacebookAlbumPhotoFragment extends BaseFragment {
         adapter = new AllPhotoGalleryAdapter(mediaModels, width / 3);
         adapter.setOnMediaClickListener(new MediaElementClick() {
             @Override
+            public void onEditClick(int index, MediaModel mediaModel) {
+
+            }
+
+            @Override
             public void onClick(int index, MediaModel mediaModel) {
                 mediaModel.setSelected(!mediaModel.isSelected());
                 int selectedCount = getSelectedMediaCount();
@@ -103,6 +108,11 @@ public class FacebookAlbumPhotoFragment extends BaseFragment {
                 } else {
                     adapter.notifyItemChanged(index);
                 }
+            }
+
+            @Override
+            public void onRemoveClick(int index, MediaModel mediaModel) {
+
             }
         });
         recyclerView.setAdapter(adapter);

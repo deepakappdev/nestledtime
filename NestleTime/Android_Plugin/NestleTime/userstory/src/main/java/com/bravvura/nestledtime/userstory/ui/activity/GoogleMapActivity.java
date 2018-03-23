@@ -39,6 +39,8 @@ import com.google.android.gms.location.LocationSettingsStates;
 import com.google.android.gms.location.LocationSettingsStatusCodes;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.ui.PlaceAutocomplete;
+import com.google.android.gms.location.places.ui.PlaceAutocompleteFragment;
+import com.google.android.gms.location.places.ui.PlaceSelectionListener;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -50,16 +52,16 @@ import com.google.android.gms.maps.model.LatLng;
  * Created by Deepak Saini on 19-02-2018.
  */
 
-public class GoogleMapActivity extends BaseActivity implements OnMapReadyCallback, View.OnClickListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
+public class GoogleMapActivity extends BaseActivity implements OnMapReadyCallback, View.OnClickListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, PlaceSelectionListener {
 
 
     private static final int GOOGLE_API_CLIENT_ID = 0;
     private GoogleMap googleMap;
-    private TextView text_address_search;
     private GoogleApiClient mGoogleApiClient;
     private UserStoryAddressModel selectedAddress;
     private boolean requestFromUser;
     private Location userLastLocation;
+    private PlaceAutocompleteFragment autocompleteFragment;
 
 
     public void onCreate(Bundle savedInstanceState) {
@@ -114,9 +116,11 @@ public class GoogleMapActivity extends BaseActivity implements OnMapReadyCallbac
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map_fragment);
         mapFragment.getMapAsync(this);
-        text_address_search = findViewById(R.id.text_address_search);
         findViewById(R.id.image_current_location).setOnClickListener(this);
-        text_address_search.setOnClickListener(this);
+        autocompleteFragment = (PlaceAutocompleteFragment)
+                getFragmentManager().findFragmentById(R.id.place_fragment);
+        autocompleteFragment.setOnPlaceSelectedListener(this);
+        autocompleteFragment.setHint("Enter Location...");
     }
 
     @Override
@@ -161,7 +165,7 @@ public class GoogleMapActivity extends BaseActivity implements OnMapReadyCallbac
             this.selectedAddress.latLng = latLng;
             this.selectedAddress.placeName = mySelectedAddress.getAddressLine(0);
             this.selectedAddress.placeAddress = mySelectedAddress.getAddressLine(0);
-            text_address_search.setText(mySelectedAddress.getAddressLine(0));
+            refershAddress(mySelectedAddress.getAddressLine(0));
         }
     }
 
@@ -223,19 +227,12 @@ public class GoogleMapActivity extends BaseActivity implements OnMapReadyCallbac
     }
 
     private void refershAddress(String address) {
-        text_address_search.setText(address);
+        autocompleteFragment.setText(address);
     }
 
     @Override
     public void onClick(View v) {
-        if (v.getId() == R.id.text_address_search) {
-            try {
-                Intent intent = new PlaceAutocomplete.IntentBuilder(PlaceAutocomplete.MODE_FULLSCREEN)
-                        .build(this);
-                startActivityForResult(intent, Constants.REQUEST_CODE.REQUEST_LOCATION);
-            } catch (Exception e) {
-            }
-        } else if (v.getId() == R.id.image_current_location) {
+        if (v.getId() == R.id.image_current_location) {
             if (userLastLocation != null) {
                 animateCamera(new LatLng(userLastLocation.getLatitude(), userLastLocation.getLongitude()));
             } else {
@@ -279,7 +276,7 @@ public class GoogleMapActivity extends BaseActivity implements OnMapReadyCallbac
         googleMap.getUiSettings().setCompassEnabled(true);
         if (selectedAddress != null) {
             animateCamera(selectedAddress.latLng);
-            text_address_search.setText(selectedAddress.placeName);
+            refershAddress(selectedAddress.placeName);
         }
     }
 
@@ -392,5 +389,19 @@ public class GoogleMapActivity extends BaseActivity implements OnMapReadyCallbac
         if (mFusedLocationClient != null && locationCallBack != null) {
             mFusedLocationClient.removeLocationUpdates(locationCallBack);
         }
+    }
+
+    @Override
+    public void onPlaceSelected(Place place) {
+        this.selectedAddress = new UserStoryAddressModel();
+        this.selectedAddress.latLng = place.getLatLng();
+        this.selectedAddress.placeName = place.getName().toString();
+        this.selectedAddress.placeAddress = place.getAddress().toString();
+        animateCamera(place.getLatLng());
+    }
+
+    @Override
+    public void onError(Status status) {
+
     }
 }

@@ -1,11 +1,11 @@
 package com.bravvura.nestledtime.utils;
 
 import android.content.Context;
-import android.net.Uri;
 
 import com.cloudinary.Configuration;
 import com.cloudinary.Transformation;
 import com.cloudinary.android.MediaManager;
+import com.cloudinary.android.UploadRequest;
 import com.cloudinary.android.callback.UploadCallback;
 import com.cloudinary.android.policy.GlobalUploadPolicy;
 
@@ -36,11 +36,22 @@ public class CloudinaryManager {
     }
 
     public static String uploadImageFile(String fileToUpload, final UploadCallback callBack) {
-        String requestId = MediaManager.get()
+        UploadRequest uploadRequest = MediaManager.get()
                 .upload(fileToUpload).option("resource_type", "image")
                 .policy(GlobalUploadPolicy.defaultPolicy())
-                .unsigned(UPLOAD_PRESET).callback(callBack).dispatch();
+                .unsigned(UPLOAD_PRESET);
+        if (callBack != null)
+            uploadRequest.callback(callBack);
+        String requestId = uploadRequest.dispatch();
         return requestId;
+    }
+
+    public static String uploadImageFile(String fileToUpload) {
+        return uploadImageFile(fileToUpload, null);
+    }
+
+    public static String uploadVideoFile(String fileToUpload) {
+        return uploadVideoFile(fileToUpload, null);
     }
 
     public static String uploadVideoFile(String fileToUpload, UploadCallback callBack) {
@@ -48,12 +59,14 @@ public class CloudinaryManager {
         Transformation transformation = new Transformation();
         transformation.fetchFormat("m3u8");
         transformations.add(transformation);
-        String requestId = MediaManager.get()
+        UploadRequest uploadRequest = MediaManager.get()
                 .upload(fileToUpload).option("resource_type", "video")
                 .option("eager", transformations)
-                .policy(GlobalUploadPolicy.defaultPolicy())
-                /*.unsigned(UPLOAD_PRESET)*/
-                .callback(callBack).dispatch();
+                .policy(GlobalUploadPolicy.defaultPolicy());
+
+        if (callBack != null)
+            uploadRequest.callback(callBack);
+        String requestId = uploadRequest.dispatch();
         return requestId;
     }
 

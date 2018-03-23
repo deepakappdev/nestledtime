@@ -13,4 +13,5 @@
     <color name="dark_grey">#555555</color>
     <color name="black">#000000</color>
     <color name="semi_transparent_grey">#33000000</color>
+    <color name="semi_transparent_white">#aaffffff</color>
 </resources>

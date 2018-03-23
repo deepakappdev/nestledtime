@@ -48,12 +48,22 @@ public class FacebookAlbumFragment extends BaseFragment implements RequestCallba
     private FacebookAlbumGalleryAdapter adapter;
     private MediaElementClick albumClickListener = new MediaElementClick() {
         @Override
+        public void onEditClick(int index, MediaModel mediaModel) {
+
+        }
+
+        @Override
         public void onClick(int index, MediaModel mediaModel) {
             Intent intent = new Intent(getContext(), FacebookMediaAlbumActivity.class);
             Bundle bundle = new Bundle();
             bundle.putParcelable(Constants.BUNDLE_KEY.MEDIA_MODEL, facebookResponse.data.data.get(index));
             intent.putExtras(bundle);
             startActivityForResult(intent, Constants.REQUEST_CODE.REQUEST_GALLERY_MEDIA);
+        }
+
+        @Override
+        public void onRemoveClick(int index, MediaModel mediaModel) {
+
         }
     };
     private MenuItem menuItem;

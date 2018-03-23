@@ -4,6 +4,9 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.provider.MediaStore;
 
+import com.bravvura.nestledtime.utils.MyFileSystem;
+import com.bravvura.nestledtime.utils.StringUtils;
+
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -252,7 +255,10 @@ public class MediaModel implements Parcelable {
         sourceType = MEDIA_SOURCE_TYPE.TYPE_CLOUD;
         isEdited = false;
         isDeleted = false;
-        compressPath = null;
+        if(!StringUtils.isNullOrEmpty(compressPath)) {
+         MyFileSystem.deleteFile(compressPath);
+            compressPath = null;
+        }
         requestId = null;
         isUploaded = true;
         progress = 0;

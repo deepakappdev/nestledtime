@@ -17,6 +17,7 @@ import com.bravvura.nestledtime.mediagallery.model.MEDIA_CELL_TYPE;
 import com.bravvura.nestledtime.mediagallery.model.MediaModel;
 import com.bravvura.nestledtime.utils.CloudinaryManager;
 import com.bravvura.nestledtime.utils.MyLogs;
+import com.bravvura.nestledtime.utils.StringUtils;
 import com.bumptech.glide.Glide;
 
 /**
@@ -92,11 +93,19 @@ public class UserStoryMediaView extends LinearLayout {
             if (mediaModel != null) {
                 imageView.setVisibility(View.VISIBLE);
                 if (mediaModel.mediaCellType == MEDIA_CELL_TYPE.TYPE_IMAGE) {
-                    String url = CloudinaryManager.getFacesThumbnail(mediaModel.getPublicId(), width, height);
-                    Glide.with(getContext()).load(url).into(imageView);
+                    if(!StringUtils.isNullOrEmpty(mediaModel.getPathFile())) {
+                        Glide.with(getContext()).load(mediaModel.getPathFile()).into(imageView);
+                    } else {
+                        String url = CloudinaryManager.getFacesThumbnail(mediaModel.getPublicId(), width, height);
+                        Glide.with(getContext()).load(url).into(imageView);
+                    }
                 } else {
-                    String url = CloudinaryManager.getVideoThumbnail(mediaModel.getPublicId(), width, height);
-                    Glide.with(getContext()).load(url).into(imageView);
+                    if(!StringUtils.isNullOrEmpty(mediaModel.getPathFile())) {
+                        Glide.with(getContext()).load(mediaModel.getPathFile()).into(imageView);
+                    } else {
+                        String url = CloudinaryManager.getVideoThumbnail(mediaModel.getPublicId(), width, height);
+                        Glide.with(getContext()).load(url).into(imageView);
+                    }
                 }
             }
         }
@@ -152,5 +161,19 @@ public class UserStoryMediaView extends LinearLayout {
 
     public int getPosition() {
         return position;
+    }
+
+    public boolean isPlaying() {
+        return mediaPlayer!=null && mediaPlayer.getMediaPlayer()!=null && mediaPlayer.getMediaPlayer().isPlaying();
+    }
+
+    public void pause() {
+        if(mediaPlayer!=null && mediaPlayer.getMediaPlayer()!=null)
+            mediaPlayer.getMediaPlayer().pause();
+    }
+
+    public void start() {
+        if(mediaPlayer!=null && mediaPlayer.getMediaPlayer()!=null)
+            mediaPlayer.getMediaPlayer().start();
     }
 }

@@ -1,11 +1,11 @@
 package com.bravvura.nestledtime.userstory.ui.fragment;
 
-import android.app.ProgressDialog;
 import android.content.pm.PackageManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.widget.Toast;
 
+import com.bravvura.nestledtime.activity.BaseActivity;
 import com.bravvura.nestledtime.mediagallery.model.MediaModel;
 
 /**
@@ -14,7 +14,6 @@ import com.bravvura.nestledtime.mediagallery.model.MediaModel;
  */
 
 public class BaseFragment extends Fragment {
-    ProgressDialog progressDialog;
     private Toast toast;
 
 
@@ -26,8 +25,8 @@ public class BaseFragment extends Fragment {
     }
 
     public void hideDialog() {
-        if (progressDialog != null)
-            progressDialog.dismiss();
+        if(getActivity()!=null)
+            ((BaseActivity)getActivity()).hideProgressDialog();
     }
 
     public void showToast(String message) {
@@ -39,12 +38,8 @@ public class BaseFragment extends Fragment {
     }
 
     public void showDialog() {
-        hideDialog();
-        if (getContext() != null) {
-            progressDialog = new ProgressDialog(getContext());
-            progressDialog.setTitle("Please wait");
-            progressDialog.show();
-        }
+        if(getActivity()!=null)
+            ((BaseActivity)getActivity()).showProgressDialog();
     }
 
     protected boolean isPermissionGranted(String permission) {

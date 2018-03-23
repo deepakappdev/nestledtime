@@ -129,6 +129,11 @@ public class LocalPhotoFragment extends BaseFragment {
         adapter = new AllPhotoGalleryAdapter(mediaModels, width / 3);
         adapter.setOnMediaClickListener(new MediaElementClick() {
             @Override
+            public void onEditClick(int index, MediaModel mediaModel) {
+
+            }
+
+            @Override
             public void onClick(int index, MediaModel mediaModel) {
                 if (mediaModel.mediaCellType == MEDIA_CELL_TYPE.TYPE_CAMERA) {
                     Intent cameraIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
@@ -156,6 +161,11 @@ public class LocalPhotoFragment extends BaseFragment {
                         adapter.notifyItemChanged(index);
                     }
                 }
+            }
+
+            @Override
+            public void onRemoveClick(int index, MediaModel mediaModel) {
+
             }
         });
         recyclerView.setAdapter(adapter);

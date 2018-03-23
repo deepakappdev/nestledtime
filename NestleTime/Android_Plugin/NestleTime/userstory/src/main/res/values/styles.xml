@@ -7,11 +7,13 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
-    <style name="BaseTheme" parent="@style/Theme.AppCompat.Light.DarkActionBar"/>
+    <style name="BaseTheme" parent="@style/Theme.AppCompat.Light.NoActionBar"/>
 
     <style name="GalleryTheme" parent="@style/Theme.AppCompat.Light.NoActionBar">
         <item name="colorPrimary">@color/semi_transparent_grey</item>
         <item name="colorPrimaryDark">@color/semi_transparent_grey</item>
         <item name="colorAccent">@color/colorAccent</item>
     </style>
+
+
 </resources>
