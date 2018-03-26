@@ -16,14 +16,56 @@ public class PartItemDetail implements Parcelable {
     public String collectionId;
     public String body;
     public String title;
+    public double latitude;
+    public double longitude;
+    public String name;
 
-    protected PartItemDetail(){}
+
+    public String hour;
+    public String minutes;
+    public String path;
+    public long seconds;
+    public long totalSeconds;
+
+
+    protected PartItemDetail() {
+    }
+
 
     protected PartItemDetail(Parcel in) {
         caption = in.readString();
         collectionId = in.readString();
         body = in.readString();
         title = in.readString();
+        latitude = in.readDouble();
+        longitude = in.readDouble();
+        name = in.readString();
+        hour = in.readString();
+        minutes = in.readString();
+        path = in.readString();
+        seconds = in.readLong();
+        totalSeconds = in.readLong();
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(caption);
+        dest.writeString(collectionId);
+        dest.writeString(body);
+        dest.writeString(title);
+        dest.writeDouble(latitude);
+        dest.writeDouble(longitude);
+        dest.writeString(name);
+        dest.writeString(hour);
+        dest.writeString(minutes);
+        dest.writeString(path);
+        dest.writeLong(seconds);
+        dest.writeLong(totalSeconds);
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
     }
 
     public static final Creator<PartItemDetail> CREATOR = new Creator<PartItemDetail>() {
@@ -40,27 +82,44 @@ public class PartItemDetail implements Parcelable {
 
     public static PartItemDetail from(Map<String, Object> objectMap) {
         PartItemDetail partItemDetail = new PartItemDetail();
-        if(objectMap.containsKey("caption"))
+        if (objectMap.containsKey("caption"))
             partItemDetail.caption = objectMap.get("caption").toString();
-        if(objectMap.containsKey("body"))
+
+        if (objectMap.containsKey("body"))
             partItemDetail.body = objectMap.get("body").toString();
-        if(objectMap.containsKey("collectionId"))
+
+        if (objectMap.containsKey("collectionId"))
             partItemDetail.collectionId = objectMap.get("collectionId").toString();
-        if(objectMap.containsKey("title"))
+
+        if (objectMap.containsKey("title"))
             partItemDetail.title = objectMap.get("title").toString();
+
+        if (objectMap.containsKey("latitude"))
+            partItemDetail.latitude = (double) objectMap.get("latitude");
+
+        if (objectMap.containsKey("longitude"))
+            partItemDetail.longitude = (double) objectMap.get("longitude");
+
+        if (objectMap.containsKey("name"))
+            partItemDetail.name = objectMap.get("name").toString();
+
+        if (objectMap.containsKey("hour"))
+            partItemDetail.hour = objectMap.get("hour").toString();
+
+        if (objectMap.containsKey("minutes"))
+            partItemDetail.minutes = objectMap.get("minutes").toString();
+
+        if (objectMap.containsKey("path"))
+            partItemDetail.path = objectMap.get("path").toString();
+
+        if (objectMap.containsKey("seconds"))
+            partItemDetail.seconds = (long) objectMap.get("seconds");
+
+        if (objectMap.containsKey("totalSeconds"))
+            partItemDetail.totalSeconds = (long) objectMap.get("totalSeconds");
+
         return partItemDetail;
     }
 
-    @Override
-    public int describeContents() {
-        return 0;
-    }
 
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(caption);
-        dest.writeString(collectionId);
-        dest.writeString(body);
-        dest.writeString(title);
-    }
 }

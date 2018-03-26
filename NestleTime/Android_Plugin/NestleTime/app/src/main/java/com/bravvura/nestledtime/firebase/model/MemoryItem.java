@@ -4,6 +4,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Map;
 
@@ -81,8 +82,11 @@ public class MemoryItem implements Parcelable {
         dest.writeString(title);
     }
 
-    public Date getCreatedDate() {
-        return new Date();
+    public Date getDoeDate() {
+        String[] dates = doe.split("-");
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Integer.parseInt(dates[0]),Integer.parseInt(dates[1]),Integer.parseInt(dates[2]));
+        return calendar.getTime();
     }
 
     public static MemoryItem from(Map<String, Object> objectMap) {

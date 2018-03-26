@@ -24,7 +24,7 @@ import java.util.Map;
  */
 
 public class MyFirebaseManager {
-    public static String userId = "facebookUserId::10155773027119154";
+    public static String userId = "facebookUserId::2088122474754865";
 
     public static void initFireBaseManager(Context context) {
         FirebaseApp.initializeApp(context);

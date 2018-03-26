@@ -304,7 +304,7 @@ public class UserStoryElementListAdapter extends RecyclerView.Adapter<RecyclerVi
 
         public void setUpDataSource(UserStoryAudioModel audioModel) {
             this.audioModel = audioModel;
-            Glide.with(itemView.getContext()).load(CloudinaryManager.getAudioWaveUrl(audioModel.publicId)).into(imageView);
+//            Glide.with(itemView.getContext()).load(CloudinaryManager.getAudioWaveUrl(audioModel.publicId)).into(imageView);
         }
 
         public void play() {

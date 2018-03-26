@@ -33,7 +33,6 @@ import com.bravvura.nestledtime.userstory.model.UserStoryDateModel;
 import com.bravvura.nestledtime.userstory.model.UserStoryElement;
 import com.bravvura.nestledtime.userstory.model.UserStoryElementType;
 import com.bravvura.nestledtime.userstory.model.UserStoryMediaModel;
-import com.bravvura.nestledtime.userstory.model.UserStoryTextModel;
 import com.bravvura.nestledtime.userstory.ui.activity.GoogleMapActivity;
 import com.bravvura.nestledtime.userstory.ui.activity.UserStoryMediaListActivity;
 import com.bravvura.nestledtime.userstory.ui.activity.UserStoryMediaPagerActivity;
@@ -41,7 +40,6 @@ import com.bravvura.nestledtime.utils.CloudinaryManager;
 import com.bravvura.nestledtime.utils.Constants;
 import com.bravvura.nestledtime.utils.FRAGMENTS;
 import com.bravvura.nestledtime.utils.MyFileSystem;
-import com.bravvura.nestledtime.utils.MyLogs;
 import com.bravvura.nestledtime.utils.StringUtils;
 import com.bravvura.nestledtime.worlds.ui.activity.MyWorldsActivity;
 import com.cloudinary.Transformation;
@@ -161,13 +159,13 @@ public class MemoryDetailActivity extends BaseActivity implements View.OnClickLi
         if (memoryItem == null) {
             memoryItem = new MemoryItem();
             userStoryElements.add(new UserStoryElement(memoryItem.title, UserStoryElementType.ELEMENT_TYPE_TITLE));
-            UserStoryElement dateElement = new UserStoryElement(new UserStoryDateModel(memoryItem.getCreatedDate()));
+            UserStoryElement dateElement = new UserStoryElement(new UserStoryDateModel(memoryItem.getDoeDate()));
             userStoryElements.add(dateElement);
             actionListBottomSheetPager.setState(BottomSheetBehavior.STATE_EXPANDED);
         } else {
             actionListBottomSheetPager.setState(BottomSheetBehavior.STATE_HIDDEN);
             userStoryElements.add(new UserStoryElement(memoryItem.title, UserStoryElementType.ELEMENT_TYPE_TITLE));
-            UserStoryElement dateElement = new UserStoryElement(new UserStoryDateModel(memoryItem.getCreatedDate()));
+            UserStoryElement dateElement = new UserStoryElement(new UserStoryDateModel(memoryItem.getDoeDate()));
             userStoryElements.add(dateElement);
             makeUserStoryElement();
         }
@@ -194,7 +192,7 @@ public class MemoryDetailActivity extends BaseActivity implements View.OnClickLi
             for (MemoryPartItem memoryPartItem : memoryItem.parts) {
                 UserStoryMediaModel mediaModel = new UserStoryMediaModel();
                 mediaModel.title = memoryPartItem.partDetail.title;
-                if(memoryPartItem.partType.equalsIgnoreCase("collection")) {
+                if (memoryPartItem.partType.equalsIgnoreCase("collection")) {
                     mediaModel.mediaModels = new ArrayList<>();
                     if (memoryPartItem.images != null)
                         for (MemoryMediaItem mediaItem : memoryPartItem.images) {
@@ -202,10 +200,16 @@ public class MemoryDetailActivity extends BaseActivity implements View.OnClickLi
                         }
                     mediaModel.mediaCount = mediaModel.mediaModels.size();
                     userStoryElements.add(new UserStoryElement(mediaModel));
-                } else if(memoryPartItem.partType.equalsIgnoreCase("text")) {
+                } else if (memoryPartItem.partType.equalsIgnoreCase("text")) {
                     userStoryElements.add(new UserStoryElement(memoryPartItem.partDetail.body, UserStoryElementType.ELEMENT_TYPE_TEXT));
-                } else {
-                    MyLogs.i("", "");
+                } else if (memoryPartItem.partType.equalsIgnoreCase("voice")) {
+                    UserStoryAudioModel audioModel = new UserStoryAudioModel();
+                    audioModel.audioUrl = memoryPartItem.partDetail.path;
+                    audioModel.totalSecond = (int) memoryPartItem.partDetail.totalSeconds;
+                    userStoryElements.add(new UserStoryElement(audioModel));
+                    userStoryElements.add(new UserStoryElement(memoryPartItem.partDetail.body, UserStoryElementType.ELEMENT_TYPE_TEXT));
+                } else if (memoryPartItem.partType.equalsIgnoreCase("location")) {
+                    userStoryElements.add(new UserStoryElement(new UserStoryAddressModel(memoryPartItem.partDetail.name, memoryPartItem.partDetail.latitude, memoryPartItem.partDetail.longitude)));
                 }
             }
             if (adapter != null)

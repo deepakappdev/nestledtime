@@ -22,6 +22,11 @@ public class UserStoryAddressModel implements Parcelable{
         placeAddress = in.readString();
     }
 
+    public UserStoryAddressModel(String name, double latitude, double longitude) {
+        placeName = name;
+        latLng = new LatLng(latitude, longitude);
+    }
+
     public static final Creator<UserStoryAddressModel> CREATOR = new Creator<UserStoryAddressModel>() {
         @Override
         public UserStoryAddressModel createFromParcel(Parcel in) {
