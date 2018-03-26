@@ -1,0 +1,62 @@
+{
+  "project_info": {
+    "project_number": "6002418767",
+    "firebase_url": "https://chitra-qa-db.firebaseio.com",
+    "project_id": "chitra-qa-db",
+    "storage_bucket": "chitra-qa-db.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:6002418767:android:6915a2911adf6fda",
+        "android_client_info": {
+          "package_name": "com.bravvura.nestledtime"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "6002418767-t721qsf1d7j0e33sebd4elu5ft7u7egm.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.bravvura.nestledtime",
+            "certificate_hash": "a7d52fdbe2ea91cc4e3f4786c431caa7ca5f7595"
+          }
+        },
+        {
+          "client_id": "6002418767-0et3eu7r7gfp7udpt4qrc08mhpmi7460.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA_P72VJvkE2UONtuh0WPKnmoWtGHRhYhw"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "6002418767-0et3eu7r7gfp7udpt4qrc08mhpmi7460.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "6002418767-hour68sluba3i9vobifav7r5kmt46lh8.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.bravvura.nestledtime"
+              }
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

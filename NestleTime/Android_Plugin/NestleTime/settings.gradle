@@ -1,1 +1,1 @@
-include ':app', ':videocompress', ':userstory', ':imageedittor'
+include ':videocompress', ':app', ':imageedittor'

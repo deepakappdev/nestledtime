@@ -1,5 +1,0 @@
-<resources>
-    <string name="app_name">NestleTime</string>
-    <string name="search">Search</string>
-    <string name="google_maps_key" templateMergeStrategy="preserve" translatable="false">AIzaSyB4nw_w5mnaLQJHNQxcWh1m5XW8VHu6ePk</string>
-</resources>
