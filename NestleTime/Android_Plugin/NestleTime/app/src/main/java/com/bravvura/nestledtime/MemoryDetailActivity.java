@@ -20,6 +20,7 @@ import com.bravvura.nestledtime.firebase.manager.MyFirebaseManager;
 import com.bravvura.nestledtime.firebase.model.MemoryItem;
 import com.bravvura.nestledtime.firebase.model.MemoryMediaItem;
 import com.bravvura.nestledtime.firebase.model.MemoryPartItem;
+import com.bravvura.nestledtime.firebase.model.PartItemDetail;
 import com.bravvura.nestledtime.mediagallery.model.MEDIA_CELL_TYPE;
 import com.bravvura.nestledtime.mediagallery.model.MEDIA_SOURCE_TYPE;
 import com.bravvura.nestledtime.mediagallery.model.MediaModel;
@@ -39,9 +40,9 @@ import com.bravvura.nestledtime.userstory.ui.activity.UserStoryMediaPagerActivit
 import com.bravvura.nestledtime.utils.CloudinaryManager;
 import com.bravvura.nestledtime.utils.Constants;
 import com.bravvura.nestledtime.utils.FRAGMENTS;
+import com.bravvura.nestledtime.utils.MyDateFormatUtils;
 import com.bravvura.nestledtime.utils.MyFileSystem;
 import com.bravvura.nestledtime.utils.StringUtils;
-import com.bravvura.nestledtime.worlds.ui.activity.MyWorldsActivity;
 import com.cloudinary.Transformation;
 import com.cloudinary.android.MediaManager;
 
@@ -50,6 +51,9 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.Map;
 
 public class MemoryDetailActivity extends BaseActivity implements View.OnClickListener {
@@ -107,12 +111,17 @@ public class MemoryDetailActivity extends BaseActivity implements View.OnClickLi
         }
 
         @Override
-        public void onRemoveClick(UserStoryElement userStoryElement, final int index) {
+        public void onRemoveClick(final UserStoryElement userStoryElement, final int index) {
             showRemoveDialog(new DialogCallBack() {
                 @Override
                 public void onOKClick() {
-                    adapter.removeIndex(index);
-                    adapter.notifyDataSetChanged();
+                    if (memoryItem.parts != null) {
+                        MemoryPartItem item = memoryItem.parts.remove(userStoryElement.storyId);
+                        if (item != null) {
+                            adapter.removeIndex(index);
+                            adapter.notifyDataSetChanged();
+                        }
+                    }
                 }
 
                 @Override
@@ -126,16 +135,16 @@ public class MemoryDetailActivity extends BaseActivity implements View.OnClickLi
     private View fab_message, fab_audio, fab_media, fab_location;
     private BottomSheetBehavior<RecyclerView> actionListBottomSheetPager;
     MemoryItem memoryItem = null;
+    String worldId = null, memoryId = null;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user_story);
+        setupToolBar();
         initArguments();
         initComponent();
-        setupToolBar();
-        setTitle("New Memory");
         if (!EventBus.getDefault().isRegistered(this))
             EventBus.getDefault().register(this);
     }
@@ -144,29 +153,37 @@ public class MemoryDetailActivity extends BaseActivity implements View.OnClickLi
         Bundle bundle = getIntent().getExtras();
 
         if (bundle != null) {
-            if (bundle.containsKey(Constants.BUNDLE_KEY.WORLD_ID) && bundle.containsKey(Constants.BUNDLE_KEY.MEMORY_ID)) {
-                memoryItem = new MemoryItem();
-                memoryItem.memoryId = bundle.getString(Constants.BUNDLE_KEY.MEMORY_ID);
-                memoryItem.worldId = bundle.getString(Constants.BUNDLE_KEY.WORLD_ID);
-                fetchMemoryDetail(memoryItem);
-            } else if (bundle.containsKey(Constants.BUNDLE_KEY.MEMORY_ITEM)) {
+            if (bundle.containsKey(Constants.BUNDLE_KEY.WORLD_ID))
+                worldId = bundle.getString(Constants.BUNDLE_KEY.WORLD_ID);
+
+            if (bundle.containsKey(Constants.BUNDLE_KEY.MEMORY_ID))
+                memoryId = bundle.getString(Constants.BUNDLE_KEY.MEMORY_ID);
+            if (bundle.containsKey(Constants.BUNDLE_KEY.MEMORY_ITEM)) {
                 memoryItem = bundle.getParcelable(Constants.BUNDLE_KEY.MEMORY_ITEM);
+                worldId = memoryItem.worldId;
+                memoryId = memoryItem.memoryId;
+            } else if (!StringUtils.isNullOrEmpty(worldId) && !StringUtils.isNullOrEmpty(memoryId)) {
+                memoryItem = new MemoryItem();
+                memoryItem.memoryId = memoryId;
+                memoryItem.worldId = worldId;
+                fetchMemoryDetail(memoryItem);
+                setTitle("Edit Memory");
+                return;
             }
         }
 
-        userStoryElements.clear();
         initActionList();
         if (memoryItem == null) {
+            setTitle("New Memory");
             memoryItem = new MemoryItem();
-            userStoryElements.add(new UserStoryElement(memoryItem.title, UserStoryElementType.ELEMENT_TYPE_TITLE));
-            UserStoryElement dateElement = new UserStoryElement(new UserStoryDateModel(memoryItem.getDoeDate()));
-            userStoryElements.add(dateElement);
+            memoryItem.setIsNew(true);
+            memoryItem.worldId = worldId;
+            resetUserStoryElement();
             actionListBottomSheetPager.setState(BottomSheetBehavior.STATE_EXPANDED);
         } else {
+            setTitle("Edit Memory");
             actionListBottomSheetPager.setState(BottomSheetBehavior.STATE_HIDDEN);
-            userStoryElements.add(new UserStoryElement(memoryItem.title, UserStoryElementType.ELEMENT_TYPE_TITLE));
-            UserStoryElement dateElement = new UserStoryElement(new UserStoryDateModel(memoryItem.getDoeDate()));
-            userStoryElements.add(dateElement);
+            resetUserStoryElement();
             makeUserStoryElement();
         }
     }
@@ -176,6 +193,7 @@ public class MemoryDetailActivity extends BaseActivity implements View.OnClickLi
             @Override
             public void onValueRecived(MemoryItem value) {
                 MemoryDetailActivity.this.memoryItem = value;
+                resetUserStoryElement();
                 makeUserStoryElement();
             }
 
@@ -187,33 +205,57 @@ public class MemoryDetailActivity extends BaseActivity implements View.OnClickLi
 //        MyFirebaseManager.getMemoryItem()
     }
 
+    private void resetUserStoryElement() {
+        userStoryElements.clear();
+        UserStoryElement element;
+        userStoryElements.add(element = new UserStoryElement(memoryItem.title, UserStoryElementType.ELEMENT_TYPE_TITLE));
+        element.index = -2;
+        UserStoryElement dateElement = new UserStoryElement(new UserStoryDateModel(memoryItem.getDoeDate()));
+        userStoryElements.add(dateElement);
+        dateElement.index = -1;
+    }
+
     private void makeUserStoryElement() {
         if (memoryItem.parts != null) {
-            for (MemoryPartItem memoryPartItem : memoryItem.parts) {
-                UserStoryMediaModel mediaModel = new UserStoryMediaModel();
-                mediaModel.title = memoryPartItem.partDetail.title;
+            for (String key : memoryItem.parts.keySet()) {
+                MemoryPartItem memoryPartItem = memoryItem.parts.get(key);
+                UserStoryElement userStoryElement = null;
                 if (memoryPartItem.partType.equalsIgnoreCase("collection")) {
+                    UserStoryMediaModel mediaModel = new UserStoryMediaModel();
+                    mediaModel.title = memoryPartItem.partDetail.title;
                     mediaModel.mediaModels = new ArrayList<>();
                     if (memoryPartItem.images != null)
                         for (MemoryMediaItem mediaItem : memoryPartItem.images) {
                             mediaModel.mediaModels.add(FirebaseUtils.getMediaModel(mediaItem));
                         }
                     mediaModel.mediaCount = mediaModel.mediaModels.size();
-                    userStoryElements.add(new UserStoryElement(mediaModel));
+                    userStoryElements.add(userStoryElement = new UserStoryElement(mediaModel));
                 } else if (memoryPartItem.partType.equalsIgnoreCase("text")) {
-                    userStoryElements.add(new UserStoryElement(memoryPartItem.partDetail.body, UserStoryElementType.ELEMENT_TYPE_TEXT));
+                    userStoryElements.add(userStoryElement = new UserStoryElement(memoryPartItem.partDetail.body, UserStoryElementType.ELEMENT_TYPE_TEXT));
                 } else if (memoryPartItem.partType.equalsIgnoreCase("voice")) {
                     UserStoryAudioModel audioModel = new UserStoryAudioModel();
                     audioModel.audioUrl = memoryPartItem.partDetail.path;
-                    audioModel.totalSecond = (int) memoryPartItem.partDetail.totalSeconds;
-                    userStoryElements.add(new UserStoryElement(audioModel));
-                    userStoryElements.add(new UserStoryElement(memoryPartItem.partDetail.body, UserStoryElementType.ELEMENT_TYPE_TEXT));
+                    if (memoryPartItem.partDetail.totalSeconds != null)
+                        audioModel.totalSecond = memoryPartItem.partDetail.totalSeconds.intValue();
+                    userStoryElements.add(userStoryElement = new UserStoryElement(audioModel));
                 } else if (memoryPartItem.partType.equalsIgnoreCase("location")) {
-                    userStoryElements.add(new UserStoryElement(new UserStoryAddressModel(memoryPartItem.partDetail.name, memoryPartItem.partDetail.latitude, memoryPartItem.partDetail.longitude)));
+                    userStoryElements.add(userStoryElement = new UserStoryElement(new UserStoryAddressModel(memoryPartItem.partDetail.name, memoryPartItem.partDetail.latitude, memoryPartItem.partDetail.longitude)));
+                }
+                if (userStoryElement != null) {
+                    userStoryElement.storyId = key;
+                    userStoryElement.createdUser = memoryPartItem.createdByUserId;
+                    userStoryElement.index = memoryPartItem.position;
                 }
             }
-            if (adapter != null)
+            Collections.sort(userStoryElements, new Comparator<UserStoryElement>() {
+                @Override
+                public int compare(UserStoryElement o1, UserStoryElement o2) {
+                    return (int) (o1.index - o2.index);
+                }
+            });
+            if (adapter != null) {
                 adapter.notifyDataSetChanged();
+            }
         }
     }
 
@@ -223,6 +265,7 @@ public class MemoryDetailActivity extends BaseActivity implements View.OnClickLi
         UserStoryAudioModel model = new UserStoryAudioModel();
         model.audioUrl = event.audioFileUrl;
         model.publicId = event.publicId;
+        model.totalSecond = event.totalSeconds;
         UserStoryElement userStoryMedia = new UserStoryElement(model);
         int index = userStoryElements.size();
         userStoryElements.add(userStoryMedia);
@@ -267,9 +310,171 @@ public class MemoryDetailActivity extends BaseActivity implements View.OnClickLi
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.menu_add) {
-            startActivity(new Intent(this, MyWorldsActivity.class));
+            if (!isDataSyncing()) {
+                updateMemoryItem();
+            } else {
+                showToast("Please Wait while data is uploading");
+            }
+//            startActivity(new Intent(this, MyWorldsActivity.class));
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void updateMemoryItem() {
+        memoryItem.setModification();
+        for (UserStoryElement userStoryElement : userStoryElements) {
+            if (userStoryElement.elementType == UserStoryElementType.ELEMENT_TYPE_TITLE) {
+                memoryItem.title = userStoryElement.textModel.data;
+            } else if (userStoryElement.elementType == UserStoryElementType.ELEMENT_TYPE_DATE) {
+                memoryItem.doe = MyDateFormatUtils.getDoeDate(userStoryElement.dateModel.date);
+            } else if (userStoryElement.elementType == UserStoryElementType.ELEMENT_TYPE_TEXT) {
+                if (memoryItem.parts == null)
+                    memoryItem.parts = new HashMap<>();
+                MemoryPartItem memoryPartItem = memoryItem.parts.get(userStoryElement.storyId);
+                if (memoryPartItem == null) {
+                    memoryPartItem = new MemoryPartItem();
+                    memoryPartItem.position = memoryItem.parts.size();
+                    memoryPartItem.setCreation();
+                    memoryItem.parts.put(MyFirebaseManager.getUIDKey(getApplicationContext()), memoryPartItem);
+                }
+                memoryPartItem.setModification();
+                memoryPartItem.partType = "text";
+                memoryPartItem.partDetail = new PartItemDetail();
+                memoryPartItem.partDetail.body = userStoryElement.textModel.data;
+            } else if (userStoryElement.elementType == UserStoryElementType.ELEMENT_TYPE_LOCATION) {
+                if (memoryItem.parts == null)
+                    memoryItem.parts = new HashMap<>();
+                MemoryPartItem memoryPartItem = memoryItem.parts.get(userStoryElement.storyId);
+                if (memoryPartItem == null) {
+                    memoryPartItem = new MemoryPartItem();
+                    memoryPartItem.position = memoryItem.parts.size();
+                    memoryPartItem.setCreation();
+                    memoryItem.parts.put(MyFirebaseManager.getUIDKey(getApplicationContext()), memoryPartItem);
+                }
+                memoryPartItem.setModification();
+                memoryPartItem.partType = "location";
+                memoryPartItem.partDetail = new PartItemDetail();
+                memoryPartItem.partDetail.latitude = userStoryElement.addressModel.latLng.latitude;
+                memoryPartItem.partDetail.longitude = userStoryElement.addressModel.latLng.longitude;
+                memoryPartItem.partDetail.name = userStoryElement.addressModel.placeName;
+            } else if (userStoryElement.elementType == UserStoryElementType.ELEMENT_TYPE_AUDIO) {
+                if (memoryItem.parts == null)
+                    memoryItem.parts = new HashMap<>();
+                MemoryPartItem memoryPartItem = memoryItem.parts.get(userStoryElement.storyId);
+                if (memoryPartItem == null) {
+                    memoryPartItem = new MemoryPartItem();
+                    memoryPartItem.position = memoryItem.parts.size();
+                    memoryPartItem.setCreation();
+                    memoryItem.parts.put(MyFirebaseManager.getUIDKey(getApplicationContext()), memoryPartItem);
+                }
+                memoryPartItem.setModification();
+                memoryPartItem.partType = "voice";
+                memoryPartItem.partDetail = new PartItemDetail();
+                memoryPartItem.partDetail.path = userStoryElement.audioModel.audioUrl;
+                memoryPartItem.partDetail.totalSeconds = userStoryElement.audioModel.totalSecond;
+            } else if (userStoryElement.elementType == UserStoryElementType.ELEMENT_TYPE_MEDIA) {
+                if (memoryItem.parts == null)
+                    memoryItem.parts = new HashMap<>();
+                MemoryPartItem memoryPartItem = memoryItem.parts.get(userStoryElement.storyId);
+                if (memoryPartItem == null) {
+                    memoryPartItem = new MemoryPartItem();
+                    memoryPartItem.position = memoryItem.parts.size();
+                    memoryPartItem.setCreation();
+                    memoryItem.parts.put(MyFirebaseManager.getUIDKey(getApplicationContext()), memoryPartItem);
+                }
+                memoryPartItem.setModification();
+                memoryPartItem.partType = "collection";
+                memoryPartItem.partDetail = new PartItemDetail();
+                memoryPartItem.partDetail.title = userStoryElement.mediaModel.title;
+                memoryPartItem.partDetail.caption = userStoryElement.mediaModel.title;
+
+                if (memoryPartItem.images == null)
+                    memoryPartItem.images = new ArrayList<>();
+                for (MediaModel mediaModel : userStoryElement.mediaModel.mediaModels) {
+                    MemoryMediaItem foundMediaItem = null;
+                    for (MemoryMediaItem mediaItem : memoryPartItem.images) {
+                        if (mediaItem.imageId.equalsIgnoreCase(mediaModel.imageId)) {
+                            foundMediaItem = mediaItem;
+                            break;
+                        }
+                    }
+                    if (foundMediaItem == null) {
+                        foundMediaItem = new MemoryMediaItem();
+                        foundMediaItem.cloudnaryURL = mediaModel.getUrl();
+
+                        foundMediaItem.commentsCount = 0;
+                        foundMediaItem.downloadURL = mediaModel.getUrl();
+                        foundMediaItem.imageId = MyFirebaseManager.getUIDKey(getApplicationContext());
+                        foundMediaItem.isLoaded = true;
+                        foundMediaItem.type = mediaModel.mediaCellType == MEDIA_CELL_TYPE.TYPE_IMAGE ? "image" : "video";
+                        foundMediaItem.userId = MyFirebaseManager.userId;
+                        foundMediaItem.setCreateion();
+                        foundMediaItem.imageObject.blobId = mediaModel.getPublicId();
+                        foundMediaItem.imageObject.caption = mediaModel.getTitle();
+                        foundMediaItem.imageObject.cloudnaryURL = mediaModel.getUrl();
+                        foundMediaItem.imageObject.downloadURL = mediaModel.getUrl();
+                        foundMediaItem.setModification();
+                        foundMediaItem.imageObject.type = mediaModel.mediaCellType == MEDIA_CELL_TYPE.TYPE_IMAGE ? "image" : "video";
+                        memoryPartItem.images.add(foundMediaItem);
+                    } else {
+                        if(mediaModel.isDeleted) {
+                            memoryPartItem.images.remove(foundMediaItem);
+                        }
+                    }
+                }
+            }
+        }
+        showProgressDialog();
+        if (StringUtils.isNullOrEmpty(memoryItem.memoryId)) {
+            MyFirebaseManager.addMemoryItem(getApplicationContext(), memoryItem, worldId, new OnValueEventListener<Boolean>() {
+                @Override
+                public void onValueRecived(Boolean value) {
+                    hideProgressDialog();
+                    if (value) {
+                        setResult(RESULT_OK);
+                        finish();
+                    }
+                }
+
+                @Override
+                public void onCancelled(String errorMessage) {
+                    hideProgressDialog();
+                    showToast(errorMessage);
+                }
+            });
+        } else {
+            MyFirebaseManager.updateMemoryItem(getApplicationContext(), memoryItem, worldId, new OnValueEventListener<Boolean>() {
+                @Override
+                public void onValueRecived(Boolean value) {
+                    hideProgressDialog();
+                    if (value) {
+                        setResult(RESULT_OK);
+                        finish();
+                    }
+                }
+
+                @Override
+                public void onCancelled(String errorMessage) {
+                    hideProgressDialog();
+                    showToast(errorMessage);
+                }
+            });
+        }
+    }
+
+    private boolean isDataSyncing() {
+        boolean isSyncing = false;
+        for (UserStoryElement userStoryElement : userStoryElements) {
+            if (userStoryElement.elementType == UserStoryElementType.ELEMENT_TYPE_MEDIA) {
+                for (MediaModel mediaModel : userStoryElement.mediaModel.mediaModels) {
+                    if (!mediaModel.isUploaded()) {
+                        isSyncing = true;
+                        break;
+                    }
+                }
+            }
+        }
+        return isSyncing;
     }
 
     private void initComponent() {
@@ -443,6 +648,7 @@ public class MemoryDetailActivity extends BaseActivity implements View.OnClickLi
                     mediaModel.mediaCount = mediaModel.mediaModels.size();
                     adapter.getAllItems().get(editMediaIndex).mediaModel = mediaModel;
                     adapter.notifyItemChanged(editMediaIndex);
+                    prepareMediaFiles(mediaModel);
                 }
                 break;
         }

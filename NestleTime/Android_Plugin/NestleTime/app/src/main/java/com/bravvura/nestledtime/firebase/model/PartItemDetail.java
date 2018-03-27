@@ -16,19 +16,19 @@ public class PartItemDetail implements Parcelable {
     public String collectionId;
     public String body;
     public String title;
-    public double latitude;
-    public double longitude;
+    public Double latitude;
+    public Double longitude;
     public String name;
 
 
     public String hour;
     public String minutes;
     public String path;
-    public long seconds;
-    public long totalSeconds;
+    public Long seconds;
+    public Long totalSeconds;
 
 
-    protected PartItemDetail() {
+    public PartItemDetail() {
     }
 
 
@@ -53,14 +53,14 @@ public class PartItemDetail implements Parcelable {
         dest.writeString(collectionId);
         dest.writeString(body);
         dest.writeString(title);
-        dest.writeDouble(latitude);
-        dest.writeDouble(longitude);
+        dest.writeDouble(latitude == null ? 0 : latitude.doubleValue());
+        dest.writeDouble(longitude == null ? 0 : longitude.doubleValue());
         dest.writeString(name);
         dest.writeString(hour);
         dest.writeString(minutes);
         dest.writeString(path);
-        dest.writeLong(seconds);
-        dest.writeLong(totalSeconds);
+        dest.writeLong(seconds == null ? 0 : seconds.longValue());
+        dest.writeLong(totalSeconds == null ? 0 : totalSeconds.longValue());
     }
 
     @Override

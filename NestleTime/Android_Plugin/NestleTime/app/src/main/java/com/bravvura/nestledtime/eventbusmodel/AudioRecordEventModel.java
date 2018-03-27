@@ -7,4 +7,5 @@ package com.bravvura.nestledtime.eventbusmodel;
 
 public class AudioRecordEventModel {
     public String audioFileUrl, publicId;
+    public long totalSeconds;
 }

@@ -3,6 +3,9 @@ package com.bravvura.nestledtime.firebase.model;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.bravvura.nestledtime.firebase.manager.MyFirebaseManager;
+import com.bravvura.nestledtime.utils.MyDateFormatUtils;
+
 import java.util.Map;
 
 /**
@@ -82,5 +85,18 @@ public class MemoryMediaItem implements Parcelable{
         mediaItem.likesCount = (long) imageDetailMap.get("likesCount");
 //        mediaItem.userId = imageDetailMap.get("userId").toString();
         return mediaItem;
+    }
+
+    public void setCreateion() {
+        imageObject = new MediaItemDetail();
+        imageObject.createdOn = MyDateFormatUtils.getNewDate();
+        imageObject.createdByUserId = MyFirebaseManager.userId;
+    }
+
+    public void setModification() {
+        imageObject.modifiedOn = MyDateFormatUtils.getNewDate();
+        imageObject.modifiedByName = MyFirebaseManager.userId;
+        imageObject.modifiedByUserId = MyFirebaseManager.userId;
+
     }
 }

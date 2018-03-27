@@ -26,7 +26,9 @@ public class Constants {
         int REQUEST_PERMISSION_LOCATION = 113;
         int REQUEST_CHECK_LOCATION_SETTINGS = 114;
         int PERMISSION_LOCATION_FOR_USER = 115;
-        int MEMORY_DETAIL = 116;
+        int EDIT_MEMORY = 116;
+        int NEW_MEMORY = 117;
+
     }
 
     public interface BUNDLE_KEY {

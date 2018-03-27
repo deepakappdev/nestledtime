@@ -3,6 +3,10 @@ package com.bravvura.nestledtime.firebase.model;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.bravvura.nestledtime.firebase.manager.MyFirebaseManager;
+import com.bravvura.nestledtime.utils.MyDateFormatUtils;
+import com.google.firebase.database.Exclude;
+
 import java.util.ArrayList;
 import java.util.Map;
 
@@ -101,4 +105,15 @@ public class MemoryPartItem implements Parcelable {
     }
 
 
+    public void setCreation() {
+        createdByName = MyFirebaseManager.userId;
+        createdByUserId = MyFirebaseManager.userId;
+        createdOn = MyDateFormatUtils.getNewDate();
+    }
+
+    public void setModification() {
+        modifiedByName = MyFirebaseManager.userId;
+        modifiedByUserId = MyFirebaseManager.userId;
+        modifiedOn = MyDateFormatUtils.getNewDate();
+    }
 }

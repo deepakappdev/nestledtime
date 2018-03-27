@@ -11,6 +11,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class MediaModel implements Parcelable {
+    public String imageId = "";
     int id;
     String title;
     String pathFile;
@@ -42,6 +43,7 @@ public class MediaModel implements Parcelable {
     }
 
     protected MediaModel(Parcel in) {
+        imageId = in.readString();
         id = in.readInt();
         title = in.readString();
         pathFile = in.readString();
@@ -177,6 +179,7 @@ public class MediaModel implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(imageId);
         dest.writeInt(id);
         dest.writeString(title);
         dest.writeString(pathFile);

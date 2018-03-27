@@ -245,7 +245,6 @@ public class BaseActivity extends AppCompatActivity {
         if (toast == null)
             toast = Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT);
         else {
-            toast.cancel();
             toast.setText(message);
         }
         toast.show();

@@ -3,6 +3,7 @@ package com.bravvura.nestledtime;
 import android.app.Application;
 import android.content.Context;
 
+import com.bravvura.nestledtime.firebase.manager.MyFirebaseManager;
 import com.bravvura.nestledtime.utils.CloudinaryManager;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.GlideBuilder;
@@ -23,6 +24,8 @@ public class MyApplication extends Application {
         initCloudinary(getApplicationContext());
         initGlide(getApplicationContext());
         this.context = getApplicationContext();
+        MyFirebaseManager.initFireBaseManager(context);
+
     }
 
     private void initGlide(Context context) {

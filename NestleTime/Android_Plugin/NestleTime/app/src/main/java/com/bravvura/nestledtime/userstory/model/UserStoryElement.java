@@ -13,6 +13,7 @@ import java.util.ArrayList;
  */
 
 public class UserStoryElement implements Parcelable {
+    public String createdUser;
     public UserStoryElementType elementType;
     public UserStoryAddressModel addressModel;
     public UserStoryMediaModel mediaModel;
@@ -20,6 +21,8 @@ public class UserStoryElement implements Parcelable {
     public UserStoryAudioModel audioModel;
     public UserStoryDateModel dateModel;
     public boolean isdeleted;
+    public String storyId;
+    public long index;
 
     public UserStoryElement(String message, UserStoryElementType elementType) {
         textModel = new UserStoryTextModel();
@@ -51,12 +54,14 @@ public class UserStoryElement implements Parcelable {
     }
 
     protected UserStoryElement(Parcel in) {
+        createdUser = in.readString();
         addressModel = in.readParcelable(UserStoryAddressModel.class.getClassLoader());
         mediaModel = in.readParcelable(UserStoryMediaModel.class.getClassLoader());
         textModel = in.readParcelable(UserStoryTextModel.class.getClassLoader());
         audioModel = in.readParcelable(UserStoryAudioModel.class.getClassLoader());
         dateModel = in.readParcelable(UserStoryDateModel.class.getClassLoader());
         isdeleted = in.readByte() != 0;
+        storyId = in.readString();
     }
 
     public static final Creator<UserStoryElement> CREATOR = new Creator<UserStoryElement>() {
@@ -78,11 +83,13 @@ public class UserStoryElement implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(createdUser);
         dest.writeParcelable(addressModel, flags);
         dest.writeParcelable(mediaModel, flags);
         dest.writeParcelable(textModel, flags);
         dest.writeParcelable(audioModel, flags);
         dest.writeParcelable(dateModel, flags);
         dest.writeByte((byte) (isdeleted ? 1 : 0));
+        dest.writeString(storyId);
     }
 }

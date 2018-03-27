@@ -69,7 +69,7 @@ public class UserStoryAudioRecorderFragment extends BaseFragment implements View
                     AudioRecordEventModel eventModel = new AudioRecordEventModel();
                     eventModel.audioFileUrl = resultData.get("url").toString();
                     eventModel.publicId = resultData.get("public_id").toString();
-
+                    eventModel.totalSeconds = elapsedMillis/1000;
                     EventBus.getDefault().post(eventModel);
                     MyFileSystem.deleteFile(outputFile);
                     hideDialog();
@@ -93,6 +93,7 @@ public class UserStoryAudioRecorderFragment extends BaseFragment implements View
             }
         }
     };
+    private long elapsedMillis;
 
 
     @Nullable
@@ -203,6 +204,7 @@ public class UserStoryAudioRecorderFragment extends BaseFragment implements View
         mRecorder = null;
         //starting the chronometer
         chronometer_timer.stop();
+        elapsedMillis = SystemClock.elapsedRealtime() - chronometer_timer.getBase();
         chronometer_timer.setBase(SystemClock.elapsedRealtime());
         //showing the play button
     }

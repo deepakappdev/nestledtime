@@ -19,6 +19,8 @@ public class MyWorldsActivity extends BaseActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_my_worlds);
+        setupToolBar();
+        setTitle("My Worlds");
         Bundle bundle = new Bundle();
 
         pushFragment(FRAGMENTS.MY_WORLDS, bundle, false, false);

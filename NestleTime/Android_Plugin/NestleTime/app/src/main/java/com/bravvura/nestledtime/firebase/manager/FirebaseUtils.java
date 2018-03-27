@@ -13,6 +13,7 @@ import com.bravvura.nestledtime.mediagallery.model.MediaModel;
 public class FirebaseUtils {
     public static MediaModel getMediaModel(MemoryMediaItem mediaItem) {
         MediaModel mediaModel = new MediaModel();
+        mediaModel.imageId = mediaItem.imageId;
         mediaModel.sourceType = MEDIA_SOURCE_TYPE.TYPE_CLOUD;
         mediaModel.isUploaded = true;
         mediaModel.setTitle(mediaItem.imageObject.caption);

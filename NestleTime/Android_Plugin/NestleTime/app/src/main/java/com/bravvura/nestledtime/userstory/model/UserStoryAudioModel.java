@@ -11,7 +11,7 @@ import android.os.Parcelable;
 public class UserStoryAudioModel implements Parcelable {
     public String audioUrl;
     public String publicId;
-    public int totalSecond;
+    public long totalSecond;
     public UserStoryAudioModel() {
     }
 
@@ -19,14 +19,14 @@ public class UserStoryAudioModel implements Parcelable {
     protected UserStoryAudioModel(Parcel in) {
         audioUrl = in.readString();
         publicId = in.readString();
-        totalSecond = in.readInt();
+        totalSecond = in.readLong();
     }
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(audioUrl);
         dest.writeString(publicId);
-        dest.writeInt(totalSecond);
+        dest.writeLong(totalSecond);
     }
 
     @Override

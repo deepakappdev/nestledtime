@@ -490,6 +490,12 @@ public class UserStoryMediaListActivity extends BaseActivity implements View.OnC
         adapter = new UserStoryMediaListAdapter(this, mediaElementClick);
         adapter.setResults(userStoryMediaModel);
         recyclerView.setAdapter(adapter);
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                hideKeyBoard();
+            }
+        }, 250);
     }
 
     @Override

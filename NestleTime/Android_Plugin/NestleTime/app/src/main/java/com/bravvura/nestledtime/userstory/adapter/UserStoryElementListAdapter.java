@@ -20,6 +20,7 @@ import com.bravvura.nestledtime.customview.MyMediaPlayer;
 import com.bravvura.nestledtime.customview.spinnerdatepicker.DatePicker;
 import com.bravvura.nestledtime.customview.spinnerdatepicker.DatePickerDialog;
 import com.bravvura.nestledtime.customview.spinnerdatepicker.SpinnerDatePickerDialogBuilder;
+import com.bravvura.nestledtime.firebase.manager.MyFirebaseManager;
 import com.bravvura.nestledtime.mediagallery.model.MEDIA_CELL_TYPE;
 import com.bravvura.nestledtime.mediagallery.model.MediaModel;
 import com.bravvura.nestledtime.userstory.customview.UserStoryMediaView;
@@ -180,6 +181,8 @@ public class UserStoryElementListAdapter extends RecyclerView.Adapter<RecyclerVi
 
     class BaseViewHolder extends RecyclerView.ViewHolder {
 
+        private final View imageClose;
+
         public BaseViewHolder(View itemView) {
             super(itemView);
             itemView.setOnClickListener(new View.OnClickListener() {
@@ -189,7 +192,7 @@ public class UserStoryElementListAdapter extends RecyclerView.Adapter<RecyclerVi
                         mediaClickListener.onClick(BaseViewHolder.this, userStoryElements.get(getAdapterPosition()), getAdapterPosition());
                 }
             });
-            if (itemView.findViewById(R.id.ic_close) != null)
+            if ((imageClose = itemView.findViewById(R.id.ic_close)) != null)
                 itemView.findViewById(R.id.ic_close).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -450,6 +453,13 @@ public class UserStoryElementListAdapter extends RecyclerView.Adapter<RecyclerVi
 
         }
 
+        public void populateItem(UserStoryElement userStoryElement) {
+            edit_text.setText(userStoryElement.textModel.data);
+            if(MyFirebaseManager.userId.equalsIgnoreCase(userStoryElement.createdUser)) {
+
+            }
+        }
+
         @Override
         protected void onRemoveClick() {
             if (userStoryElements.get(getAdapterPosition()).elementType == UserStoryElementType.ELEMENT_TYPE_TEXT) {
@@ -470,7 +480,7 @@ public class UserStoryElementListAdapter extends RecyclerView.Adapter<RecyclerVi
         }
     }
 
-    public class MediaViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+    public class MediaViewHolder extends BaseViewHolder implements View.OnClickListener {
 
         private final UserStoryMediaView mediaView1, mediaView2, mediaView3, mediaView4;
         public final TextView textPicMore, textTitle;
