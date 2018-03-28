@@ -116,12 +116,10 @@ public class MemoryDetailActivity extends BaseActivity implements View.OnClickLi
                 @Override
                 public void onOKClick() {
                     if (memoryItem.parts != null) {
-                        MemoryPartItem item = memoryItem.parts.remove(userStoryElement.storyId);
-                        if (item != null) {
-                            adapter.removeIndex(index);
-                            adapter.notifyDataSetChanged();
-                        }
+                        memoryItem.parts.remove(userStoryElement.storyId);
                     }
+                    adapter.removeIndex(index);
+                    adapter.notifyDataSetChanged();
                 }
 
                 @Override
@@ -417,7 +415,7 @@ public class MemoryDetailActivity extends BaseActivity implements View.OnClickLi
                         foundMediaItem.imageObject.type = mediaModel.mediaCellType == MEDIA_CELL_TYPE.TYPE_IMAGE ? "image" : "video";
                         memoryPartItem.images.add(foundMediaItem);
                     } else {
-                        if(mediaModel.isDeleted) {
+                        if (mediaModel.isDeleted) {
                             memoryPartItem.images.remove(foundMediaItem);
                         }
                     }
@@ -644,11 +642,36 @@ public class MemoryDetailActivity extends BaseActivity implements View.OnClickLi
 
             case Constants.REQUEST_CODE.REQUEST_EDIT_GALLERY_MEDIA:
                 if (resultCode == RESULT_OK) {
-                    UserStoryMediaModel mediaModel = data.getParcelableExtra(Constants.BUNDLE_KEY.SELECTED_MEDIA);
-                    mediaModel.mediaCount = mediaModel.mediaModels.size();
-                    adapter.getAllItems().get(editMediaIndex).mediaModel = mediaModel;
+                    UserStoryMediaModel userStoryMediaModel = data.getParcelableExtra(Constants.BUNDLE_KEY.SELECTED_MEDIA);
+
+                    for (int i = 0; i < userStoryMediaModel.mediaModels.size(); i++) {
+                        MediaModel mediaModel = userStoryMediaModel.mediaModels.get(i);
+                        if (mediaModel.isDeleted) {
+                            if (memoryItem.parts != null) {
+                                String imageId = mediaModel.imageId;
+                                MemoryMediaItem foundMediaItem = null;
+                                if (!StringUtils.isNullOrEmpty(imageId))
+                                    for (MemoryMediaItem image : memoryItem.parts.get(userStoryElements.get(editMediaIndex).storyId).images)
+                                        if (image.imageId.equalsIgnoreCase(imageId)) {
+                                            foundMediaItem = image;
+                                            break;
+                                        }
+
+                                if (foundMediaItem != null) {
+                                    memoryItem.parts.get(userStoryElements.get(editMediaIndex).storyId).images.remove(foundMediaItem);
+                                    //TODO: need to delete this media from cloudinary
+                                }
+                            }
+                            userStoryMediaModel.mediaModels.remove(mediaModel);
+                            i--;
+                        }
+                    }
+
+                    userStoryMediaModel.mediaCount = userStoryMediaModel.mediaModels.size();
+                    adapter.getAllItems().get(editMediaIndex).mediaModel = userStoryMediaModel;
+
                     adapter.notifyItemChanged(editMediaIndex);
-                    prepareMediaFiles(mediaModel);
+                    prepareMediaFiles(userStoryMediaModel);
                 }
                 break;
         }

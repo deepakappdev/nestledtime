@@ -37,7 +37,7 @@ public class UserStoryImageFragment extends BaseFragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
         setRetainInstance(true);
-        setHasOptionsMenu(true);
+//        setHasOptionsMenu(true);
         return inflater.inflate(R.layout.user_story_pager_image, container, false);
     }
 

@@ -66,7 +66,7 @@ public class UserStoryVideoFragment extends BaseFragment implements SeekBar.OnSe
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
-        setHasOptionsMenu(true);
+//        setHasOptionsMenu(true);
         setRetainInstance(true);
         if (!EventBus.getDefault().isRegistered(this)) {
             EventBus.getDefault().register(this);

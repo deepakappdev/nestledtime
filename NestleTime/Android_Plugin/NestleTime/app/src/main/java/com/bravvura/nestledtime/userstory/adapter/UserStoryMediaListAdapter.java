@@ -125,14 +125,14 @@ public class UserStoryMediaListAdapter extends RecyclerView.Adapter<RecyclerView
                 itemView.findViewById(R.id.text_edit).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        mediaElementClick.onEditClick(getAdapterPosition() - 1, mediaModel);
+                        mediaElementClick.onEditClick(userStoryMediaModel.mediaModels.indexOf(mediaModel), mediaModel);
                     }
                 });
             imageClose = itemView.findViewById(R.id.image_remove);
             imageClose.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    mediaElementClick.onRemoveClick(getAdapterPosition() - 1, mediaModel);
+                    mediaElementClick.onRemoveClick(userStoryMediaModel.mediaModels.indexOf(mediaModel), mediaModel);
                 }
             });
             editDescription.addTextChangedListener(new TextWatcher() {

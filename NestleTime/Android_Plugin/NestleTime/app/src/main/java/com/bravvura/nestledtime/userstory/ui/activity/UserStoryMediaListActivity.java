@@ -197,10 +197,10 @@ public class UserStoryMediaListActivity extends BaseActivity implements View.OnC
                             MyFileSystem.removeFile(mediaModel.getPathFile());
                         }
                         userStoryMediaModel.mediaModels.remove(mediaModel);
-                        adapter.notifyItemRemoved(index);
+                        adapter.notifyItemRemoved(index+1);
                     } else {
                         mediaModel.isDeleted = true;
-                        adapter.notifyItemChanged(index);
+                        adapter.notifyItemChanged(index+1);
                     }
                 }
 

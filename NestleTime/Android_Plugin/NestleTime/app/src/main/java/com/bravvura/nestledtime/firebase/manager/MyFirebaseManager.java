@@ -87,6 +87,7 @@ public class MyFirebaseManager {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         Map<String, Object> values = (Map<String, Object>) dataSnapshot.getValue();
+                        if(values==null)return;
                         ArrayList<MemoryItem> collection = new ArrayList<>();
                         for (String key : values.keySet()) {
                             Object obj = values.get(key);
