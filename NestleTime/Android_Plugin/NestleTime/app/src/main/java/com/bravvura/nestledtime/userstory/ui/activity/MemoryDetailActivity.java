@@ -1,4 +1,4 @@
-package com.bravvura.nestledtime;
+package com.bravvura.nestledtime.userstory.ui.activity;
 
 import android.content.Intent;
 import android.os.AsyncTask;
@@ -11,6 +11,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
+import com.bravvura.nestledtime.R;
 import com.bravvura.nestledtime.activity.BaseActivity;
 import com.bravvura.nestledtime.eventbusmodel.AudioRecordEventModel;
 import com.bravvura.nestledtime.eventbusmodel.MediaModelUploadEvent;
@@ -34,9 +35,6 @@ import com.bravvura.nestledtime.userstory.model.UserStoryDateModel;
 import com.bravvura.nestledtime.userstory.model.UserStoryElement;
 import com.bravvura.nestledtime.userstory.model.UserStoryElementType;
 import com.bravvura.nestledtime.userstory.model.UserStoryMediaModel;
-import com.bravvura.nestledtime.userstory.ui.activity.GoogleMapActivity;
-import com.bravvura.nestledtime.userstory.ui.activity.UserStoryMediaListActivity;
-import com.bravvura.nestledtime.userstory.ui.activity.UserStoryMediaPagerActivity;
 import com.bravvura.nestledtime.utils.CloudinaryManager;
 import com.bravvura.nestledtime.utils.Constants;
 import com.bravvura.nestledtime.utils.FRAGMENTS;

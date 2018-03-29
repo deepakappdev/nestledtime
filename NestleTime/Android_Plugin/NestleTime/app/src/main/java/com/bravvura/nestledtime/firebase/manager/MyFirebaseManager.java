@@ -28,7 +28,7 @@ import java.util.Map;
  */
 
 public class MyFirebaseManager {
-    public static String userId = "WmkK3ghLgIPrzyv4dyjnbODFcQN2";
+    public static String userId = "4S8qctFLhqUwjQCfCLp0Dv4S8kW2";
 
     public static void initFireBaseManager(Context context) {
         FirebaseApp.initializeApp(context);

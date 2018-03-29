@@ -63,6 +63,8 @@ dependencies {
     implementation 'com.cloudinary:cloudinary-android:1.20.0'
     implementation 'com.github.bumptech.glide:glide:3.8.0'
     implementation project(':videocompress')
+    implementation project(':CordovaLib')
+
 //    implementation project(path: ':imageedittor')
 }
 apply plugin: 'com.google.gms.google-services'

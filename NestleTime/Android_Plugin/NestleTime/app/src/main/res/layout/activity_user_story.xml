@@ -7,7 +7,7 @@
     android:layout_height="match_parent"
     android:background="@color/white"
     android:orientation="vertical"
-    tools:context="com.bravvura.nestledtime.MemoryDetailActivity">
+    tools:context="com.bravvura.nestledtime.userstory.ui.activity.MemoryDetailActivity">
 
     <LinearLayout
         android:layout_width="match_parent"

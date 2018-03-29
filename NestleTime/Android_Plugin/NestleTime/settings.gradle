@@ -1,1 +1,1 @@
-include ':videocompress', ':app', ':imageedittor'
+include ':videocompress', ':app', ':imageedittor', ':CordovaLib'

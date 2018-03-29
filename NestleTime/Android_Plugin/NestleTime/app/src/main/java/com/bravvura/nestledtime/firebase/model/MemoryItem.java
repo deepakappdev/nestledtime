@@ -96,8 +96,10 @@ public class MemoryItem implements Parcelable {
         memoryItem.createdByName = objectMap.get("createdByName").toString();
         memoryItem.createdByUserId = objectMap.get("createdByUserId").toString();
         memoryItem.createdOn = objectMap.get("createdOn").toString();
-        memoryItem.doe = objectMap.get("doe").toString();
-        memoryItem.isDraft = (boolean) objectMap.get("isDraft");
+        if(objectMap.get("doe")!=null)
+            memoryItem.doe = objectMap.get("doe").toString();
+        if(objectMap.get("isDraft")!=null)
+            memoryItem.isDraft = (boolean) objectMap.get("isDraft");
         memoryItem.isPublished = (boolean) objectMap.get("isPublished");
         memoryItem.modifiedByName = objectMap.get("modifiedByName").toString();
         memoryItem.modifiedByUserId = objectMap.get("modifiedByUserId").toString();

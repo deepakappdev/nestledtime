@@ -14,7 +14,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.bravvura.nestledtime.MemoryDetailActivity;
+import com.bravvura.nestledtime.userstory.ui.activity.MemoryDetailActivity;
 import com.bravvura.nestledtime.R;
 import com.bravvura.nestledtime.firebase.OnValueEventListener;
 import com.bravvura.nestledtime.firebase.manager.MyFirebaseManager;

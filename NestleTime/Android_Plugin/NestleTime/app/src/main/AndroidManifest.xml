@@ -28,95 +28,106 @@
             android:value="@string/google_maps_key" />
 
 
-        <activity
-            android:name="com.bravvura.nestledtime.MemoryDetailActivity"
-            android:screenOrientation="portrait">
+            <activity
+                android:name="com.bravvura.nestledtime.userstory.ui.activity.MemoryDetailActivity"
+                android:screenOrientation="portrait">
 
 
 
-        </activity>
-        <!--<activity-->
-        <!--android:name="com.bravvura.nestledtime.imageedittor.main.activity.EditPhotoActivity"-->
-        <!--android:screenOrientation="portrait" />-->
-        <activity
-            android:name="com.bravvura.nestledtime.mediagallery.ui.MediaGalleryActivity"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name="com.bravvura.nestledtime.userstory.ui.activity.GoogleMapActivity"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name="com.bravvura.nestledtime.mediagallery.ui.LocalMediaAlbumActivity"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name="com.bravvura.nestledtime.userstory.ui.activity.UserStoryMediaListActivity"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name="com.bravvura.nestledtime.userstory.ui.activity.UserStoryMediaPagerActivity"
-            android:configChanges="keyboardHidden|orientation|screenSize">
+            </activity>
+            <!--<activity-->
+            <!--android:name="com.bravvura.nestledtime.imageedittor.main.activity.EditPhotoActivity"-->
+            <!--android:screenOrientation="portrait" />-->
+            <activity
+                android:name="com.bravvura.nestledtime.mediagallery.ui.MediaGalleryActivity"
+                android:screenOrientation="portrait" />
+            <activity
+                android:name="com.bravvura.nestledtime.userstory.ui.activity.GoogleMapActivity"
+                android:screenOrientation="portrait" />
+            <activity
+                android:name="com.bravvura.nestledtime.mediagallery.ui.LocalMediaAlbumActivity"
+                android:screenOrientation="portrait" />
+            <activity
+                android:name="com.bravvura.nestledtime.userstory.ui.activity.UserStoryMediaListActivity"
+                android:screenOrientation="portrait" />
+            <activity
+                android:name="com.bravvura.nestledtime.userstory.ui.activity.UserStoryMediaPagerActivity"
+                android:configChanges="keyboardHidden|orientation|screenSize">
 
-        </activity>
+            </activity>
 
-        <service android:name="com.bravvura.nestledtime.network.UploadListner" />
+            <service android:name="com.bravvura.nestledtime.network.UploadListner" />
 
-        <meta-data
-            android:name="cloudinaryCallbackService"
-            android:value="com.bravvura.nestledtime.network.UploadListner" />
-
-        <meta-data
-            android:name="com.google.android.geo.API_KEY"
-            android:value="@string/google_maps_key" />
-
-        <activity
-            android:name="com.bravvura.nestledtime.mediagallery.ui.FacebookMediaAlbumActivity"
-            android:screenOrientation="portrait" />
-
-        <activity
-            android:name="com.bravvura.nestledtime.mediagallery.ui.InstagramMediaAlbumActivity"
-            android:screenOrientation="portrait" />
-
-        <activity
-            android:name="com.bravvura.nestledtime.worlds.ui.activity.MyWorldsActivity"
-            android:screenOrientation="portrait">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
-
-        <activity
-            android:name="com.bravvura.nestledtime.worlds.ui.activity.WorldDetailActivity"
-            android:screenOrientation="portrait" />
-
-        <provider
-            android:name="android.support.v4.content.FileProvider"
-            android:authorities="com.bravvura.nestledtime.provider"
-            android:exported="false"
-            android:grantUriPermissions="true">
             <meta-data
-                android:name="android.support.FILE_PROVIDER_PATHS"
-                android:resource="@xml/provider_paths" />
-        </provider>
+                android:name="cloudinaryCallbackService"
+                android:value="com.bravvura.nestledtime.network.UploadListner" />
+
+            <meta-data
+                android:name="com.google.android.geo.API_KEY"
+                android:value="@string/google_maps_key" />
+
+            <activity
+                android:name="com.bravvura.nestledtime.mediagallery.ui.FacebookMediaAlbumActivity"
+                android:screenOrientation="portrait" />
+
+            <activity
+                android:name="com.bravvura.nestledtime.mediagallery.ui.InstagramMediaAlbumActivity"
+                android:screenOrientation="portrait" />
+
+            <activity
+                android:name="com.bravvura.nestledtime.worlds.ui.activity.MyWorldsActivity"
+                android:screenOrientation="portrait">
+                <intent-filter>
+                    <action android:name="android.intent.action.MAIN" />
+                    <category android:name="android.intent.category.LAUNCHER" />
+                </intent-filter>
+            </activity>
+
+            <activity
+                android:name="com.bravvura.nestledtime.MainActivity"
+                android:screenOrientation="portrait">
+                <!--<intent-filter>-->
+                    <!--<action android:name="android.intent.action.MAIN" />-->
+                    <!--<category android:name="android.intent.category.LAUNCHER" />-->
+                <!--</intent-filter>-->
+            </activity>
 
 
-        <service
-            android:name="com.bravvura.nestledtime.application.gcm.GcmIntentService"
-            android:exported="false">
-            <intent-filter>
-                <action android:name="com.google.android.c2dm.intent.RECEIVE" />
-            </intent-filter>
-        </service>
 
-        <service
-            android:name="com.bravvura.nestledtime.application.gcm.GcmIDListenerService"
-            android:exported="false">
-            <intent-filter>
-                <action android:name="com.google.android.gms.iid.InstanceID" />
-            </intent-filter>
-        </service>
+            <activity
+                android:name="com.bravvura.nestledtime.worlds.ui.activity.WorldDetailActivity"
+                android:screenOrientation="portrait" />
 
-        <service
-            android:name="com.bravvura.nestledtime.application.gcm.RegistrationIntentService"
-            android:exported="false" />
+            <provider
+                android:name="android.support.v4.content.FileProvider"
+                android:authorities="com.bravvura.nestledtime.provider"
+                android:exported="false"
+                android:grantUriPermissions="true">
+                <meta-data
+                    android:name="android.support.FILE_PROVIDER_PATHS"
+                    android:resource="@xml/provider_paths" />
+            </provider>
+
+
+            <service
+                android:name="com.bravvura.nestledtime.application.gcm.GcmIntentService"
+                android:exported="false">
+                <intent-filter>
+                    <action android:name="com.google.android.c2dm.intent.RECEIVE" />
+                </intent-filter>
+            </service>
+
+            <service
+                android:name="com.bravvura.nestledtime.application.gcm.GcmIDListenerService"
+                android:exported="false">
+                <intent-filter>
+                    <action android:name="com.google.android.gms.iid.InstanceID" />
+                </intent-filter>
+            </service>
+
+            <service
+                android:name="com.bravvura.nestledtime.application.gcm.RegistrationIntentService"
+                android:exported="false" />
 
 
     </application>
